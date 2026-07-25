@@ -30,7 +30,7 @@ CATEGORY_MAPPING = {
         "personal history",
         "personal relationships",
         "sentience",
-        "first-person pronoun use",
+        "personal pronoun use", # it was "first-person prounoun use",
     ],
     "physical embodiment": [
         "physical embodiment",
