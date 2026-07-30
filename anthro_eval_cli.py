@@ -35,20 +35,40 @@ def sanitize_model_name(model_name: str) -> str:
     """Removes characters problematic for filenames/column names."""
     return re.sub(r"[^a-zA-Z0-9_.-]", "_", model_name)
 
+### EDIT FROM HERE ###
+
+def _reasoning_effort_from_args(args):
+    if args.reasoning_mode == "off":
+        return "none"
+    if args.reasoning_effort:
+        return args.reasoning_effort
+    if args.reasoning_mode == "on":
+        return "medium"  # OpenRouter default when reasoning is enabled
+    return None
+    
+### EDITING END ###
 
 def generate_dialogues_command(args):
     print("Starting dialogue generation...")
     print(f"Configuration: {args}")
     print("-" * 30)
 
+    ### EDIT START ###
+    
+    reasoning_effort = _reasoning_effort_from_args(args)
+    
+    ### EDIT ENDED ###
+    
     # prepare LLM configurations
     user_llm_config = {
         "model": args.user_llm_model,
         "temperature": args.user_llm_temperature,
+        "reasoning_effort": reasoning_effort, ### EDITED
     }
     target_llm_config = {
         "model": args.target_llm_model,
         "temperature": args.target_llm_temperature,
+        "reasoning_effort": reasoning_effort, ### EDITED
     }
 
     # handle system prompts
@@ -148,6 +168,9 @@ def rate_dialogues_command(args):
     Command handler for the 'rate' subcommand.
     Maps CLI args to library function parameters.
     """
+
+    reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
+    
     try:
         cues_to_rate_arg = (
             args.behaviors_to_rate
@@ -161,6 +184,7 @@ def rate_dialogues_command(args):
             classifier_temperature=args.classifier_temperature,
             num_samples=args.num_samples,
             output_rated_csv=getattr(args, "output_rated_csv", None),
+            classifier_reasoning_effort=reasoning_effort, ### EDITED
             verbose=True,
         )
         if not output_path:
@@ -270,6 +294,23 @@ def _parse_flags(_):
         help="Custom system prompt for Target LLM (string or path to .txt file).",
     )
 
+    ### START EDITING ###
+    
+    reasoning_group = gen_parser.add_argument_group("Reasoning options")
+    reasoning_group.add_argument(
+    "--reasoning-mode",
+    choices=["default", "on", "off"],
+    default="default",
+    help="Default = let the provider decide; on = enable reasoning; off = disable reasoning.",
+    )
+    reasoning_group.add_argument(
+    "--reasoning-effort",
+    choices=["minimal", "low", "medium", "high", "xhigh", "max"],
+    help="Optional effort level when reasoning is on.",
+    )
+
+    ### EDIT ENDED ###
+
     gen_control_group = gen_parser.add_argument_group("Generation control options")
     gen_control_group.add_argument(
         "--num-dialogues",
@@ -323,6 +364,23 @@ def _parse_flags(_):
         default=0.7,
         help="Temperature for the classifier LLM(s).",
     )
+
+    ### EDITING START HERE ###
+    
+    reasoning_group = gen_parser.add_argument_group("Reasoning options")
+    reasoning_group.add_argument(
+    "--reasoning-mode",
+    choices=["default", "on", "off"],
+    default="default",
+    help="Default = let the provider decide; on = enable reasoning; off = disable reasoning.",
+    )
+    reasoning_group.add_argument(
+    "--reasoning-effort",
+    choices=["minimal", "low", "medium", "high", "xhigh", "max"],
+    help="Optional effort level when reasoning is on.",
+    )
+
+    ### EDIT ENDED ###
 
     rate_config_group = rate_parser.add_argument_group("Rating Configuration")
     rate_config_group.add_argument(
