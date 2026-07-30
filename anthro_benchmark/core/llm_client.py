@@ -17,14 +17,16 @@ LLM client initialization and management for dialogue generation.
 """
 
 import dataclasses
-
+from typing import Any, Optional
 
 @dataclasses.dataclass
 class LLMClient:
-    """Base class for LLM clients."""
-
+    class LLMClient:
     model: str
     temperature: float = 0.7
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+    reasoning_effort: Optional[str] = None  # off => "none", on => "medium"/"high"/etc
 
     def generate(self, messages: list) -> str:
         """
@@ -39,6 +41,24 @@ class LLMClient:
         """
         import litellm
 
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": self.temperature,
+        }
+        if self.api_key:
+            kwargs["api_key"] = self.api_key
+        if self.base_url:
+            kwargs["base_url"] = self.base_url
+        if self.reasoning_effort is not None:
+            kwargs["reasoning_effort"] = self.reasoning_effort
+
+        response = litellm.completion(**kwargs)
+        return response.choices[0].message.content
+
+ 
+""" 
+### ORIGINAL SCRIPT ###
         response = litellm.completion(
             model=self.model,
             messages=messages,
@@ -46,3 +66,4 @@ class LLMClient:
         )
         response_text = response.choices[0].message.content
         return response_text
+"""
