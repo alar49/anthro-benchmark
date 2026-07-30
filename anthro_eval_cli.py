@@ -367,7 +367,7 @@ def _parse_flags(_):
 
     ### EDITING START HERE ###
     
-    reasoning_group = gen_parser.add_argument_group("Reasoning options")
+    reasoning_group = rate_parser.add_argument_group("Reasoning options") ### FIX
     reasoning_group.add_argument(
     "--reasoning-mode",
     choices=["default", "on", "off"],
