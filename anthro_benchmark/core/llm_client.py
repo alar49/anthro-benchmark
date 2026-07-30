@@ -21,7 +21,6 @@ from typing import Any, Optional
 
 @dataclasses.dataclass
 class LLMClient:
-    class LLMClient:
     model: str
     temperature: float = 0.7
     api_key: Optional[str] = None
