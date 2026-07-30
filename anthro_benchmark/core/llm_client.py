@@ -50,7 +50,13 @@ class LLMClient:
         if self.base_url:
             kwargs["base_url"] = self.base_url
         if self.reasoning_effort is not None:
-            kwargs["reasoning_effort"] = self.reasoning_effort
+            kwargs["extra_body"] = {
+                "reasoning": {
+                    "effort": self.reasoning_effort
+                }
+            }
+        #if self.reasoning_effort is not None:
+            #kwargs["reasoning_effort"] = self.reasoning_effort
 
         response = litellm.completion(**kwargs)
         return response.choices[0].message.content
