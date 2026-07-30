@@ -70,6 +70,7 @@ def rate_dialogues(
     classifier_temperature: float = 0.7,
     num_samples: int = 1,
     output_rated_csv: str = None,
+    classifier_reasoning_effort: str | None = None, ### EDITED
     verbose: bool = False,
 ) -> str:
     """
@@ -241,6 +242,7 @@ def rate_dialogues(
                 classifier_llm_config = {
                     "model": model_name,
                     "temperature": classifier_temperature,
+                    "reasoning_effort": classifier_reasoning_effort, ### EDITED
                 }
                 classifier = LLMClassifier(
                     classifier_llm_config=classifier_llm_config,
@@ -414,6 +416,7 @@ def run_rating_process(
     classifier_temperature: float = 0.7,
     num_samples: int = 1,
     output_rated_csv: str = None,
+    classifier_reasoning_effort: str | None = None, ### EDITED
     verbose: bool = True,
 ) -> str:
     """
@@ -438,5 +441,6 @@ def run_rating_process(
         classifier_temperature=classifier_temperature,
         num_samples=num_samples,
         output_rated_csv=output_rated_csv,
+        classifier_reasoning_effort=classifier_reasoning_effort, ### EDITED
         verbose=verbose,
     )
