@@ -67,7 +67,7 @@ def rate_dialogues(
     dialogues_csv_path: str,
     cues_to_rate: list[str],
     classifier_models: list[str],
-    classifier_temperature: float = 0.7,
+    classifier_temperature: float = 0.0,
     num_samples: int = 1,
     output_rated_csv: str = None,
     # --- EDITED ---
@@ -426,7 +426,7 @@ def run_rating_process(
     dialogues_csv_path: str,
     cues_to_rate: list[str] = None,
     classifier_models: list[str] = None,
-    classifier_temperature: float = 0.7,
+    classifier_temperature: float = 0.0,
     num_samples: int = 1,
     output_rated_csv: str = None,
     # --- EDITED ---
