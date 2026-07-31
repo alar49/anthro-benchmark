@@ -20,6 +20,7 @@ Alternative Gem_version
 
 import dataclasses
 import os
+from typing import Optional
 from openai import OpenAI
 
 
@@ -29,6 +30,9 @@ class LLMClient:
 
     model: str
     temperature: float = 0.7
+    # --- NEW: Explicitly define fields so __init__ doesn't crash ---
+    reasoning_mode: bool = False
+    reasoning_effort: Optional[str] = None
 
     def generate(self, messages: list, **kwargs) -> str:
         """
@@ -43,28 +47,24 @@ class LLMClient:
         """
         # Route OpenRouter models through the official OpenAI client
         if self.model.startswith("openrouter/"):
-            # Strip the prefix to get the exact Model ID (e.g., google/gemma-4-31b-it:free)
+            # Strip the prefix to get the exact Model ID
             actual_model = self.model.replace("openrouter/", "")
             
-            # Point the standard OpenAI client to OpenRouter
             client = OpenAI(
                 base_url="https://openrouter.ai/api/v1",
                 api_key=os.environ.get("OPENROUTER_API_KEY")
             )
             
-            # Extract our custom effort flags from kwargs (if passed down)
-            reasoning_mode = kwargs.pop("reasoning-mode", "off")
-            reasoning_effort = kwargs.pop("reasoning-effort", None)
+            extra_body = kwargs.pop("extra_body", {})
             
-            extra_body = {}
-            
-            if reasoning_mode == "on":
-                # OpenRouter standard for exposing reasoning tokens in the response
-                extra_body["include-reasoning"] = True
+            # Use instance variables (self) instead of popping kwargs
+            if self.reasoning_mode:
+                # OpenRouter standard for exposing reasoning tokens uses an underscore
+                extra_body["include_reasoning"] = True
                 
-            if reasoning_effort:
-                # Standard OpenAI-compatible param for o-series and similar effort-based models
-                kwargs["reasoning-effort"] = reasoning_effort
+            if self.reasoning_effort:
+                # Standard OpenAI-compatible param uses an underscore
+                kwargs["reasoning_effort"] = self.reasoning_effort
                 
             if extra_body:
                 kwargs["extra_body"] = extra_body
@@ -83,6 +83,10 @@ class LLMClient:
         # Fallback to litellm for all other providers
         else:
             import litellm
+            
+            # Pass reasoning effort to litellm if it's set
+            if self.reasoning_effort:
+                kwargs["reasoning_effort"] = self.reasoning_effort
 
             response = litellm.completion(
                 model=self.model,
@@ -90,4 +94,15 @@ class LLMClient:
                 temperature=self.temperature,
                 **kwargs
             )
-            return response.choices[0].message.content
+            #return response.choices[0].message.content #changing return to...
+
+            message = response.choices[0].message
+            content = message.content
+            
+            # If you want to append the reasoning to the content:
+            if self.reasoning_mode and hasattr(message, "model_extra") and message.model_extra:
+                reasoning = message.model_extra.get("reasoning")
+                if reasoning:
+                    return f"<think>\n{reasoning}\n</think>\n\n{content}"
+                    
+            return content
