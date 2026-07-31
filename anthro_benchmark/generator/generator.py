@@ -68,6 +68,8 @@ class DialogueGenerator:
         target_system_prompt: Optional[str] = None,
         num_turns: int = 5,
         num_dialogues: int = 10,
+        reasoning_mode: bool = False, # EDITED
+        reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
         prompt_category_names: Optional[List[str]] = None,
         custom_prompt_csv: str = None,
         use_all_variants_of_original_prompt: bool = True,  # if False, deduplicates by 'original_prompt' column
@@ -94,6 +96,18 @@ class DialogueGenerator:
         self.cues = cues or []
         self.user_llm_config = user_llm_config or {"model": "default_user_model"}
         self.target_llm_config = target_llm_config or {"model": "default_target_model"}
+
+
+        # --- NEW LOGIC: Inject reasoning into target config ---
+        self.reasoning_mode = reasoning_mode
+        self.reasoning_effort = reasoning_effort
+        
+        if self.reasoning_mode:
+            self.target_llm_config["reasoning_mode"] = True
+            self.target_llm_config["reasoning_effort"] = self.reasoning_effort
+        # ------------------------------------------------------
+
+        
         self.user_system_prompt_template = user_system_prompt
         self.target_system_prompt_base = (
             target_system_prompt
@@ -101,6 +115,7 @@ class DialogueGenerator:
         )
         self.num_turns = num_turns
         self.num_dialogues = num_dialogues
+        
         self.prompt_category_names = prompt_category_names or []
         self.custom_prompt_csv = custom_prompt_csv
         self.use_all_variants_of_original_prompt = use_all_variants_of_original_prompt
@@ -297,6 +312,10 @@ class DialogueGenerator:
                 ),  # Original scenario text
                 "user_llm": self.user_llm_config.get("model", "unknown"),
                 "target_llm": self.target_llm_config.get("model", "unknown"),
+                # --- NEW METADATA ---
+                "reasoning_mode": self.reasoning_mode,
+                "reasoning_effort": self.reasoning_effort if self.reasoning_mode else "none",
+                # --------------------
                 "user_system_prompt_template": self.user_system_prompt_template,
                 "formatted_user_system_prompt": formatted_user_llm_system_prompt,
                 "target_system_prompt": effective_target_system_prompt,
@@ -467,6 +486,10 @@ class DialogueGenerator:
                     "prompt_use_scenario": meta.get("prompt_use_scenario"),
                     "user_llm": meta.get("user_llm"),
                     "target_llm": meta.get("target_llm"),
+                    # --- NEW COLUMNS ---
+                    "reasoning_mode": meta.get("reasoning_mode"),
+                    "reasoning_effort": meta.get("reasoning_effort"),
+                    # -------------------
                     "turn_pair_index": i // 2,
                     "user_message": user_message,
                     "assistant_message": assistant_message,
@@ -492,6 +515,8 @@ class DialogueGenerator:
                 "prompt_use_scenario",
                 "user_llm",
                 "target_llm",
+                "reasoning_mode",    # Added here
+                "reasoning_effort",  # Added here
                 "user_message",
                 "assistant_message",
                 "dialogue_status",
