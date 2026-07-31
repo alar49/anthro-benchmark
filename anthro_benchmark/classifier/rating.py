@@ -70,7 +70,10 @@ def rate_dialogues(
     classifier_temperature: float = 0.7,
     num_samples: int = 1,
     output_rated_csv: str = None,
-    classifier_reasoning_effort: str | None = None, ### EDITED
+    # --- EDITED ---
+    classifier_reasoning_mode: bool = False, 
+    classifier_reasoning_effort: str | None = None,
+    # --------------
     verbose: bool = False,
 ) -> str:
     """
@@ -239,10 +242,20 @@ def rate_dialogues(
                         f"  Rating with model: '{model_name}' ({sanitized_model_name}) with {num_samples} sample(s)..."
                     )
 
+                ### EDITING --> temperature == 0 for rating ###
+                # Overcome API restrictions: reasoning models usually reject manual temperatures
+                safe_temperature = (
+                    0.0 if classifier_reasoning_mode or classifier_reasoning_effort 
+                    else classifier_temperature
+                )
+
                 classifier_llm_config = {
                     "model": model_name,
-                    "temperature": classifier_temperature,
-                    "reasoning_effort": classifier_reasoning_effort, ### EDITED
+                    "temperature": safe_temperature,
+                    # --- EDITED ---
+                    "reasoning_mode": classifier_reasoning_mode,
+                    "reasoning_effort": classifier_reasoning_effort,
+                    # --------------
                 }
                 classifier = LLMClassifier(
                     classifier_llm_config=classifier_llm_config,
@@ -416,7 +429,10 @@ def run_rating_process(
     classifier_temperature: float = 0.7,
     num_samples: int = 1,
     output_rated_csv: str = None,
-    classifier_reasoning_effort: str | None = None, ### EDITED
+    # --- EDITED ---
+    classifier_reasoning_mode: bool = False, 
+    classifier_reasoning_effort: str | None = None,
+    # --------------
     verbose: bool = True,
 ) -> str:
     """
@@ -441,6 +457,9 @@ def run_rating_process(
         classifier_temperature=classifier_temperature,
         num_samples=num_samples,
         output_rated_csv=output_rated_csv,
-        classifier_reasoning_effort=classifier_reasoning_effort, ### EDITED
+        # --- EDITED ---
+        classifier_reasoning_mode=classifier_reasoning_mode, 
+        classifier_reasoning_effort=classifier_reasoning_effort,
+        # --------------
         verbose=verbose,
     )
