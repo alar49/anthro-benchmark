@@ -28,6 +28,7 @@ from anthro_benchmark.generator import (
     DEFAULT_USER_SYSTEM_PROMPT,
 )
 from anthro_benchmark.classifier import run_rating_process
+from anthro_benchmark.core.llm_client import BudgetGuard, estimate_cost_from_usage
 
 
 # helper function for file/column name sanitation
@@ -37,14 +38,50 @@ def sanitize_model_name(model_name: str) -> str:
 
 ### EDIT FROM HERE ###
 
+# replace the helper block
 def _reasoning_effort_from_args(args):
     if args.reasoning_mode == "off":
-        return "none"
+        return None
     if args.reasoning_effort:
         return args.reasoning_effort
     if args.reasoning_mode == "on":
         return "medium"  # OpenRouter default when reasoning is enabled
     return None
+
+
+def _build_budget_guard(args, session_id: str):
+    max_iterations = getattr(args, "max_iterations", None)
+    max_budget_per_session = getattr(args, "max_budget_per_session", None)
+
+    if max_iterations is None and max_budget_per_session is None:
+        return None
+
+    if max_iterations is None:
+        raise ValueError("--max-iterations is required when using budget controls.")
+
+    cost_estimator = None
+    if max_budget_per_session is not None:
+        input_cost = getattr(args, "input_cost_per_1m_tokens", None)
+        output_cost = getattr(args, "output_cost_per_1m_tokens", None)
+        if input_cost is None or output_cost is None:
+            raise ValueError(
+                "--max-budget-per-session requires "
+                "--input-cost-per-1m-tokens and --output-cost-per-1m-tokens."
+            )
+
+        def cost_estimator(response):
+            return estimate_cost_from_usage(
+                response,
+                input_cost_per_1m_tokens=input_cost,
+                output_cost_per_1m_tokens=output_cost,
+            )
+
+    return BudgetGuard(
+        session_id=session_id,
+        max_iterations=max_iterations,
+        max_budget_per_session=max_budget_per_session,
+        cost_estimator=cost_estimator,
+    )
     
 ### EDITING END ###
 
@@ -56,20 +93,48 @@ def generate_dialogues_command(args):
     ### EDIT START ###
     
     reasoning_effort = _reasoning_effort_from_args(args)
+    reasoning_mode = reasoning_effort is not None
+
+    shared_temperature = getattr(args, "temperature", None)
+    user_temperature = (
+        shared_temperature
+        if shared_temperature is not None
+        else args.user_llm_temperature
+    )
+    target_temperature = (
+        shared_temperature
+        if shared_temperature is not None
+        else args.target_llm_temperature
+    )
     
-    ### EDIT ENDED ###
+    budget_session_id = (
+        getattr(args, "budget_session_id", None)
+        or f"{sanitize_model_name(args.target_llm_model)}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    )
+    budget_guard = _build_budget_guard(args, session_id=budget_session_id)
+    
     
     # prepare LLM configurations
     user_llm_config = {
         "model": args.user_llm_model,
-        "temperature": args.user_llm_temperature,
-        "reasoning_effort": reasoning_effort, ### EDITED
+        "temperature": user_temperature,
+        "max_retries": args.max_retries,
+        "initial_backoff": args.initial_backoff,
+        "max_backoff": args.max_backoff,
     }
     target_llm_config = {
         "model": args.target_llm_model,
-        "temperature": args.target_llm_temperature,
-        "reasoning_effort": reasoning_effort, ### EDITED
+        "temperature": target_temperature,
+        "max_retries": args.max_retries,
+        "initial_backoff": args.initial_backoff,
+        "max_backoff": args.max_backoff,
     }
+    
+    if budget_guard is not None:
+        user_llm_config["budget_guard"] = budget_guard
+        target_llm_config["budget_guard"] = budget_guard
+        
+####### EDIT FINISH HERE #######
 
     # handle system prompts
     user_system_prompt = args.user_system_prompt
@@ -123,6 +188,8 @@ def generate_dialogues_command(args):
             target_system_prompt=target_system_prompt,
             num_turns=args.num_turns,
             num_dialogues=args.num_dialogues,
+            reasoning_mode=reasoning_mode,
+            reasoning_effort=reasoning_effort,
             prompt_category_names=args.prompt_category_name,
             custom_prompt_csv=args.custom_prompt_csv,
             use_all_variants_of_original_prompt=not args.deduplicate_original_prompts,
@@ -293,6 +360,70 @@ def _parse_flags(_):
         default="You are a helpful chatbot. Every one of your outputs should be a single message in a conversation.",
         help="Custom system prompt for Target LLM (string or path to .txt file).",
     )
+
+
+    ### EDITING ###
+
+    # add these arguments to the generate subcommand's llm_group
+    llm_group.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Shared temperature for both user and target LLMs. If set, overrides the per-model temperature flags.",
+    )
+    llm_group.add_argument(
+        "--max-retries",
+        type=int,
+        default=5,
+        help="Maximum transient retry attempts per LLM call.",
+    )
+    llm_group.add_argument(
+        "--initial-backoff",
+        type=float,
+        default=2.0,
+        help="Initial retry backoff in seconds.",
+    )
+    llm_group.add_argument(
+        "--max-backoff",
+        type=float,
+        default=60.0,
+        help="Maximum retry backoff in seconds.",
+    )
+
+    # add a new budget group inside generate, after the reasoning group or after llm_group
+    budget_group = gen_parser.add_argument_group("Budget options")
+    budget_group.add_argument(
+        "--budget-session-id",
+        type=str,
+        default=None,
+        help="Optional session ID for budget tracking.",
+    )
+    budget_group.add_argument(
+        "--max-iterations",
+        type=int,
+        default=None,
+        help="Hard cap on total LLM calls for the run.",
+    )
+    budget_group.add_argument(
+        "--max-budget-per-session",
+        type=float,
+        default=None,
+        help="Hard cap on estimated spend for the run.",
+    )
+    budget_group.add_argument(
+        "--input-cost-per-1m-tokens",
+        type=float,
+        default=None,
+        help="Prompt-token price used for budget estimation.",
+    )
+    budget_group.add_argument(
+        "--output-cost-per-1m-tokens",
+        type=float,
+        default=None,
+        help="Completion-token price used for budget estimation.",
+    )
+
+    ### EDITING ENDED ###
 
     ### START EDITING ###
     
