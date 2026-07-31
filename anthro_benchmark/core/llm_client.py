@@ -118,16 +118,28 @@ import time
 from typing import Any, Callable, Dict, List, Optional
 
 import litellm
-from litellm import (
-    APIConnectionError,
-    APIError,
-    APITimeoutError,
-    AuthenticationError,
-    BadRequestError,
-    InternalServerError,
-    PermissionDeniedError,
-    RateLimitError,
-)
+try:
+    from litellm import (
+        APIConnectionError,
+        APIError,
+        APITimeoutError,
+        AuthenticationError,
+        BadRequestError,
+        InternalServerError,
+        PermissionDeniedError,
+        RateLimitError,
+    )
+except ImportError:
+    from litellm import (
+        APIConnectionError,
+        APIError,
+        AuthenticationError,
+        BadRequestError,
+        InternalServerError,
+        PermissionDeniedError,
+        RateLimitError,
+    )
+    from openai import APITimeoutError
 
 logger = logging.getLogger(__name__)
 
