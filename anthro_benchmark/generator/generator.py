@@ -22,7 +22,7 @@ import pandas as pd
 from tqdm import tqdm
 
 
-from anthro_benchmark.core.llm_client import LLMClient
+from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard
 from anthro_benchmark.core.roles import Role
 
 
@@ -68,6 +68,8 @@ class DialogueGenerator:
         target_system_prompt: Optional[str] = None,
         num_turns: int = 5,
         num_dialogues: int = 10,
+        temperature: Optional[float] = None,
+        budget_guard: Optional[BudgetGuard] = None,
         reasoning_mode: bool = False, # EDITED
         reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
         prompt_category_names: Optional[List[str]] = None,
@@ -97,7 +99,19 @@ class DialogueGenerator:
         self.user_llm_config = user_llm_config or {"model": "default_user_model"}
         self.target_llm_config = target_llm_config or {"model": "default_target_model"}
 
+        ### EDITING ###
+        self.temperature = temperature
+        # Make temperature explicit at the generator level, but do not overwrite
+        # a value already present in the passed-in config dicts.
+        if self.temperature is not None:
+            self.user_llm_config.setdefault("temperature", self.temperature)
+            self.target_llm_config.setdefault("temperature", self.temperature)
 
+        self.budget_guard = budget_guard
+        if self.budget_guard is not None:
+            self.user_llm_config.setdefault("budget_guard", self.budget_guard)
+            self.target_llm_config.setdefault("budget_guard", self.budget_guard)
+        
         # --- NEW LOGIC: Inject reasoning into target config ---
         self.reasoning_mode = reasoning_mode
         self.reasoning_effort = reasoning_effort
