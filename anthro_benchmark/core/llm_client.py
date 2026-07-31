@@ -370,7 +370,10 @@ class LLMClient:
             raise ValueError("max_backoff must be >= initial_backoff")
 
         if model.startswith("openrouter/"):
-            self.model = model[len("openrouter/") :]
+            #self.model = model[len("openrouter/") :] #OLD VERSION
+            # NEW VERSION = Keep the LiteLLM provider prefix intact.
+            self.model = model
+
             resolved_base_url = base_url or "https://openrouter.ai/api/v1"
             resolved_api_key = (
                 api_key
