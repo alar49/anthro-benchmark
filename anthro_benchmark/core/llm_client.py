@@ -53,18 +53,18 @@ class LLMClient:
             )
             
             # Extract our custom effort flags from kwargs (if passed down)
-            reasoning_mode = kwargs.pop("reasoning_mode", "off")
-            reasoning_effort = kwargs.pop("reasoning_effort", None)
+            reasoning-mode = kwargs.pop("reasoning-mode", "off")
+            reasoning-effort = kwargs.pop("reasoning-effort", None)
             
             extra_body = {}
             
-            if reasoning_mode == "on":
+            if reasoning-mode == "on":
                 # OpenRouter standard for exposing reasoning tokens in the response
-                extra_body["include_reasoning"] = True
+                extra_body["include-reasoning"] = True
                 
-            if reasoning_effort:
+            if reasoning-effort:
                 # Standard OpenAI-compatible param for o-series and similar effort-based models
-                kwargs["reasoning_effort"] = reasoning_effort
+                kwargs["reasoning-effort"] = reasoning-effort
                 
             if extra_body:
                 kwargs["extra_body"] = extra_body
