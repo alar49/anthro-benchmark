@@ -169,8 +169,11 @@ def generate_dialogues_command(args):
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    dpc_arg = getattr(args, "dialogues_per_condition", None)
+    dpc_str_part = f"_dpc{dpc_arg}" if dpc_arg is not None else ""
+
     dynamic_csv_filename = (
-        f"dialogues_{sanitized_target_model}_{categories_str_part}_{timestamp}.csv"
+        f"dialogues_{sanitized_target_model}_{categories_str_part}{dpc_str_part}_{timestamp}.csv"
     )
     print(f"Generated CSV filename: {dynamic_csv_filename}")
 
@@ -188,6 +191,7 @@ def generate_dialogues_command(args):
             target_system_prompt=target_system_prompt,
             num_turns=args.num_turns,
             num_dialogues=args.num_dialogues,
+            dialogues_per_condition=getattr(args, "dialogues_per_condition", None),
             reasoning_mode=reasoning_mode,
             reasoning_effort=reasoning_effort,
             prompt_category_names=args.prompt_category_name,
@@ -443,7 +447,8 @@ def _parse_flags(_):
     ### EDIT ENDED ###
 
     gen_control_group = gen_parser.add_argument_group("Generation control options")
-    gen_control_group.add_argument(
+    dialogue_count_group = gen_control_group.add_mutually_exclusive_group()
+    dialogue_count_group.add_argument(
         "--num-dialogues",
         type=int,
         default=None,
@@ -453,7 +458,25 @@ def _parse_flags(_):
             "actually loaded, after --prompt-category-name / --behaviors "
             "filtering and/or --custom-prompt-csv are applied). Set this "
             "explicitly to override, e.g. to replicate each prompt multiple "
-            "times or to cap a run short."
+            "times or to cap a run short. Mutually exclusive with "
+            "--dialogues-per-condition."
+        ),
+    )
+    dialogue_count_group.add_argument(
+        "--dialogues-per-condition",
+        type=int,
+        default=None,
+        help=(
+            "Generate exactly this many dialogues for EACH unique condition "
+            "(unique combination of use_domain/use_scenario/empathy/"
+            "professionalism/cue/behavior_category found in the loaded "
+            "prompt set), instead of a fixed total. Total dialogues produced "
+            "= dialogues_per_condition x (number of unique conditions found). "
+            "E.g. a 96-condition --custom-prompt-csv with "
+            "--dialogues-per-condition 2 produces 192 dialogues, 2 per "
+            "condition. Requires the loaded prompt set to have at least one "
+            "of those condition columns. Mutually exclusive with "
+            "--num-dialogues."
         ),
     )
     gen_control_group.add_argument(

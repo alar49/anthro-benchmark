@@ -7,7 +7,10 @@ change below was made -- nothing here is a stylistic preference, every
 change fixes a behavior that was verified to be broken or misleading.
 """
 
+import argparse
 import os
+import random
+
 import pandas as pd
 import numpy as np
 
@@ -15,8 +18,23 @@ import numpy as np
 # CONFIGURATION
 # ==============================================================================
 number_of_entries_per_combination: int = 2
-RANDOM_SEED: int = 42
 ALLOW_REPLACEMENT: bool = False
+
+# --- Seed handling ------------------------------------------------------------
+# A single hardcoded seed reused on every run (the old RANDOM_SEED = 42) is
+# reproducible but not actually random: it draws the exact same rows every
+# single time, forever, which defeats the point of sampling. What's used
+# below instead: a fresh seed is drawn at random each run (so repeated runs
+# give you genuinely different balanced samples to work with), and that seed
+# is both printed and embedded in the output filename (and saved as a column
+# in the output CSV) so any specific run can still be reproduced exactly on
+# demand, by passing that same seed back in via --seed.
+#
+# SEED_MIN/SEED_MAX only bound the *auto-drawn* seed (cosmetic: keeps the
+# "_seedXXX" filename suffix to 3 digits). An explicit --seed value is never
+# range-checked against these.
+SEED_MIN: int = 0
+SEED_MAX: int = 999
 
 # Path to the dataset. Defaults to the copy bundled inside the installed
 # anthro_benchmark package (anthro_benchmark/prompt_sets/first_turns.csv) --
@@ -48,6 +66,27 @@ CONDITION_COLUMNS = [
 ]
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Extract a randomized, stratified-balanced sample of first_turns.csv."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=(
+            f"Seed for this sampling run. If omitted (default), a new seed "
+            f"is drawn at random from [{SEED_MIN}, {SEED_MAX}], printed to "
+            "the console, embedded in the output filename as "
+            "'..._seedXXX.csv', and saved as a 'sampling_seed' column in "
+            "the output CSV -- so this exact run can be reproduced later by "
+            "passing --seed <that value>. Pass an explicit value here to "
+            "redo (reproduce) a specific past run."
+        ),
+    )
+    return parser.parse_args()
+
+
 def sample_one_group(group: pd.DataFrame, n_requested: int, allow_replacement: bool, seed: int) -> pd.DataFrame:
     """Sample n_requested rows from a single combination's rows.
 
@@ -67,7 +106,16 @@ def sample_one_group(group: pd.DataFrame, n_requested: int, allow_replacement: b
 
 
 def main():
-    print(f"Loading dataset from: {DATASET_PATH}")
+    args = parse_args()
+    if args.seed is not None:
+        seed = args.seed
+        print(f"Using seed {seed} (explicitly provided via --seed).")
+    else:
+        seed = random.randint(SEED_MIN, SEED_MAX)
+        print(f"Using seed {seed} (drawn at random from [{SEED_MIN}, {SEED_MAX}]).")
+    print(f"To reproduce this exact sample later, re-run with: --seed {seed}")
+
+    print(f"\nLoading dataset from: {DATASET_PATH}")
     df = pd.read_csv(DATASET_PATH)
 
     missing_cols = [col for col in CONDITION_COLUMNS if col not in df.columns]
@@ -119,7 +167,7 @@ def main():
         # (original_prompt), that collapse means only 2 of the 10
         # phrasings would ever appear in the sample, for every single
         # combination -- not what "randomized" is meant to deliver.
-        group_seed = RANDOM_SEED + group_position
+        group_seed = seed + group_position
         sampled_group = sample_one_group(
             group, number_of_entries_per_combination, ALLOW_REPLACEMENT, group_seed
         )
@@ -138,7 +186,7 @@ def main():
     # budget guard, crash, manual stop), only the first few combinations
     # would ever get generated, defeating the point of a *balanced*
     # sample for any partial run.
-    sampled_df = sampled_df.sample(frac=1.0, random_state=RANDOM_SEED).reset_index(drop=True)
+    sampled_df = sampled_df.sample(frac=1.0, random_state=seed).reset_index(drop=True)
 
     # --- Sanity check: verify the output actually has every condition
     # column before writing anything to disk. This is the exact
@@ -163,8 +211,17 @@ def main():
     n_short = (achieved_counts["achieved_count"] < number_of_entries_per_combination).sum()
     print(f"Combinations achieving the full requested count: {len(achieved_counts) - n_short} / {len(achieved_counts)}")
 
-    sampled_df.to_csv(OUTPUT_CSV_PATH, index=False)
-    print(f"Sampled dataset saved to: {OUTPUT_CSV_PATH}")
+    # Record the seed as a column too, not just in the filename -- filenames
+    # get renamed/copied and detached from the run that produced them; a
+    # column travels with the data no matter what the file is later called.
+    sampled_df["sampling_seed"] = seed
+
+    output_base, output_ext = os.path.splitext(OUTPUT_CSV_PATH)
+    output_path_with_seed = f"{output_base}_seed{seed:03d}{output_ext}"
+
+    sampled_df.to_csv(output_path_with_seed, index=False)
+    print(f"\nSampled dataset saved to: {output_path_with_seed}")
+    print(f"Seed used for this run: {seed}  (reproduce with: --seed {seed})")
     return sampled_df
 
 

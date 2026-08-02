@@ -68,6 +68,7 @@ class DialogueGenerator:
         target_system_prompt: Optional[str] = None,
         num_turns: int = 5,
         num_dialogues: Optional[int] = None,
+        dialogues_per_condition: Optional[int] = None,  # NEW
         temperature: Optional[float] = None,
         budget_guard: Optional[BudgetGuard] = None,
         reasoning_mode: bool = False, # EDITED
@@ -96,6 +97,24 @@ class DialogueGenerator:
                 custom_prompt_csv (e.g. a stratified sample) run as exactly
                 "one dialogue per row" without the caller needing to count
                 rows and pass a matching number explicitly.
+                Mutually exclusive with dialogues_per_condition -- passing
+                both raises a ValueError.
+            dialogues_per_condition: Alternative to num_dialogues. Instead of
+                specifying a total dialogue count, specify how many dialogues
+                to generate for EACH unique combination of condition columns
+                (use_domain, use_scenario, empathy, professionalism, cue,
+                category/behavior_category -- whichever of these are present
+                in the loaded prompts). num_dialogues is then computed as
+                dialogues_per_condition * (number of unique conditions found).
+                For example, a 96-condition custom_prompt_csv with
+                dialogues_per_condition=2 generates exactly 2 dialogues per
+                condition, 192 total -- regardless of whether that CSV has 1
+                or several prompt-variant rows per condition (rows are cycled
+                if there are fewer of them than dialogues_per_condition, and
+                a warning is printed when that happens). Requires the loaded
+                prompt data to contain at least one recognized condition
+                column; raises ValueError otherwise, and if both this and
+                num_dialogues are supplied.
             prompt_category_names: List of prompt category names (e.g., ["personhood", "physical_embodiment"]) to load from prompt csv.
             custom_prompt_csv: Path to custom CSV file to use for dialogue generation. Uses prompt_sets.csv if no CSV is specified.
             use_all_variants_of_original_prompt: If True, it uses all variants of the original prompt (i.e., all use domains and scenarios). If False, it deduplicates by 'original_prompt'.
@@ -146,7 +165,7 @@ class DialogueGenerator:
         self.dialogues = []
         self.prompts = self._load_prompts()
 
-        # --- num_dialogues resolution ---
+        # --- num_dialogues / dialogues_per_condition resolution ---
         # Resolved here, AFTER prompts are loaded, so that an unspecified
         # num_dialogues defaults to "one dialogue per loaded prompt" rather
         # than a fixed constant. This matters whenever the loaded prompt set
@@ -156,7 +175,59 @@ class DialogueGenerator:
         # would silently wrap around and repeat prompts to fill a stale
         # default count, burning API calls generating duplicate dialogues
         # instead of covering the intended set exactly once.
-        if num_dialogues is not None:
+        self.dialogues_per_condition = dialogues_per_condition
+        self._condition_columns: List[str] = []
+        self._condition_order: List[Any] = []
+        self._condition_rows: Dict[Any, List[Dict[str, Any]]] = {}
+
+        if dialogues_per_condition is not None and num_dialogues is not None:
+            raise ValueError(
+                "Pass either num_dialogues or dialogues_per_condition, not both "
+                f"(got num_dialogues={num_dialogues!r}, "
+                f"dialogues_per_condition={dialogues_per_condition!r})."
+            )
+
+        if dialogues_per_condition is not None:
+            if dialogues_per_condition <= 0:
+                raise ValueError(
+                    f"dialogues_per_condition must be a positive integer, got {dialogues_per_condition!r}."
+                )
+            (
+                self._condition_columns,
+                self._condition_order,
+                self._condition_rows,
+            ) = self._resolve_condition_groups(self.prompts)
+            self.num_dialogues = dialogues_per_condition * len(self._condition_order)
+
+            group_sizes = {len(rows) for rows in self._condition_rows.values()}
+            print(
+                f"dialogues_per_condition={dialogues_per_condition}: found "
+                f"{len(self._condition_order)} unique condition(s) over columns "
+                f"{self._condition_columns} -> generating {self.num_dialogues} "
+                "dialogues total."
+            )
+            if group_sizes != {dialogues_per_condition} and len(group_sizes) >= 1:
+                if len(group_sizes) > 1:
+                    print(
+                        f"Warning: conditions have uneven row counts {sorted(group_sizes)} "
+                        "in the loaded prompt data. Each condition still gets exactly "
+                        "dialogues_per_condition dialogues, but rows will be reused "
+                        "(cycled) for conditions that have fewer rows than "
+                        "dialogues_per_condition, or only partially used for "
+                        "conditions that have more."
+                    )
+                elif next(iter(group_sizes)) != dialogues_per_condition:
+                    print(
+                        f"Note: every condition has {next(iter(group_sizes))} row(s) "
+                        f"available, so with dialogues_per_condition={dialogues_per_condition} "
+                        "rows will be "
+                        + (
+                            "reused (cycled) to reach the requested count."
+                            if next(iter(group_sizes)) < dialogues_per_condition
+                            else "only partially used per condition."
+                        )
+                    )
+        elif num_dialogues is not None:
             self.num_dialogues = num_dialogues
         elif self.prompts:
             self.num_dialogues = len(self.prompts)
@@ -263,6 +334,60 @@ class DialogueGenerator:
         )
         return prompts
 
+    # Candidate condition columns, in the naming they have AFTER _load_prompts's
+    # renames (behavior_category -> category). These mirror CONDITION_COLUMNS in
+    # build_balanced_sample.py, so a CSV produced by that script is recognized
+    # automatically. Any custom_prompt_csv only needs to contain a subset of
+    # these to work: whichever ones are present are used to define "a condition".
+    CANDIDATE_CONDITION_COLUMNS = [
+        "use_domain",
+        "use_scenario",
+        "empathy",
+        "professionalism",
+        "cue",
+        "category",
+    ]
+
+    @classmethod
+    def _resolve_condition_groups(cls, prompts: List[Dict[str, Any]]):
+        """
+        Group loaded prompts by the condition columns actually present, in a
+        stable (sorted) order that's independent of row order in the source
+        CSV.
+
+        Returns:
+            (condition_columns, ordered_condition_keys, condition_key -> rows)
+
+        Raises:
+            ValueError: if prompts is empty, or none of the recognized
+                condition columns are present in the loaded prompt data.
+        """
+        if not prompts:
+            raise ValueError(
+                "dialogues_per_condition requires at least one loaded prompt; "
+                "none were loaded (check filtering / custom_prompt_csv)."
+            )
+
+        present_cols = [c for c in cls.CANDIDATE_CONDITION_COLUMNS if c in prompts[0]]
+        if not present_cols:
+            raise ValueError(
+                "dialogues_per_condition requires the loaded prompt data to "
+                f"contain at least one of {cls.CANDIDATE_CONDITION_COLUMNS}, "
+                f"but none were found. Available columns: {list(prompts[0].keys())}. "
+                "Use --num-dialogues instead for prompt sets without condition columns."
+            )
+
+        groups: Dict[Any, List[Dict[str, Any]]] = {}
+        for p in prompts:
+            key = tuple(p.get(c) for c in present_cols)
+            groups.setdefault(key, []).append(p)
+
+        # Sorted for a deterministic, CSV-row-order-independent condition order.
+        # Cast each field to str first since combinations may mix types (e.g.
+        # NaN/float for missing values alongside strings), which plain sorted()
+        # can't compare directly.
+        ordered_keys = sorted(groups.keys(), key=lambda k: tuple(str(v) for v in k))
+        return present_cols, ordered_keys, groups
 
     def generate_dialogues(self) -> List[Dict[str, Any]]:
         """
@@ -303,6 +428,21 @@ class DialogueGenerator:
         Returns:
             Selected prompt dictionary
         """
+        if self.dialogues_per_condition is not None and self._condition_order:
+            # dialogue_index is laid out as consecutive blocks of size
+            # dialogues_per_condition, one block per condition, in the stable
+            # sorted condition order computed in __init__. Within a block, the
+            # available rows for that condition are cycled (this is the "reuse"
+            # noted above for conditions with fewer rows than
+            # dialogues_per_condition).
+            condition_idx = (dialogue_index // self.dialogues_per_condition) % len(
+                self._condition_order
+            )
+            replicate_idx = dialogue_index % self.dialogues_per_condition
+            condition_key = self._condition_order[condition_idx]
+            rows_for_condition = self._condition_rows[condition_key]
+            return rows_for_condition[replicate_idx % len(rows_for_condition)]
+
         if self.prompts:
             return self.prompts[dialogue_index % len(self.prompts)]
 
