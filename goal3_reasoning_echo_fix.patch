@@ -1,0 +1,275 @@
+diff --git a/anthro_benchmark/classifier/classifiers.py b/anthro_benchmark/classifier/classifiers.py
+index b9ebf96..fe545b2 100644
+--- a/anthro_benchmark/classifier/classifiers.py
++++ b/anthro_benchmark/classifier/classifiers.py
+@@ -12,10 +12,32 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import re
+ from typing import Dict, Any, Optional, List, Tuple
+ from anthro_benchmark.core.llm_client import LLMClient
+ from anthro_benchmark.core.roles import Role
+ 
++THINK_BLOCK_PATTERN = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
++
++
++def strip_reasoning_trace(text: str) -> str:
++    """
++    Defense-in-depth: strip any "<think>...</think>" reasoning block that
++    might still be present in an assistant message before it's shown to the
++    rating prompt.
++
++    As of the generator-level fix, dialogues.csv should never contain this
++    in the first place -- LLMClient.generate() no longer glues reasoning
++    into its returned content. This is a second line of defense for CSVs
++    generated before that fix, or any other upstream path that might
++    reintroduce it, since a classifier judging cues in a message should only
++    ever see the final answer, not the model's internal reasoning trace
++    that produced it.
++    """
++    if not text:
++        return text
++    return THINK_BLOCK_PATTERN.sub("", text).strip()
++
+ 
+ def create_prompt_for_cue(
+     assistant_turn_message: str,
+@@ -234,6 +256,8 @@ class LLMClassifier:
+             cue == self.cue_name
+         ), f"LLMClassifier instance is configured for cue '{self.cue_name}', but was asked to rate cue '{cue}'."
+ 
++        assistant_turn_message = strip_reasoning_trace(assistant_turn_message)
++
+         prompt = self._prepare_rating_prompt(
+             user_message=user_turn_message, assistant_message=assistant_turn_message
+         )
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index b0ea8f5..f7ba403 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -28,7 +28,7 @@ import sys
+ import pandas as pd
+ from tqdm import tqdm
+ 
+-from anthro_benchmark.classifier.classifiers import LLMClassifier
++from anthro_benchmark.classifier.classifiers import LLMClassifier, strip_reasoning_trace
+ from anthro_benchmark.classifier.cue_definitions import CUE_DEFINITIONS
+ 
+ 
+@@ -189,6 +189,10 @@ def rate_dialogues(
+                         if pd.notna(assistant_message_raw)
+                         else ""
+                     )
++                    # Defense-in-depth for CSVs generated before the
++                    # generator-level fix: don't let a leftover reasoning
++                    # trace's first-person pronouns count towards this cue.
++                    assistant_message = strip_reasoning_trace(assistant_message)
+ 
+                     score = 0
+                     raw_string = "Regex: 0"
+@@ -289,6 +293,11 @@ def rate_dialogues(
+                         if pd.notna(assistant_message_raw)
+                         else ""
+                     )
++                    # Defense-in-depth for CSVs generated before the
++                    # generator-level fix (classifiers.rate_turn_messages
++                    # also strips this; redundant-but-harmless here since
++                    # this value is also skip-checked directly below).
++                    assistant_message = strip_reasoning_trace(assistant_message)
+ 
+                     row_raw_samples_llm = [
+                         "Skipped - Empty or invalid assistant message"
+diff --git a/anthro_benchmark/core/llm_client.py b/anthro_benchmark/core/llm_client.py
+index 6255fbd..aa5ef16 100644
+--- a/anthro_benchmark/core/llm_client.py
++++ b/anthro_benchmark/core/llm_client.py
+@@ -115,7 +115,7 @@ import logging
+ import os
+ import random
+ import time
+-from typing import Any, Callable, Dict, List, Optional
++from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+ 
+ import litellm
+ try:
+@@ -397,11 +397,29 @@ class LLMClient:
+         # Keep the old attribute name while using LiteLLM as the primary layer.
+         self.client = litellm
+ 
+-    def generate(self, messages: List[Dict[str, str]], **kwargs) -> str:
++    def generate(
++        self,
++        messages: List[Dict[str, str]],
++        *,
++        return_reasoning: bool = False,
++        **kwargs,
++    ) -> Union[str, Tuple[str, str]]:
+         """
+-        Send messages via LiteLLM and return text.
+-
+-        The returned string includes reasoning text when available.
++        Send messages via LiteLLM and return the model's reply.
++
++        By default this returns ONLY the final answer as a plain string,
++        even when reasoning/thinking mode is enabled. The reasoning trace
++        (if any) is never concatenated into that string. This matters
++        because the returned value is reused verbatim as conversation
++        history, CSV output, and classifier-prompt input elsewhere in this
++        codebase -- none of which are designed to parse a "<think>...</think>"
++        blob, and feeding it to them corrupts history/echo behavior and
++        rating results.
++
++        Pass return_reasoning=True to also get the reasoning trace (e.g.
++        for logging/inspection): the return value is then a
++        (content, reasoning_text) tuple, where reasoning_text is "" if the
++        provider returned none.
+         """
+ 
+         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
+@@ -475,18 +493,18 @@ class LLMClient:
+                     budget_guard.record_response(response)
+ 
+                 if not getattr(response, "choices", None):
+-                    return ""
++                    return ("", "") if return_reasoning else ""
+ 
+                 choice = response.choices[0]
+                 message = getattr(choice, "message", None)
+                 if message is None:
+-                    return ""
++                    return ("", "") if return_reasoning else ""
+ 
+                 content = getattr(message, "content", None) or ""
+                 reasoning_text = _extract_reasoning_content(message)
+ 
+-                if reasoning_text and (reasoning_mode or reasoning_effort or runtime_reasoning is not None):
+-                    return f"<think>\n{reasoning_text}\n</think>\n\n{content}".strip()
++                if return_reasoning:
++                    return content, reasoning_text
+ 
+                 return content
+ 
+diff --git a/anthro_benchmark/generator/generator.py b/anthro_benchmark/generator/generator.py
+index e18cb71..18ae357 100644
+--- a/anthro_benchmark/generator/generator.py
++++ b/anthro_benchmark/generator/generator.py
+@@ -16,7 +16,7 @@ import importlib.resources
+ import os
+ import uuid
+ from datetime import datetime
+-from typing import List, Dict, Any, Optional
++from typing import List, Dict, Any, Optional, Tuple
+ 
+ import pandas as pd
+ from tqdm import tqdm
+@@ -138,7 +138,14 @@ class DialogueGenerator:
+             self.user_llm_config.setdefault("budget_guard", self.budget_guard)
+             self.target_llm_config.setdefault("budget_guard", self.budget_guard)
+         
+-        # --- NEW LOGIC: Inject reasoning into target config ---
++        # --- Inject reasoning into target config ONLY ---
++        # Intentional: the USER LLM is roleplaying a human and has no reason
++        # to expose (or be told to produce) a reasoning trace, so
++        # user_llm_config is deliberately never touched here. Even if a
++        # caller passes reasoning_mode/reasoning_effort inside their own
++        # user_llm_config directly, _get_user_llm_response() calls
++        # generate() without return_reasoning=True, so only the clean reply
++        # is ever used -- see LLMClient.generate() docstring.
+         self.reasoning_mode = reasoning_mode
+         self.reasoning_effort = reasoning_effort
+         
+@@ -520,14 +527,21 @@ class DialogueGenerator:
+ 
+             target_llm_turn_index_in_dialogue = len(dialogue["turns"])
+             try:
+-                target_message_content = self._get_target_llm_response(
+-                    target_history, effective_target_system_prompt
++                target_message_content, target_reasoning_text = (
++                    self._get_target_llm_response(
++                        target_history, effective_target_system_prompt
++                    )
+                 )
+                 dialogue["turns"].append(
+                     {
+                         "turn_index": target_llm_turn_index_in_dialogue,
+                         "role": Role.ASSISTANT,
+                         "message": target_message_content,
++                        # Kept separate from "message" on purpose -- see
++                        # _get_target_llm_response docstring. Never fed back
++                        # into user_history/target_history/CSV as if it were
++                        # part of the reply.
++                        "reasoning": target_reasoning_text,
+                     }
+                 )
+                 user_history.append({"role": Role.USER, "content": target_message_content})
+@@ -593,7 +607,7 @@ class DialogueGenerator:
+ 
+     def _get_target_llm_response(
+         self, history: List[Dict[str, str]], system_prompt: str
+-    ) -> str:
++    ) -> Tuple[str, str]:
+         """
+         Get a response from the target LLM.
+ 
+@@ -602,14 +616,20 @@ class DialogueGenerator:
+             system_prompt: The specific system prompt.
+ 
+         Returns:
+-            Generated response text
++            (content, reasoning_text) tuple. content is the plain reply with
++            no reasoning trace mixed in -- this is what should be reused as
++            conversation history/CSV output/rating input. reasoning_text is
++            the raw reasoning trace ("" if none was produced) kept separate
++            purely for optional inspection; it must never be concatenated
++            back into content or passed to another model as if it were a
++            conversational turn.
+ 
+         Raises:
+             LLMGenerationError: If an error occurs during LLM generation.
+         """
+         try:
+             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
+-            return self.target_llm.generate(messages)
++            return self.target_llm.generate(messages, return_reasoning=True)
+         except Exception as e:
+             tqdm.write(f"Error getting target LLM response: {e}")
+             raise LLMGenerationError(
+@@ -648,10 +668,14 @@ class DialogueGenerator:
+                 user_message = user_turn_data["message"]
+ 
+                 assistant_message = ""
++                assistant_reasoning = ""
+                 if i + 1 < len(turns_data):
+                     assistant_turn_data = turns_data[i + 1]
+                     if assistant_turn_data["role"] == Role.ASSISTANT:
+                         assistant_message = assistant_turn_data["message"]
++                        # Kept in its own column, never merged into
++                        # assistant_message -- see _get_target_llm_response.
++                        assistant_reasoning = assistant_turn_data.get("reasoning", "") or ""
+                     else:
+                         print(
+                             f"Warning: Expected assistant message at turn index {i+1} for dialogue {dialogue_id}, found role {assistant_turn_data['role']}"
+@@ -674,6 +698,7 @@ class DialogueGenerator:
+                     "turn_pair_index": i // 2,
+                     "user_message": user_message,
+                     "assistant_message": assistant_message,
++                    "assistant_reasoning": assistant_reasoning,
+                     "dialogue_status": meta.get("status"),
+                     "dialogue_error": meta.get("error", ""),
+                 }
+@@ -700,12 +725,13 @@ class DialogueGenerator:
+                 "reasoning_effort",  # Added here
+                 "user_message",
+                 "assistant_message",
++                "assistant_reasoning",
+                 "dialogue_status",
+                 "dialogue_error",
+             ]
+             for col in columns_order:
+                 if col not in df.columns:
+-                    df[col] = None if col not in ["dialogue_error"] else ""
++                    df[col] = None if col not in ["dialogue_error", "assistant_reasoning"] else ""
+ 
+             df = df[columns_order]
+             df.to_csv(output_path, index=False)

@@ -16,7 +16,7 @@ import importlib.resources
 import os
 import uuid
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import pandas as pd
 from tqdm import tqdm
@@ -138,7 +138,14 @@ class DialogueGenerator:
             self.user_llm_config.setdefault("budget_guard", self.budget_guard)
             self.target_llm_config.setdefault("budget_guard", self.budget_guard)
         
-        # --- NEW LOGIC: Inject reasoning into target config ---
+        # --- Inject reasoning into target config ONLY ---
+        # Intentional: the USER LLM is roleplaying a human and has no reason
+        # to expose (or be told to produce) a reasoning trace, so
+        # user_llm_config is deliberately never touched here. Even if a
+        # caller passes reasoning_mode/reasoning_effort inside their own
+        # user_llm_config directly, _get_user_llm_response() calls
+        # generate() without return_reasoning=True, so only the clean reply
+        # is ever used -- see LLMClient.generate() docstring.
         self.reasoning_mode = reasoning_mode
         self.reasoning_effort = reasoning_effort
         
@@ -520,14 +527,21 @@ class DialogueGenerator:
 
             target_llm_turn_index_in_dialogue = len(dialogue["turns"])
             try:
-                target_message_content = self._get_target_llm_response(
-                    target_history, effective_target_system_prompt
+                target_message_content, target_reasoning_text = (
+                    self._get_target_llm_response(
+                        target_history, effective_target_system_prompt
+                    )
                 )
                 dialogue["turns"].append(
                     {
                         "turn_index": target_llm_turn_index_in_dialogue,
                         "role": Role.ASSISTANT,
                         "message": target_message_content,
+                        # Kept separate from "message" on purpose -- see
+                        # _get_target_llm_response docstring. Never fed back
+                        # into user_history/target_history/CSV as if it were
+                        # part of the reply.
+                        "reasoning": target_reasoning_text,
                     }
                 )
                 user_history.append({"role": Role.USER, "content": target_message_content})
@@ -593,7 +607,7 @@ class DialogueGenerator:
 
     def _get_target_llm_response(
         self, history: List[Dict[str, str]], system_prompt: str
-    ) -> str:
+    ) -> Tuple[str, str]:
         """
         Get a response from the target LLM.
 
@@ -602,14 +616,20 @@ class DialogueGenerator:
             system_prompt: The specific system prompt.
 
         Returns:
-            Generated response text
+            (content, reasoning_text) tuple. content is the plain reply with
+            no reasoning trace mixed in -- this is what should be reused as
+            conversation history/CSV output/rating input. reasoning_text is
+            the raw reasoning trace ("" if none was produced) kept separate
+            purely for optional inspection; it must never be concatenated
+            back into content or passed to another model as if it were a
+            conversational turn.
 
         Raises:
             LLMGenerationError: If an error occurs during LLM generation.
         """
         try:
             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
-            return self.target_llm.generate(messages)
+            return self.target_llm.generate(messages, return_reasoning=True)
         except Exception as e:
             tqdm.write(f"Error getting target LLM response: {e}")
             raise LLMGenerationError(
@@ -648,10 +668,14 @@ class DialogueGenerator:
                 user_message = user_turn_data["message"]
 
                 assistant_message = ""
+                assistant_reasoning = ""
                 if i + 1 < len(turns_data):
                     assistant_turn_data = turns_data[i + 1]
                     if assistant_turn_data["role"] == Role.ASSISTANT:
                         assistant_message = assistant_turn_data["message"]
+                        # Kept in its own column, never merged into
+                        # assistant_message -- see _get_target_llm_response.
+                        assistant_reasoning = assistant_turn_data.get("reasoning", "") or ""
                     else:
                         print(
                             f"Warning: Expected assistant message at turn index {i+1} for dialogue {dialogue_id}, found role {assistant_turn_data['role']}"
@@ -674,6 +698,7 @@ class DialogueGenerator:
                     "turn_pair_index": i // 2,
                     "user_message": user_message,
                     "assistant_message": assistant_message,
+                    "assistant_reasoning": assistant_reasoning,
                     "dialogue_status": meta.get("status"),
                     "dialogue_error": meta.get("error", ""),
                 }
@@ -700,12 +725,13 @@ class DialogueGenerator:
                 "reasoning_effort",  # Added here
                 "user_message",
                 "assistant_message",
+                "assistant_reasoning",
                 "dialogue_status",
                 "dialogue_error",
             ]
             for col in columns_order:
                 if col not in df.columns:
-                    df[col] = None if col not in ["dialogue_error"] else ""
+                    df[col] = None if col not in ["dialogue_error", "assistant_reasoning"] else ""
 
             df = df[columns_order]
             df.to_csv(output_path, index=False)

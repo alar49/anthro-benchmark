@@ -115,7 +115,7 @@ import logging
 import os
 import random
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import litellm
 try:
@@ -397,11 +397,29 @@ class LLMClient:
         # Keep the old attribute name while using LiteLLM as the primary layer.
         self.client = litellm
 
-    def generate(self, messages: List[Dict[str, str]], **kwargs) -> str:
+    def generate(
+        self,
+        messages: List[Dict[str, str]],
+        *,
+        return_reasoning: bool = False,
+        **kwargs,
+    ) -> Union[str, Tuple[str, str]]:
         """
-        Send messages via LiteLLM and return text.
+        Send messages via LiteLLM and return the model's reply.
 
-        The returned string includes reasoning text when available.
+        By default this returns ONLY the final answer as a plain string,
+        even when reasoning/thinking mode is enabled. The reasoning trace
+        (if any) is never concatenated into that string. This matters
+        because the returned value is reused verbatim as conversation
+        history, CSV output, and classifier-prompt input elsewhere in this
+        codebase -- none of which are designed to parse a "<think>...</think>"
+        blob, and feeding it to them corrupts history/echo behavior and
+        rating results.
+
+        Pass return_reasoning=True to also get the reasoning trace (e.g.
+        for logging/inspection): the return value is then a
+        (content, reasoning_text) tuple, where reasoning_text is "" if the
+        provider returned none.
         """
 
         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
@@ -475,18 +493,18 @@ class LLMClient:
                     budget_guard.record_response(response)
 
                 if not getattr(response, "choices", None):
-                    return ""
+                    return ("", "") if return_reasoning else ""
 
                 choice = response.choices[0]
                 message = getattr(choice, "message", None)
                 if message is None:
-                    return ""
+                    return ("", "") if return_reasoning else ""
 
                 content = getattr(message, "content", None) or ""
                 reasoning_text = _extract_reasoning_content(message)
 
-                if reasoning_text and (reasoning_mode or reasoning_effort or runtime_reasoning is not None):
-                    return f"<think>\n{reasoning_text}\n</think>\n\n{content}".strip()
+                if return_reasoning:
+                    return content, reasoning_text
 
                 return content
 

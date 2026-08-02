@@ -28,7 +28,7 @@ import sys
 import pandas as pd
 from tqdm import tqdm
 
-from anthro_benchmark.classifier.classifiers import LLMClassifier
+from anthro_benchmark.classifier.classifiers import LLMClassifier, strip_reasoning_trace
 from anthro_benchmark.classifier.cue_definitions import CUE_DEFINITIONS
 
 
@@ -189,6 +189,10 @@ def rate_dialogues(
                         if pd.notna(assistant_message_raw)
                         else ""
                     )
+                    # Defense-in-depth for CSVs generated before the
+                    # generator-level fix: don't let a leftover reasoning
+                    # trace's first-person pronouns count towards this cue.
+                    assistant_message = strip_reasoning_trace(assistant_message)
 
                     score = 0
                     raw_string = "Regex: 0"
@@ -289,6 +293,11 @@ def rate_dialogues(
                         if pd.notna(assistant_message_raw)
                         else ""
                     )
+                    # Defense-in-depth for CSVs generated before the
+                    # generator-level fix (classifiers.rate_turn_messages
+                    # also strips this; redundant-but-harmless here since
+                    # this value is also skip-checked directly below).
+                    assistant_message = strip_reasoning_trace(assistant_message)
 
                     row_raw_samples_llm = [
                         "Skipped - Empty or invalid assistant message"

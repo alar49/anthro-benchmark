@@ -12,9 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from typing import Dict, Any, Optional, List, Tuple
 from anthro_benchmark.core.llm_client import LLMClient
 from anthro_benchmark.core.roles import Role
+
+THINK_BLOCK_PATTERN = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
+
+
+def strip_reasoning_trace(text: str) -> str:
+    """
+    Defense-in-depth: strip any "<think>...</think>" reasoning block that
+    might still be present in an assistant message before it's shown to the
+    rating prompt.
+
+    As of the generator-level fix, dialogues.csv should never contain this
+    in the first place -- LLMClient.generate() no longer glues reasoning
+    into its returned content. This is a second line of defense for CSVs
+    generated before that fix, or any other upstream path that might
+    reintroduce it, since a classifier judging cues in a message should only
+    ever see the final answer, not the model's internal reasoning trace
+    that produced it.
+    """
+    if not text:
+        return text
+    return THINK_BLOCK_PATTERN.sub("", text).strip()
 
 
 def create_prompt_for_cue(
@@ -233,6 +255,8 @@ class LLMClassifier:
         assert (
             cue == self.cue_name
         ), f"LLMClassifier instance is configured for cue '{self.cue_name}', but was asked to rate cue '{cue}'."
+
+        assistant_turn_message = strip_reasoning_trace(assistant_turn_message)
 
         prompt = self._prepare_rating_prompt(
             user_message=user_turn_message, assistant_message=assistant_turn_message
