@@ -324,48 +324,6 @@ def _extract_reasoning_content(message: Any) -> str:
     return _stringify_reasoning_content(reasoning_content)
 
 
-def _extract_reasoning_token_count(usage: Any) -> Optional[int]:
-    """
-    Best-effort extraction of a reasoning/thinking token count from a
-    response's `usage` block, across the different shapes providers use.
-
-    Returns None if no such field is present at all -- that's meaningful on
-    its own, since it means this provider/response simply doesn't report
-    reasoning token spend, as opposed to reporting zero.
-    """
-    if usage is None:
-        return None
-
-    def _get(obj: Any, key: str) -> Any:
-        if isinstance(obj, dict):
-            return obj.get(key)
-        return getattr(obj, key, None)
-
-    # OpenAI-style nested shape (also what LiteLLM normalizes o-series/
-    # reasoning-model usage into): usage.completion_tokens_details.reasoning_tokens
-    details = _get(usage, "completion_tokens_details")
-    if details is not None:
-        value = _get(details, "reasoning_tokens")
-        if value is not None:
-            return int(value)
-
-    # Some providers (seen via OpenRouter passthroughs) put it directly
-    # on the usage object instead of nesting it.
-    for key in ("reasoning_tokens", "thinking_tokens"):
-        value = _get(usage, key)
-        if value is not None:
-            return int(value)
-
-    # LiteLLM sometimes stashes provider-specific extras here.
-    model_extra = _get(usage, "model_extra")
-    if isinstance(model_extra, dict):
-        for key in ("reasoning_tokens", "thinking_tokens"):
-            if model_extra.get(key) is not None:
-                return int(model_extra[key])
-
-    return None
-
-
 class LLMClient:
     """
     LiteLLM-first client.
@@ -544,21 +502,6 @@ class LLMClient:
 
                 content = getattr(message, "content", None) or ""
                 reasoning_text = _extract_reasoning_content(message)
-
-                usage = getattr(response, "usage", None)
-                reasoning_token_count = _extract_reasoning_token_count(usage)
-                logger.info(
-                    "LLM call usage | model=%s reasoning_requested=%s "
-                    "reasoning_text_extracted=%s reasoning_tokens_reported=%s "
-                    "prompt_tokens=%s completion_tokens=%s total_tokens=%s",
-                    self.model,
-                    bool(reasoning_mode or reasoning_effort or runtime_reasoning is not None),
-                    bool(reasoning_text),
-                    reasoning_token_count,
-                    getattr(usage, "prompt_tokens", None),
-                    getattr(usage, "completion_tokens", None),
-                    getattr(usage, "total_tokens", None),
-                )
 
                 if return_reasoning:
                     return content, reasoning_text
