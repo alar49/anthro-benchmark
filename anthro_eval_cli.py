@@ -446,8 +446,15 @@ def _parse_flags(_):
     gen_control_group.add_argument(
         "--num-dialogues",
         type=int,
-        default=960,
-        help="Number of dialogues to produce. Defaults to full set.",
+        default=None,
+        help=(
+            "Number of dialogues to produce. If omitted, defaults to one "
+            "dialogue per loaded prompt (i.e. the size of the prompt set "
+            "actually loaded, after --prompt-category-name / --behaviors "
+            "filtering and/or --custom-prompt-csv are applied). Set this "
+            "explicitly to override, e.g. to replicate each prompt multiple "
+            "times or to cap a run short."
+        ),
     )
     gen_control_group.add_argument(
         "--num-turns", type=int, default=5, help="Number of turns."

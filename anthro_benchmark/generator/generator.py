@@ -67,7 +67,7 @@ class DialogueGenerator:
         user_system_prompt: str = DEFAULT_USER_SYSTEM_PROMPT,
         target_system_prompt: Optional[str] = None,
         num_turns: int = 5,
-        num_dialogues: int = 10,
+        num_dialogues: Optional[int] = None,
         temperature: Optional[float] = None,
         budget_guard: Optional[BudgetGuard] = None,
         reasoning_mode: bool = False, # EDITED
@@ -88,7 +88,14 @@ class DialogueGenerator:
             user_system_prompt: System prompt for the user LLM.
             target_system_prompt: System prompt for the target LLM.
             num_turns: Number of dialogue turn pair.
-            num_dialogues: Number of dialogues to generate.
+            num_dialogues: Number of dialogues to generate. If None (default),
+                resolves to one dialogue per prompt actually loaded (i.e. the
+                length of self.prompts after category/cue filtering and/or
+                custom_prompt_csv are applied), falling back to 10 if no
+                prompts were loaded at all. This is what lets a
+                custom_prompt_csv (e.g. a stratified sample) run as exactly
+                "one dialogue per row" without the caller needing to count
+                rows and pass a matching number explicitly.
             prompt_category_names: List of prompt category names (e.g., ["personhood", "physical_embodiment"]) to load from prompt csv.
             custom_prompt_csv: Path to custom CSV file to use for dialogue generation. Uses prompt_sets.csv if no CSV is specified.
             use_all_variants_of_original_prompt: If True, it uses all variants of the original prompt (i.e., all use domains and scenarios). If False, it deduplicates by 'original_prompt'.
@@ -128,8 +135,7 @@ class DialogueGenerator:
             or "You are a helpful chatbot. Every one of your outputs should be a single message in a conversation."
         )
         self.num_turns = num_turns
-        self.num_dialogues = num_dialogues
-        
+
         self.prompt_category_names = prompt_category_names or []
         self.custom_prompt_csv = custom_prompt_csv
         self.use_all_variants_of_original_prompt = use_all_variants_of_original_prompt
@@ -139,6 +145,27 @@ class DialogueGenerator:
 
         self.dialogues = []
         self.prompts = self._load_prompts()
+
+        # --- num_dialogues resolution ---
+        # Resolved here, AFTER prompts are loaded, so that an unspecified
+        # num_dialogues defaults to "one dialogue per loaded prompt" rather
+        # than a fixed constant. This matters whenever the loaded prompt set
+        # isn't the full 960-row default file -- e.g. a custom_prompt_csv
+        # (such as a stratified/balanced sample), or category/cue filtering.
+        # Without this, _select_prompt()'s `dialogue_index % len(self.prompts)`
+        # would silently wrap around and repeat prompts to fill a stale
+        # default count, burning API calls generating duplicate dialogues
+        # instead of covering the intended set exactly once.
+        if num_dialogues is not None:
+            self.num_dialogues = num_dialogues
+        elif self.prompts:
+            self.num_dialogues = len(self.prompts)
+            print(
+                f"num_dialogues not specified: defaulting to {self.num_dialogues} "
+                "(one dialogue per loaded prompt)."
+            )
+        else:
+            self.num_dialogues = 10  # historical fallback when no prompts loaded at all
 
         self.user_llm = LLMClient(**self.user_llm_config)
         self.target_llm = LLMClient(**self.target_llm_config)
