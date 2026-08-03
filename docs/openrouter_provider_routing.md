@@ -23,7 +23,7 @@ while running this benchmark, described below.
 ## The problem this solves
 
 OpenRouter doesn't run models itself; a single model slug (e.g.
-`google/gemma-3-27b-it:free`) can be served by several different backend
+`google/gemma-4-26b-a4b-it:free`) can be served by several different backend
 providers, and OpenRouter load-balances requests across them by default.
 That would be invisible and harmless if every provider behaved identically
 -- but they don't. In this project, running the *same* target-model config
@@ -173,7 +173,7 @@ being ignored.
 
 ## Worked example: the bug that motivated this
 
-This mirrors the actual scenario that surfaced the issue: `google/gemma-3-27b-it:free`
+This mirrors the actual scenario that surfaced the issue: `google/gemma-4-26b-a4b-it:free`
 on OpenRouter is served by both Google AI Studio and a second provider
 ("Darkbloom") that doesn't support `reasoning`.
 
@@ -183,8 +183,8 @@ non-reasoning-capable provider gets added later:
 
 ```bash
 anthro-eval generate \
-  --user-llm-model "openrouter/google/gemma-3-27b-it:free" \
-  --target-llm-model "openrouter/google/gemma-3-27b-it:free" \
+  --user-llm-model "openrouter/google/gemma-4-26b-a4b-it:free" \
+  --target-llm-model "openrouter/google/gemma-4-26b-a4b-it:free" \
   --reasoning-mode on \
   --reasoning-effort medium \
   --target-llm-openrouter-provider-order "Google AI Studio" \
@@ -207,7 +207,7 @@ as a classifier, and want the same guarantee:
 ```bash
 anthro-eval rate \
   --dialogues-csv generated_dialogues/your_dialogue_file.csv \
-  --classifier-model "openrouter/google/gemma-3-27b-it:free" \
+  --classifier-model "openrouter/google/gemma-4-26b-a4b-it:free" \
   --classifier-openrouter-provider-order "Google AI Studio" \
   --classifier-openrouter-no-fallbacks \
   --behaviors-to-rate "empathy" "desires"
@@ -221,7 +221,7 @@ default for any `openrouter/...` model (no flag needed) and shows up in the
 existing per-call log line:
 
 ```
-LLM call usage | model=openrouter/google/gemma-3-27b-it:free reasoning_requested=True
+LLM call usage | model=openrouter/google/gemma-4-26b-a4b-it:free reasoning_requested=True
 reasoning_text_extracted=True reasoning_tokens_reported=847
 prompt_tokens=210 completion_tokens=340 total_tokens=550
 openrouter_provider_requested={'order': ['Google AI Studio'], 'allow_fallbacks': False}
@@ -240,8 +240,8 @@ context compression, etc.) is logged at `DEBUG` level under the same
 logger (`anthro_benchmark.core.llm_client`), since it's fairly verbose:
 
 ```
-LLM call OpenRouter routing metadata | model=openrouter/google/gemma-3-27b-it:free
-metadata={'requested': 'google/gemma-3-27b-it:free', 'strategy': 'direct',
+LLM call OpenRouter routing metadata | model=openrouter/google/gemma-4-26b-a4b-it:free
+metadata={'requested': 'google/gemma-4-26b-a4b-it:free', 'strategy': 'direct',
 'attempt': 1, 'endpoints': {'available': [{'provider': 'Google AI Studio',
 'selected': True}, {'provider': 'Darkbloom', 'selected': False}]}}
 ```
@@ -278,7 +278,7 @@ any field OpenRouter supports works, not just the three the CLI exposes:
 from anthro_benchmark.core.llm_client import LLMClient
 
 client = LLMClient(
-    model="openrouter/google/gemma-3-27b-it:free",
+    model="openrouter/google/gemma-4-26b-a4b-it:free",
     reasoning_mode=True,
     reasoning_effort="medium",
     openrouter_provider={
