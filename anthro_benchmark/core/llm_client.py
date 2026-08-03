@@ -374,6 +374,13 @@ class LLMClient:
     - route OpenRouter through LiteLLM too
     - keep temperature caller-controlled
     - keep reasoning visible to the caller
+    - allow pinning which OpenRouter backend(s) serve a model, since
+      OpenRouter load-balances across providers by default and different
+      providers for the same model slug can silently support different
+      request parameters (e.g. one honors `reasoning`, another drops it)
+    - surface which OpenRouter backend actually served each call (when
+      available) so that kind of silent mismatch shows up in the logs
+      instead of requiring a manual OpenRouter dashboard check
     - retry only transient failures
     - fail fast on config/programming mistakes
     - keep unknown-exception retries very limited
@@ -386,6 +393,8 @@ class LLMClient:
         temperature: float = 0.7,
         reasoning_mode: bool = False,
         reasoning_effort: Optional[str] = None,
+        openrouter_provider: Optional[Dict[str, Any]] = None,
+        openrouter_router_metadata: bool = True,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         max_retries: int = 5,
@@ -398,6 +407,8 @@ class LLMClient:
         self.temperature = temperature
         self.reasoning_mode = reasoning_mode
         self.reasoning_effort = reasoning_effort
+        self.openrouter_provider = openrouter_provider
+        self.openrouter_router_metadata = openrouter_router_metadata
         self.max_retries = max_retries
         self.initial_backoff = initial_backoff
         self.max_backoff = max_backoff
@@ -431,6 +442,16 @@ class LLMClient:
             raise ValueError(
                 "API key must be provided via arguments or environment variables "
                 "(OPENROUTER_API_KEY / OPENAI_API_KEY)."
+            )
+
+        if self.openrouter_provider and not self.model.startswith("openrouter/"):
+            raise ValueError(
+                f"openrouter_provider={self.openrouter_provider!r} was set but "
+                f"model={self.model!r} is not an 'openrouter/...' model. "
+                "OpenRouter's provider-routing object (order/allow_fallbacks/"
+                "require_parameters/etc.) only has an effect on requests that "
+                "actually go to OpenRouter, so this is almost certainly a "
+                "config mistake rather than a no-op you want."
             )
 
         self.api_key = resolved_api_key
@@ -471,6 +492,10 @@ class LLMClient:
 
         reasoning_mode = kwargs.pop("reasoning_mode", self.reasoning_mode)
         reasoning_effort = kwargs.pop("reasoning_effort", self.reasoning_effort)
+        openrouter_provider = kwargs.pop("openrouter_provider", self.openrouter_provider)
+        openrouter_router_metadata = kwargs.pop(
+            "openrouter_router_metadata", self.openrouter_router_metadata
+        )
 
         payload: Dict[str, Any] = {
             "model": self.model,
@@ -488,6 +513,48 @@ class LLMClient:
 
         if kwargs:
             payload.update(kwargs)
+
+        if openrouter_provider:
+            # OpenRouter's provider-routing object (order/allow_fallbacks/
+            # require_parameters/etc., see
+            # https://openrouter.ai/docs/guides/routing/provider-selection)
+            # has to travel inside `extra_body`, not as a bare top-level
+            # `provider=` kwarg. LiteLLM's OpenAI-compatible layer only
+            # recognizes a fixed set of top-level params; passing
+            # provider-specific fields any other way has historically been
+            # silently dropped or rejected outright depending on the LiteLLM
+            # version (see https://github.com/BerriAI/litellm/issues/6857).
+            # `extra_body` is the one channel LiteLLM explicitly merges
+            # verbatim into the JSON body it sends to OpenRouter.
+            extra_body = dict(payload.get("extra_body") or {})
+            if "provider" in extra_body:
+                raise ValueError(
+                    "Both openrouter_provider and an extra_body['provider'] "
+                    "(passed via extra_config or generate() kwargs) were set "
+                    "for the same call. Set the provider-routing object in "
+                    "exactly one place to avoid ambiguity about which wins."
+                )
+            extra_body["provider"] = openrouter_provider
+            payload["extra_body"] = extra_body
+
+        if self.model.startswith("openrouter/") and openrouter_router_metadata:
+            # Ask OpenRouter to include routing metadata (which underlying
+            # provider actually served this call, whether it fell back to
+            # another one, etc.) on the response, so a provider silently
+            # mis-serving a call -- the exact Google AI Studio/Darkbloom
+            # reasoning issue that motivated openrouter_provider above --
+            # is visible in the log line below without needing OpenRouter's
+            # dashboard. This is an EXPERIMENTAL OpenRouter feature (see
+            # https://openrouter.ai/docs/guides/features/router-metadata):
+            # the response shape may change without notice. OpenRouter's own
+            # docs are inconsistent about whether "X-OpenRouter-Experimental-
+            # Metadata" or "X-OpenRouter-Metadata" is the current header
+            # name (one page calls the former current, another calls it
+            # legacy), so both are sent; an unrecognized header is harmless.
+            extra_headers = dict(payload.get("extra_headers") or {})
+            extra_headers.setdefault("X-OpenRouter-Experimental-Metadata", "enabled")
+            extra_headers.setdefault("X-OpenRouter-Metadata", "enabled")
+            payload["extra_headers"] = extra_headers
 
         if budget_guard is not None:
             payload["metadata"] = _merge_metadata(
@@ -547,10 +614,25 @@ class LLMClient:
 
                 usage = getattr(response, "usage", None)
                 reasoning_token_count = _extract_reasoning_token_count(usage)
+
+                # See the extra_headers block above: when present, this is
+                # OpenRouter's own account of which provider served the
+                # call, whether it fell back, etc. -- not something we
+                # infer indirectly from token counts.
+                openrouter_metadata = getattr(response, "openrouter_metadata", None)
+                served_by_provider = None
+                if isinstance(openrouter_metadata, dict):
+                    endpoints = openrouter_metadata.get("endpoints") or {}
+                    for endpoint in endpoints.get("available") or []:
+                        if isinstance(endpoint, dict) and endpoint.get("selected"):
+                            served_by_provider = endpoint.get("provider")
+                            break
+
                 logger.info(
                     "LLM call usage | model=%s reasoning_requested=%s "
                     "reasoning_text_extracted=%s reasoning_tokens_reported=%s "
-                    "prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+                    "prompt_tokens=%s completion_tokens=%s total_tokens=%s "
+                    "openrouter_provider_requested=%s openrouter_served_by=%s",
                     self.model,
                     bool(reasoning_mode or reasoning_effort or runtime_reasoning is not None),
                     bool(reasoning_text),
@@ -558,7 +640,19 @@ class LLMClient:
                     getattr(usage, "prompt_tokens", None),
                     getattr(usage, "completion_tokens", None),
                     getattr(usage, "total_tokens", None),
+                    openrouter_provider or None,
+                    served_by_provider,
                 )
+                if openrouter_metadata is not None:
+                    # Full router metadata (attempts, fallbacks, pipeline
+                    # stages, etc.) at DEBUG level -- verbose, but this is
+                    # exactly what you'd want when actually chasing down a
+                    # routing problem rather than just confirming one exists.
+                    logger.debug(
+                        "LLM call OpenRouter routing metadata | model=%s metadata=%s",
+                        self.model,
+                        openrouter_metadata,
+                    )
 
                 if return_reasoning:
                     return content, reasoning_text
@@ -687,6 +781,21 @@ class LLMClient:
 #     reasoning_mode=True,
 #     reasoning_effort="medium",       # documented values like low/medium/high
 #     budget_guard=budget_guard,
+#     # Pin routing to a specific backend, in priority order, and refuse to
+#     # silently fall back to one that might not honor `reasoning` at all
+#     # (see https://openrouter.ai/docs/guides/routing/provider-selection).
+#     # Only valid for "openrouter/..." models.
+#     openrouter_provider={
+#         "order": ["Google AI Studio"],
+#         "allow_fallbacks": False,
+#         "require_parameters": True,
+#     },
+#     # Default True for "openrouter/..." models: asks OpenRouter to report
+#     # which backend actually served each call (logged at INFO as
+#     # openrouter_served_by=..., full detail at DEBUG). Experimental on
+#     # OpenRouter's side -- see
+#     # https://openrouter.ai/docs/guides/features/router-metadata -- so set
+#     # openrouter_router_metadata=False if it ever misbehaves.
 # )
 #
 # answer = client.generate([

@@ -24,6 +24,7 @@ import os
 import json
 import re
 import sys
+from typing import Any
 
 import pandas as pd
 from tqdm import tqdm
@@ -73,6 +74,7 @@ def rate_dialogues(
     # --- EDITED ---
     classifier_reasoning_mode: bool = False, 
     classifier_reasoning_effort: str | None = None,
+    classifier_openrouter_provider: dict[str, Any] | None = None,
     # --------------
     verbose: bool = False,
 ) -> str:
@@ -87,6 +89,13 @@ def rate_dialogues(
         classifier_temperature: Temperature for the classifier LLM(s)
         num_samples: Number of times to sample rating for each turn per model (1 or 3)
         output_rated_csv: Path for the output CSV. If None, generates a filename
+        classifier_openrouter_provider: Optional OpenRouter provider-routing
+            object (see LLMClient's openrouter_provider param / OpenRouter's
+            own docs at
+            https://openrouter.ai/docs/guides/routing/provider-selection).
+            Only meaningful when classifier_models are "openrouter/..."
+            models. Applied identically to every classifier model in
+            classifier_models.
         verbose: Whether to print progress information
 
     Returns:
@@ -259,6 +268,7 @@ def rate_dialogues(
                     # --- EDITED ---
                     "reasoning_mode": classifier_reasoning_mode,
                     "reasoning_effort": classifier_reasoning_effort,
+                    "openrouter_provider": classifier_openrouter_provider,
                     # --------------
                 }
                 classifier = LLMClassifier(
@@ -441,6 +451,7 @@ def run_rating_process(
     # --- EDITED ---
     classifier_reasoning_mode: bool = False, 
     classifier_reasoning_effort: str | None = None,
+    classifier_openrouter_provider: dict[str, Any] | None = None,
     # --------------
     verbose: bool = True,
 ) -> str:
@@ -454,6 +465,9 @@ def run_rating_process(
         classifier_temperature: Temperature for the classifier LLM(s)
         num_samples: Number of times to sample rating for each turn per model (1 or 3)
         output_rated_csv: Path for the output CSV. If None, generates a filename
+        classifier_openrouter_provider: Optional OpenRouter provider-routing
+            object applied to every model in classifier_models. See
+            rate_dialogues()'s docstring for details.
         verbose: Whether to print progress information
 
     Returns:
@@ -469,6 +483,7 @@ def run_rating_process(
         # --- EDITED ---
         classifier_reasoning_mode=classifier_reasoning_mode, 
         classifier_reasoning_effort=classifier_reasoning_effort,
+        classifier_openrouter_provider=classifier_openrouter_provider,
         # --------------
         verbose=verbose,
     )

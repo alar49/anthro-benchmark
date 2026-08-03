@@ -16,6 +16,7 @@ import argparse
 import os
 import sys
 from datetime import datetime
+from typing import Any, Dict, Optional
 import re
 import traceback
 
@@ -47,6 +48,43 @@ def _reasoning_effort_from_args(args):
     if args.reasoning_mode == "on":
         return "medium"  # OpenRouter default when reasoning is enabled
     return None
+
+
+def _openrouter_provider_from_args(args, prefix: str) -> Optional[Dict[str, Any]]:
+    """
+    Assemble an OpenRouter `provider` routing object (see
+    https://openrouter.ai/docs/guides/routing/provider-selection) from the
+    --{prefix}-openrouter-* flags for one LLM role.
+
+    `prefix` is "user_llm" or "target_llm", matching the argparse dest
+    names generated from --user-llm-openrouter-* / --target-llm-openrouter-*.
+
+    Returns None (leaving OpenRouter's own default load-balancing untouched)
+    if none of the relevant flags were set for that role, so callers that
+    don't care about this never see an empty dict cluttering their config.
+    """
+    order = getattr(args, f"{prefix}_openrouter_provider_order", None)
+    no_fallbacks = getattr(args, f"{prefix}_openrouter_no_fallbacks", False)
+    require_parameters = getattr(args, f"{prefix}_openrouter_require_parameters", False)
+
+    provider: Dict[str, Any] = {}
+    if order:
+        provider["order"] = list(order)
+    if no_fallbacks:
+        provider["allow_fallbacks"] = False
+    if require_parameters:
+        provider["require_parameters"] = True
+
+    if no_fallbacks and not order:
+        print(
+            f"Warning: --{prefix.replace('_', '-')}-openrouter-no-fallbacks was set "
+            f"without --{prefix.replace('_', '-')}-openrouter-provider-order. This "
+            "disables fallbacks for OpenRouter's own default (price-based) provider "
+            "choice, rather than pinning to a specific provider list -- almost "
+            "certainly not what you want."
+        )
+
+    return provider or None
 
 
 def _build_budget_guard(args, session_id: str):
@@ -133,7 +171,16 @@ def generate_dialogues_command(args):
     if budget_guard is not None:
         user_llm_config["budget_guard"] = budget_guard
         target_llm_config["budget_guard"] = budget_guard
-        
+
+    user_openrouter_provider = _openrouter_provider_from_args(args, "user_llm")
+    target_openrouter_provider = _openrouter_provider_from_args(args, "target_llm")
+    if user_openrouter_provider:
+        user_llm_config["openrouter_provider"] = user_openrouter_provider
+        print(f"User LLM OpenRouter provider routing: {user_openrouter_provider}")
+    if target_openrouter_provider:
+        target_llm_config["openrouter_provider"] = target_openrouter_provider
+        print(f"Target LLM OpenRouter provider routing: {target_openrouter_provider}")
+
 ####### EDIT FINISH HERE #######
 
     # handle system prompts
@@ -241,13 +288,16 @@ def rate_dialogues_command(args):
     """
 
     reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
-    
+    classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
+
     try:
         cues_to_rate_arg = (
             args.behaviors_to_rate
             if hasattr(args, "behaviors_to_rate") and args.behaviors_to_rate
             else getattr(args, "cues_to_rate", None)
         )
+        if classifier_openrouter_provider:
+            print(f"Classifier LLM OpenRouter provider routing: {classifier_openrouter_provider}")
         output_path = run_rating_process(
             dialogues_csv_path=args.dialogues_csv,
             cues_to_rate=cues_to_rate_arg,
@@ -256,6 +306,7 @@ def rate_dialogues_command(args):
             num_samples=args.num_samples,
             output_rated_csv=getattr(args, "output_rated_csv", None),
             classifier_reasoning_effort=reasoning_effort, ### EDITED
+            classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
             verbose=True,
         )
         if not output_path:
@@ -446,6 +497,98 @@ def _parse_flags(_):
 
     ### EDIT ENDED ###
 
+    ### NEW: OpenRouter provider-routing options ###
+    #
+    # Why this exists: OpenRouter load-balances a single model slug across
+    # multiple backend providers by default (see
+    # https://openrouter.ai/docs/guides/routing/provider-selection). Those
+    # providers don't all support the same request parameters -- e.g. for
+    # "google/gemma-3-27b-it:free" on OpenRouter, the "Google AI Studio"
+    # backend honors `reasoning`, but a fallback backend ("Darkbloom") has
+    # been observed to silently ignore it (reasoning_tokens_reported=0 with
+    # no error), rather than reject the request. These flags let you pin
+    # (and optionally *require*) specific backends per LLM role so this
+    # doesn't happen invisibly mid-run.
+    openrouter_group = gen_parser.add_argument_group("OpenRouter provider routing options")
+    openrouter_group.add_argument(
+        "--user-llm-openrouter-provider-order",
+        type=str,
+        nargs="+",
+        default=None,
+        metavar="PROVIDER_SLUG",
+        help=(
+            "OpenRouter provider slug(s) to try, in priority order, for the "
+            "User LLM (e.g. 'google-ai-studio' or 'Google AI Studio' -- "
+            "OpenRouter's provider slugs and display names both work; use "
+            "the copy button on the model's OpenRouter page to get the "
+            "exact slug). Only meaningful when --user-llm-model starts with "
+            "'openrouter/'. Unlisted providers remain available as "
+            "fallbacks unless --user-llm-openrouter-no-fallbacks is also "
+            "set."
+        ),
+    )
+    openrouter_group.add_argument(
+        "--user-llm-openrouter-no-fallbacks",
+        action="store_true",
+        help=(
+            "Disable fallback to any provider not listed in "
+            "--user-llm-openrouter-provider-order. Requires that flag to "
+            "also be set."
+        ),
+    )
+    openrouter_group.add_argument(
+        "--user-llm-openrouter-require-parameters",
+        action="store_true",
+        help=(
+            "Only route the User LLM's requests to providers that support "
+            "every parameter in the request. A provider that would "
+            "otherwise silently ignore an unsupported parameter is excluded "
+            "instead. Usually unnecessary for the User LLM, since reasoning "
+            "is never requested for it -- provided mainly for symmetry with "
+            "--target-llm-openrouter-require-parameters."
+        ),
+    )
+    openrouter_group.add_argument(
+        "--target-llm-openrouter-provider-order",
+        type=str,
+        nargs="+",
+        default=None,
+        metavar="PROVIDER_SLUG",
+        help=(
+            "Same as --user-llm-openrouter-provider-order, but for the "
+            "Target LLM. This is the one that matters when --reasoning-mode "
+            "is 'on': if the Target LLM's model has multiple OpenRouter "
+            "backends and only some of them honor `reasoning`, pin to a "
+            "backend that does (e.g. --target-llm-openrouter-provider-order "
+            "'Google AI Studio') to stop reasoning-token generation from "
+            "silently dropping to 0 on calls that get routed elsewhere."
+        ),
+    )
+    openrouter_group.add_argument(
+        "--target-llm-openrouter-no-fallbacks",
+        action="store_true",
+        help=(
+            "Disable fallback to any provider not listed in "
+            "--target-llm-openrouter-provider-order. Requires that flag to "
+            "also be set. Set this if you want the run to fail loudly "
+            "rather than silently fall back to a provider you haven't "
+            "verified supports reasoning."
+        ),
+    )
+    openrouter_group.add_argument(
+        "--target-llm-openrouter-require-parameters",
+        action="store_true",
+        help=(
+            "Only route the Target LLM's requests to providers that "
+            "support every parameter in the request (notably `reasoning` "
+            "when --reasoning-mode is 'on'). A provider that would "
+            "otherwise silently ignore reasoning is excluded from routing "
+            "instead, so a misrouted call fails or falls back visibly "
+            "rather than quietly returning reasoning_tokens=0."
+        ),
+    )
+    ### END NEW ###
+
     gen_control_group = gen_parser.add_argument_group("Generation control options")
     dialogue_count_group = gen_control_group.add_mutually_exclusive_group()
     dialogue_count_group.add_argument(
@@ -542,6 +685,52 @@ def _parse_flags(_):
     )
 
     ### EDIT ENDED ###
+
+    ### NEW: OpenRouter provider-routing options (classifier LLM) ###
+    #
+    # Same mechanism as the generate subcommand's user/target flags -- see
+    # that argument group's help text for the full rationale. Applied
+    # identically to every model passed via --classifier-model, so don't
+    # set these if you're mixing OpenRouter and non-OpenRouter classifier
+    # models in the same run (LLMClient will raise a clear error for the
+    # non-OpenRouter one(s) rather than silently ignoring it).
+    classifier_openrouter_group = rate_parser.add_argument_group(
+        "OpenRouter provider routing options"
+    )
+    classifier_openrouter_group.add_argument(
+        "--classifier-openrouter-provider-order",
+        type=str,
+        nargs="+",
+        default=None,
+        metavar="PROVIDER_SLUG",
+        help=(
+            "OpenRouter provider slug(s) to try, in priority order, for "
+            "every model in --classifier-model (e.g. 'Google AI Studio'). "
+            "Only meaningful when those models are 'openrouter/...' models. "
+            "Unlisted providers remain available as fallbacks unless "
+            "--classifier-openrouter-no-fallbacks is also set."
+        ),
+    )
+    classifier_openrouter_group.add_argument(
+        "--classifier-openrouter-no-fallbacks",
+        action="store_true",
+        help=(
+            "Disable fallback to any provider not listed in "
+            "--classifier-openrouter-provider-order. Requires that flag to "
+            "also be set."
+        ),
+    )
+    classifier_openrouter_group.add_argument(
+        "--classifier-openrouter-require-parameters",
+        action="store_true",
+        help=(
+            "Only route classifier requests to providers that support "
+            "every parameter in the request (notably `reasoning` when "
+            "--reasoning-mode is 'on'). A provider that would otherwise "
+            "silently ignore reasoning is excluded from routing instead."
+        ),
+    )
+    ### END NEW ###
 
     rate_config_group = rate_parser.add_argument_group("Rating Configuration")
     rate_config_group.add_argument(
