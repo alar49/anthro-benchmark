@@ -28,7 +28,7 @@ from anthro_benchmark.generator import (
     LLMGenerationError,
     DEFAULT_USER_SYSTEM_PROMPT,
 )
-from anthro_benchmark.classifier import run_rating_process
+from anthro_benchmark.classifier import run_rating_process, CUE_GROUP_CONFIGS
 from anthro_benchmark.core.llm_client import BudgetGuard, estimate_cost_from_usage
 
 
@@ -307,6 +307,7 @@ def rate_dialogues_command(args):
             output_rated_csv=getattr(args, "output_rated_csv", None),
             classifier_reasoning_effort=reasoning_effort, ### EDITED
             classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
+            cue_group_config=getattr(args, "cue_group_config", None),
             verbose=True,
         )
         if not output_path:
@@ -742,6 +743,18 @@ def _parse_flags(_):
     rate_config_group.add_argument(
         "--cues-to-rate", type=str, nargs="+", help=argparse.SUPPRESS
     )  # deprecated alias
+    rate_config_group.add_argument(
+        "--cue-group-config",
+        type=str,
+        default=None,
+        choices=list(CUE_GROUP_CONFIGS.keys()),
+        help=(
+            "Optional cue grouping: rate several cues per LLM call instead of "
+            "one call per cue (see anthro_benchmark.classifier.cue_grouping). "
+            "'personal pronoun use' is unaffected (always regex-rated). "
+            "Default: unset, i.e. one call per cue as before."
+        ),
+    )
     rate_config_group.add_argument(
         "--num-samples",
         type=int,
