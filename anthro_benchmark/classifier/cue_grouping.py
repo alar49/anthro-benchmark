@@ -130,12 +130,15 @@ def create_prompt_for_cue_group(
 ) -> str:
     """USER-role content only: the conversation once, followed by N
     numbered question blocks. Framing, the "answer independently"
-    instruction, and output-format spec live in the system prompt
-    (see LLMGroupClassifier.rate_turn_messages) -- built via the same
-    classifiers.build_classifier_system_prompt() the singleton path uses,
-    so a group of size 1 and a singleton LLMClassifier call see the exact
-    same system message. Turn text appears exactly once regardless of how
-    many cues are in the group -- this is the actual cost saving."""
+    instruction, and output-format spec live in the system prompt (see
+    LLMGroupClassifier.rate_turn_messages), built via
+    classifiers.build_classifier_system_prompt(structured_output=True) --
+    always structured (JSON Lines) for this path, even for a group of
+    size 1, which is deliberately DIFFERENT from a true singleton
+    LLMClassifier call (structured_output=False, plain text). See that
+    function's docstring for why conflating the two was a bug. Turn text
+    appears exactly once regardless of how many cues are in the group --
+    this is the actual cost saving."""
     assistant_turn_message = assistant_turn_message.rstrip()
     user_turn_message = user_turn_message.rstrip()
 
@@ -262,8 +265,16 @@ def resolve_call_units(
     never sent to an LLM). With cue_group_config=None, every unit is size
     1, matching rate_dialogues()'s original one-call-per-cue behavior
     exactly (same cues, same order).
+
+    Duplicates in cues_to_rate are dropped, keeping first-occurrence
+    order, regardless of cue_group_config. (Before this, an ungrouped
+    call would silently rate a duplicated cue twice -- wasting a call and
+    having the second result silently overwrite the first's column --
+    while a grouped call happened to dedupe it as an incidental side
+    effect of an internal set(). Same input now behaves the same way
+    either way.)
     """
-    requested = list(cues_to_rate)
+    requested = list(dict.fromkeys(cues_to_rate))  # dedupe, preserve order
     units: List[List[str]] = []
 
     if "personal pronoun use" in requested:
