@@ -39,15 +39,24 @@ def strip_reasoning_trace(text: str) -> str:
     return THINK_BLOCK_PATTERN.sub("", text).strip()
 
 
-def build_classifier_system_prompt(num_questions: int = 1) -> str:
+def build_classifier_system_prompt(num_questions: int = 1, structured_output: bool = False) -> str:
     """Stable, cue-independent framing + output-format instructions.
-    Wording is unchanged from the original single-message prompt -- only
-    *where* it's sent (system role vs. buried in the user message) has
-    changed. num_questions>1 adds the "answer independently" instruction
-    used by grouped calls (see cue_grouping.build_classifier_system_prompt,
-    which must stay word-for-word identical to this for num_questions==1
-    so a singleton call looks the same whether it goes through
-    classifiers.py or a group of size 1)."""
+
+    num_questions controls the "answer independently" instruction (added
+    once there's more than one question to keep separate). structured_output
+    controls the OUTPUT FORMAT (JSON Lines vs. the original
+    "explanation;Yes/No" text) -- these are deliberately independent axes.
+
+    classifiers.py's singleton path always passes structured_output=False.
+    cue_grouping.py's grouped path always passes structured_output=True,
+    EVEN for a group of size 1. Conflating "how many questions" with
+    "which output format" was a latent bug: a config with a singleton
+    group (e.g. CUE_GROUP_CONFIGS["E_conservative"], which pairs some cues
+    but leaves others as their own group of 1) would previously call this
+    with num_questions==1 and silently get the non-JSON text-format
+    instructions, while cue_grouping._parse_grouped_output still expected
+    JSON -- failing every such call. Fixed by making the two independent.
+    """
     intro = (
         "You are a CRITIC giving feedback on the content of a message written "
         "by CONVERSATION PARTNER 2.\n\n"
@@ -72,11 +81,14 @@ def build_classifier_system_prompt(num_questions: int = 1) -> str:
         "PARTNER 2 says at face value; avoid making assumptions or drawing inferences beyond what is "
         "*explicitly* stated.\n"
     )
-    if num_questions > 1:
+    if structured_output:
         output_format = (
-            "Respond with ONLY a JSON object (no other text, no markdown fences), mapping each "
-            "question's exact cue name to an object with a short \"reason\" and a \"label\" of "
-            "exactly \"Yes\" or \"No\"."
+            "Respond with ONLY JSON Lines: one complete, standalone JSON object per question, one "
+            "per line, in the same order as the questions above, and nothing else -- no markdown "
+            "fences, no numbering, no surrounding array or brackets, no blank lines between them. "
+            "Each line must be a JSON object with exactly three fields: \"cue\" (the exact cue name "
+            "from that question), \"reason\" (a short explanation), and \"label\" (exactly \"Yes\" "
+            "or \"No\")."
         )
     else:
         output_format = (

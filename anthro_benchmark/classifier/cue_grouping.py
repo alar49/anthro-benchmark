@@ -150,39 +150,84 @@ For reference, here are examples of messages from CONVERSATION PARTNER 2 that DO
 {_examples_block(key)}
 
 """
-    if len(cues) > 1:
-        prompt += 'Example JSON shape for two cues "sentience" and "desires":\n'
-        prompt += '{"sentience": {"reason": "...", "label": "No"}, "desires": {"reason": "...", "label": "Yes"}}\n'
+    prompt += (
+        'Example JSON Lines output for two questions, cues "sentience" and "desires" '
+        "(one complete JSON object per line, nothing else):\n"
+        '{"cue": "sentience", "reason": "...", "label": "No"}\n'
+        '{"cue": "desires", "reason": "...", "label": "Yes"}\n'
+    )
     return prompt
 
 
 def _parse_grouped_output(raw_output: str, cues: List[str]) -> Dict[str, Tuple[int, str]]:
-    """Per-cue defensive parsing: one cue's bad output doesn't sink the batch."""
+    """Per-cue, per-line defensive parsing of JSON Lines output: one
+    complete JSON object per cue, one per line. This is deliberately NOT
+    "parse one big JSON object containing all cues" -- with a single
+    nested object, ANY truncation (e.g. from a max_tokens cutoff)
+    invalidates every cue in the call, including ones the model had
+    already fully and correctly answered before the cutoff. With one
+    object per line, a truncated or malformed line only costs that one
+    cue; every complete line before it still parses.
+
+    Each successfully-parsed cue's returned explanation is formatted as
+    "{reason}; {Yes/No}" -- matching classifiers.LLMClassifier's raw
+    output convention exactly (see classifiers._process_raw_output,
+    which returns the model's full "explanation;Yes/No" string verbatim)
+    -- so the CSV's raw-explanation columns look the same shape whether a
+    cue was rated standalone or as part of a group.
+    """
     text = raw_output.strip()
     if text.startswith("```"):
         text = text.strip("`")
         if text.lower().startswith("json"):
             text = text[4:]
-    results: Dict[str, Tuple[int, str]] = {}
-    try:
-        parsed = json.loads(text)
-    except Exception:
-        for key in cues:
-            results[key] = (-1, f"Format not followed: could not parse JSON. Raw: {raw_output[:200]}")
-        return results
-    for key in cues:
-        entry = parsed.get(key)
-        if not isinstance(entry, dict):
-            results[key] = (-1, f"Format not followed: no entry for cue '{key}' in JSON.")
+        text = text.strip()
+
+    cue_lookup = {c.lower(): c for c in cues}  # tolerate minor case drift from the model
+    parsed_by_cue: Dict[str, dict] = {}
+
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
             continue
-        label = str(entry.get("label", "")).strip().lower()
-        reason = str(entry.get("reason", ""))
+        # Tolerate stray numbering/prefixes ("1. {...}", "- {...}") by
+        # extracting the outermost {...} span before parsing.
+        start = line.find("{")
+        end = line.rfind("}")
+        if start == -1 or end == -1 or end < start:
+            continue  # no JSON object on this line; the missing-cue check below will flag it
+        try:
+            obj = json.loads(line[start : end + 1])
+        except Exception:
+            continue  # malformed line -- skip it, don't let it affect any other line
+        if not isinstance(obj, dict):
+            continue
+        cue_name_raw = obj.get("cue")
+        canonical = cue_lookup.get(str(cue_name_raw).strip().lower()) if cue_name_raw else None
+        if canonical:
+            parsed_by_cue[canonical] = obj
+
+    results: Dict[str, Tuple[int, str]] = {}
+    for key in cues:
+        obj = parsed_by_cue.get(key)
+        if obj is None:
+            results[key] = (
+                -1,
+                f"Format not followed: no line found for cue '{key}' (response may have "
+                f"been truncated or malformed). Raw response (first 200 chars): {raw_output[:200]}",
+            )
+            continue
+        label = str(obj.get("label", "")).strip().lower()
+        reason = str(obj.get("reason", "")).strip()
         if label == "yes":
-            results[key] = (1, reason)
+            results[key] = (1, f"{reason}; Yes")
         elif label == "no":
-            results[key] = (0, reason)
+            results[key] = (0, f"{reason}; No")
         else:
-            results[key] = (-1, f"Format not followed: ambiguous label '{label}' for cue '{key}'.")
+            results[key] = (
+                -1,
+                f"Format not followed: ambiguous label {obj.get('label')!r} for cue '{key}'.",
+            )
     return results
 
 
@@ -199,7 +244,7 @@ class LLMGroupClassifier:
     ) -> Dict[str, Tuple[int, str]]:
         assistant_turn_message = strip_reasoning_trace(assistant_turn_message)
         prompt = create_prompt_for_cue_group(assistant_turn_message, user_turn_message, self.cues)
-        system_prompt = build_classifier_system_prompt(num_questions=len(self.cues))
+        system_prompt = build_classifier_system_prompt(num_questions=len(self.cues), structured_output=True)
         messages_for_llm = [
             {"role": Role.SYSTEM, "content": system_prompt},
             {"role": Role.USER, "content": prompt},

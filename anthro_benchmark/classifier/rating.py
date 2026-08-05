@@ -81,6 +81,8 @@ def rate_dialogues(
     classifier_reasoning_effort: str | None = None,
     classifier_openrouter_provider: dict[str, Any] | None = None,
     cue_group_config: str | None = None,
+    classifier_max_tokens_base: int | None = None,
+    classifier_max_tokens_per_cue: int | None = None,
     # --------------
     verbose: bool = False,
 ) -> str:
@@ -104,6 +106,22 @@ def rate_dialogues(
             them differs. "personal pronoun use" is always rated by
             regex regardless of this setting. When None (default),
             behavior is unchanged: one LLM call per cue, exactly as before.
+        classifier_max_tokens_base, classifier_max_tokens_per_cue: Optional
+            max_tokens safety net for the classifier LLM, computed PER CALL
+            UNIT as classifier_max_tokens_base + classifier_max_tokens_per_cue
+            * (number of cues actually asked about in that call) -- so a
+            singleton call and a 5-cue grouped call get different budgets,
+            and a config filtered down by --behaviors-to-rate gets the
+            budget for the cues actually requested, not the config's
+            nominal group size. If both are None/0, no max_tokens is set
+            at all (unbounded, identical to pre-existing behavior). This
+            is meant as a circuit breaker against a runaway/looping
+            generation, not a cost-optimization lever -- set generously
+            (e.g. several times your measured typical completion length)
+            so it essentially never fires in normal operation; a tight
+            cap risks truncating a response before its Yes/No verdict is
+            emitted, which a parser reads as a missing/ambiguous rating,
+            not an explicit error.
         classifier_openrouter_provider: Optional OpenRouter provider-routing
             object (see LLMClient's openrouter_provider param / OpenRouter's
             own docs at
@@ -276,6 +294,23 @@ def rate_dialogues(
                     f"  No classifier models specified for LLM rating of unit {cue_unit}. Skipping LLM rating part."
                 )
 
+            # Computed per call unit (not per config): a config's group may
+            # be filtered down by --behaviors-to-rate, so len(cue_unit) is
+            # what's actually asked in this call, not the config's nominal
+            # group size. 0/None on both flags means "no cap" (unchanged
+            # pre-existing behavior).
+            max_tokens_for_unit = None
+            if classifier_max_tokens_base or classifier_max_tokens_per_cue:
+                max_tokens_for_unit = (classifier_max_tokens_base or 0) + (
+                    classifier_max_tokens_per_cue or 0
+                ) * len(cue_unit)
+                if max_tokens_for_unit <= 0:
+                    max_tokens_for_unit = None
+                elif verbose:
+                    print(
+                        f"  max_tokens for this call unit ({len(cue_unit)} cue(s)): {max_tokens_for_unit}"
+                    )
+
             cue_definition_by_cue = {}
             cue_examples_by_cue = {}
             for c in cue_unit:
@@ -310,6 +345,8 @@ def rate_dialogues(
                     "openrouter_provider": classifier_openrouter_provider,
                     # --------------
                 }
+                if max_tokens_for_unit is not None:
+                    classifier_llm_config["max_tokens"] = max_tokens_for_unit
                 if is_grouped:
                     group_classifier = LLMGroupClassifier(classifier_llm_config, cue_unit)
                 else:
@@ -503,6 +540,8 @@ def run_rating_process(
     classifier_reasoning_effort: str | None = None,
     classifier_openrouter_provider: dict[str, Any] | None = None,
     cue_group_config: str | None = None,
+    classifier_max_tokens_base: int | None = None,
+    classifier_max_tokens_per_cue: int | None = None,
     # --------------
     verbose: bool = True,
 ) -> str:
@@ -516,6 +555,8 @@ def run_rating_process(
         classifier_temperature: Temperature for the classifier LLM(s)
         num_samples: Number of times to sample rating for each turn per model (1 or 3)
         output_rated_csv: Path for the output CSV. If None, generates a filename
+        classifier_max_tokens_base, classifier_max_tokens_per_cue: See
+            rate_dialogues()'s docstring -- passed straight through.
         classifier_openrouter_provider: Optional OpenRouter provider-routing
             object applied to every model in classifier_models. See
             rate_dialogues()'s docstring for details.
@@ -536,6 +577,8 @@ def run_rating_process(
         classifier_reasoning_effort=classifier_reasoning_effort,
         classifier_openrouter_provider=classifier_openrouter_provider,
         cue_group_config=cue_group_config,
+        classifier_max_tokens_base=classifier_max_tokens_base,
+        classifier_max_tokens_per_cue=classifier_max_tokens_per_cue,
         # --------------
         verbose=verbose,
     )

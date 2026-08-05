@@ -308,6 +308,8 @@ def rate_dialogues_command(args):
             classifier_reasoning_effort=reasoning_effort, ### EDITED
             classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
             cue_group_config=getattr(args, "cue_group_config", None),
+            classifier_max_tokens_base=getattr(args, "classifier_max_tokens_base", None),
+            classifier_max_tokens_per_cue=getattr(args, "classifier_max_tokens_per_cue", None),
             verbose=True,
         )
         if not output_path:
@@ -753,6 +755,32 @@ def _parse_flags(_):
             "one call per cue (see anthro_benchmark.classifier.cue_grouping). "
             "'personal pronoun use' is unaffected (always regex-rated). "
             "Default: unset, i.e. one call per cue as before."
+        ),
+    )
+    rate_config_group.add_argument(
+        "--classifier-max-tokens-base",
+        type=int,
+        default=None,
+        help=(
+            "Base max_tokens for the classifier LLM's response. Combined with "
+            "--classifier-max-tokens-per-cue as base + per_cue * (number of "
+            "cues actually asked in that call). Leave both unset for no cap "
+            "(default, matches prior behavior). Meant as a circuit breaker "
+            "against a runaway/looping generation, not a cost-optimization "
+            "lever -- set generously, since a tight cap risks truncating a "
+            "response before its Yes/No verdict is emitted."
+        ),
+    )
+    rate_config_group.add_argument(
+        "--classifier-max-tokens-per-cue",
+        type=int,
+        default=None,
+        help=(
+            "Per-cue max_tokens increment for the classifier LLM, added once "
+            "per cue actually asked about in a given call (see "
+            "--classifier-max-tokens-base). Matters most with "
+            "--cue-group-config, where a call unit's cue count varies by "
+            "config and by how --behaviors-to-rate filters it."
         ),
     )
     rate_config_group.add_argument(
