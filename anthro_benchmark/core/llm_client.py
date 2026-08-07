@@ -366,6 +366,72 @@ def _extract_reasoning_token_count(usage: Any) -> Optional[int]:
     return None
 
 
+# --- Provider-aware API key resolution -------------------------------------
+#
+# LiteLLM identifies a model's provider either from an explicit
+# "<provider>/<model>" prefix (e.g. "anthropic/claude-3-5-sonnet-20241022")
+# or by recognizing the model name itself even with no prefix at all (e.g.
+# "claude-3-5-sonnet-20241022" and "gemini-1.5-flash" are both valid on
+# their own). Each provider expects its own environment variable for
+# credentials. This maps a model string to the ordered list of env vars to
+# check, so Gemini/Claude/Mistral models are resolved the same way
+# OpenAI/OpenRouter ones already were.
+PROVIDER_API_KEY_ENV_VARS: Dict[str, List[str]] = {
+    "openrouter": ["OPENROUTER_API_KEY", "OPENAI_API_KEY"],
+    "google": ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
+    "gemini": ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
+    "vertex_ai": ["GOOGLE_API_KEY"],
+    "anthropic": ["ANTHROPIC_API_KEY"],
+    "mistral": ["MISTRAL_API_KEY"],
+    "openai": ["OPENAI_API_KEY"],
+}
+
+# Substring fallbacks for prefix-less model names (e.g. "claude-3-5-sonnet",
+# "gemini-1.5-flash", "mistral-large-latest", "gpt-4o"), checked in order if
+# the "<prefix>/..." form doesn't match a known provider above. Order
+# matters only in that these are checked before giving up, not relative to
+# each other (the substrings don't overlap).
+_PROVIDER_NAME_HINTS: List[Tuple[str, str]] = [
+    ("claude", "anthropic"),
+    ("gemini", "google"),
+    ("mistral", "mistral"),
+    ("mixtral", "mistral"),
+    ("gpt", "openai"),
+]
+
+
+def _infer_provider(model: str) -> Optional[str]:
+    """Best-effort provider name for `model`, used only to choose which
+    environment variable(s) to check for an API key. Returns None if no
+    provider could be inferred at all -- LiteLLM itself recognizes far more
+    providers/env-var names than the handful mapped above (Bedrock, Vertex
+    service accounts, Azure, HuggingFace, Cohere, ...), so callers should
+    fall through to LiteLLM's own resolution rather than treating None as
+    an error."""
+    prefix = model.split("/", 1)[0].lower() if "/" in model else ""
+    if prefix in PROVIDER_API_KEY_ENV_VARS:
+        return prefix
+
+    lower_model = model.lower()
+    for hint, provider in _PROVIDER_NAME_HINTS:
+        if hint in lower_model:
+            return provider
+
+    return None
+
+
+def resolve_api_key_env_vars(model: str) -> List[str]:
+    """Ordered list of environment variable names to check for `model`.
+    Empty list if a provider couldn't be inferred at all (see
+    _infer_provider) -- that's meaningful on its own (nothing to check),
+    as distinct from a recognized provider whose env var(s) simply aren't
+    set."""
+    provider = _infer_provider(model)
+    if provider is None:
+        return []
+    return PROVIDER_API_KEY_ENV_VARS[provider]
+
+
 class LLMClient:
     """
     LiteLLM-first client.
@@ -422,27 +488,58 @@ class LLMClient:
         if self.max_backoff < self.initial_backoff:
             raise ValueError("max_backoff must be >= initial_backoff")
 
+        self.model = model
+
         if model.startswith("openrouter/"):
-            #self.model = model[len("openrouter/") :] #OLD VERSION
-            # NEW VERSION = Keep the LiteLLM provider prefix intact.
-            self.model = model
-
             resolved_base_url = base_url or "https://openrouter.ai/api/v1"
-            resolved_api_key = (
-                api_key
-                or os.environ.get("OPENROUTER_API_KEY")
-                or os.environ.get("OPENAI_API_KEY")
-            )
         else:
-            self.model = model
             resolved_base_url = base_url
-            resolved_api_key = api_key or os.environ.get("OPENAI_API_KEY")
 
-        if not resolved_api_key:
-            raise ValueError(
-                "API key must be provided via arguments or environment variables "
-                "(OPENROUTER_API_KEY / OPENAI_API_KEY)."
-            )
+        # Try an explicit api_key argument first, then whichever
+        # provider-specific environment variable(s) apply to this model
+        # (see PROVIDER_API_KEY_ENV_VARS / _infer_provider above). This is
+        # what makes GOOGLE_API_KEY/GEMINI_API_KEY, ANTHROPIC_API_KEY, and
+        # MISTRAL_API_KEY actually work for direct (non-OpenRouter) Gemini/
+        # Claude/Mistral models -- previously only OPENAI_API_KEY (and, for
+        # "openrouter/..." models, OPENROUTER_API_KEY) were ever checked
+        # here, regardless of which provider the model string named.
+        candidate_env_vars = resolve_api_key_env_vars(model)
+        resolved_api_key = api_key
+        if resolved_api_key is None:
+            for env_var in candidate_env_vars:
+                value = os.environ.get(env_var)
+                if value:
+                    resolved_api_key = value
+                    break
+
+        if resolved_api_key is None:
+            # Don't hard-fail here. If the provider couldn't be inferred at
+            # all, or none of its candidate env vars are set, fall through
+            # and let LiteLLM's own credential resolution take over --
+            # LiteLLM recognizes many more providers/env-var names than the
+            # handful mapped above (Bedrock, Vertex service accounts,
+            # Azure, HuggingFace, Cohere, a bare litellm.api_key, ...), so
+            # refusing to even try here would be more restrictive than
+            # useful. If LiteLLM also can't find credentials, the call
+            # raises its own AuthenticationError with a provider-specific
+            # message (handled, not retried, in generate() below) --
+            # clearer than a generic error from this constructor would be.
+            if candidate_env_vars:
+                logger.warning(
+                    "No API key found for model '%s'. Checked: %s (and the "
+                    "api_key argument). Falling back to LiteLLM's own "
+                    "credential resolution; the call will fail with its own "
+                    "error if that also finds nothing.",
+                    model,
+                    ", ".join(candidate_env_vars),
+                )
+            else:
+                logger.warning(
+                    "Could not infer a provider for model '%s' to pick a "
+                    "specific API key environment variable. Falling back to "
+                    "LiteLLM's own credential resolution.",
+                    model,
+                )
 
         if self.openrouter_provider and not self.model.startswith("openrouter/"):
             raise ValueError(
@@ -502,8 +599,13 @@ class LLMClient:
             "messages": messages,
             "temperature": self.temperature,
             "num_retries": 0,  # centralize retry behavior here; no hidden retry loops
-            "api_key": self.api_key,
         }
+        if self.api_key:
+            # Only set explicitly when we actually resolved one (see
+            # __init__) -- omitting the key entirely, rather than passing
+            # None, lets LiteLLM fall back to its own credential
+            # resolution instead of e.g. sending a literal "None".
+            payload["api_key"] = self.api_key
 
         if self.base_url:
             payload["api_base"] = self.base_url

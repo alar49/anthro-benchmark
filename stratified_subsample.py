@@ -32,6 +32,9 @@ IMPLICATION FOR SAMPLING:
   comparisons), and/or you need an arbitrary n not divisible by the design.
 """
 
+import argparse
+import os
+
 import pandas as pd
 import numpy as np
 
@@ -119,16 +122,116 @@ def check_balance(df_full, df_sub, cols=('use_domain', 'use_scenario', 'empathy'
         print(f"  {col:20s} max |proportion diff| = {(p_full - p_sub).abs().max():.4f}")
 
 
+def _default_input_path() -> str:
+    """Resolve first_turns.csv without assuming any particular environment.
+
+    Priority:
+    1. './first_turns.csv' in the current working directory -- covers
+       Colab/Kaggle, where you've typically just uploaded or !wget'ed it
+       there, and any local run from a directory you've already put it in.
+    2. The copy bundled inside an installed anthro_benchmark package (only
+       resolves if you've run `pip install -e .` from the repo root) --
+       the same file DialogueGenerator._load_prompts() reads via
+       importlib.resources when no --custom-prompt-csv is given, and the
+       same resolution build_balanced_sample.py's DATASET_PATH uses.
+    3. Falls back to the literal string 'first_turns.csv' if neither is
+       found, so pd.read_csv() raises its own clear FileNotFoundError
+       naming that path, instead of this function raising first.
+    """
+    local_candidate = "first_turns.csv"
+    if os.path.exists(local_candidate):
+        return local_candidate
+    try:
+        import importlib.resources
+
+        packaged = importlib.resources.files("anthro_benchmark.prompt_sets") / "first_turns.csv"
+        if packaged.is_file():
+            return str(packaged)
+    except Exception:
+        pass
+    return local_candidate
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Stratified subsampling for AnthroBench's first_turns.csv. "
+        "Works unmodified on Colab, Kaggle, or a local checkout: run it from "
+        "the directory containing first_turns.csv (or pass --input), and "
+        "outputs are written to the current directory unless --output-dir "
+        "says otherwise."
+    )
+    parser.add_argument(
+        "--input", "-i",
+        type=str,
+        default=None,
+        help=(
+            "Path to first_turns.csv. If omitted: looks for "
+            "'./first_turns.csv' in the current directory first, then falls "
+            "back to the copy bundled in an installed anthro_benchmark "
+            "package (requires `pip install -e .`)."
+        ),
+    )
+    parser.add_argument(
+        "--output-dir", "-o",
+        type=str,
+        default=".",
+        help="Directory to write output CSVs to. Defaults to the current "
+        "working directory.",
+    )
+    parser.add_argument(
+        "--k-per-cue",
+        type=int,
+        default=5,
+        help="Prompts to keep per cue for the recommended block-stratified "
+        "sample (max 10; default 5, i.e. 50%%).",
+    )
+    parser.add_argument(
+        "--row-n",
+        type=int,
+        default=300,
+        help="Target row count for the alternative row-stratified sample "
+        "(default: 300).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for both sampling strategies (default: 42).",
+    )
+    parser.add_argument(
+        "--skip-row-sample",
+        action="store_true",
+        help="Only run the recommended block-stratified sample; skip the "
+        "row-stratified alternative.",
+    )
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    df = pd.read_csv('/mnt/user-data/uploads/first_turns.csv')
+    args = _parse_args()
+    input_path = args.input or _default_input_path()
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    print(f"Loading dataset from: {input_path}")
+    df = pd.read_csv(input_path)
     validate_structure(df)
     print("Structural assumptions verified.\n")
 
-    print("=== Recommended: block-stratified sample, 50% of prompts per cue ===")
-    sub = block_stratified_sample(df, k_per_cue=5, random_state=42)
+    print(f"=== Recommended: block-stratified sample, {args.k_per_cue}/10 prompts per cue ===")
+    sub = block_stratified_sample(df, k_per_cue=args.k_per_cue, random_state=args.seed)
     check_balance(df, sub)
-    sub.to_csv('/mnt/user-data/outputs/first_turns_subset_balanced_50pct.csv', index=False)
+    block_output_path = os.path.join(
+        args.output_dir, f"first_turns_subset_balanced_k{args.k_per_cue}.csv"
+    )
+    sub.to_csv(block_output_path, index=False)
+    print(f"Saved to: {block_output_path}")
 
-    print("\n=== Alternative: row-stratified sample, arbitrary n=300 ===")
-    sub2 = row_stratified_sample(df, n=300, random_state=42)
-    check_balance(df, sub2)
+    if not args.skip_row_sample:
+        print(f"\n=== Alternative: row-stratified sample, n={args.row_n} ===")
+        sub2 = row_stratified_sample(df, n=args.row_n, random_state=args.seed)
+        check_balance(df, sub2)
+        row_output_path = os.path.join(
+            args.output_dir, f"first_turns_subset_row_n{args.row_n}.csv"
+        )
+        sub2.to_csv(row_output_path, index=False)
+        print(f"Saved to: {row_output_path}")

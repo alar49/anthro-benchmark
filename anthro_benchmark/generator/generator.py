@@ -243,7 +243,13 @@ class DialogueGenerator:
                 "(one dialogue per loaded prompt)."
             )
         else:
-            self.num_dialogues = 10  # historical fallback when no prompts loaded at all
+            # _load_prompts() now raises ValueError instead of returning []
+            # whenever loading/filtering leaves zero prompts, so self.prompts
+            # is guaranteed non-empty here in normal use. This branch is kept
+            # only as a defensive backstop (e.g. a subclass overriding
+            # _load_prompts without adopting that behavior) rather than
+            # something that fires in practice.
+            self.num_dialogues = 10
 
         self.user_llm = LLMClient(**self.user_llm_config)
         self.target_llm = LLMClient(**self.target_llm_config)
@@ -269,10 +275,15 @@ class DialogueGenerator:
             f"Total prompts loaded: {len(all_prompts_df)} before further processing."
         )
 
+        pre_category_filter_count = len(all_prompts_df)
+
         if self.prompt_category_names:
             # filter by behavior_category
             print(
                 f"Filtering prompts for behavior categories: {self.prompt_category_names}"
+            )
+            available_categories = sorted(
+                all_prompts_df["behavior_category"].dropna().unique().tolist()
             )
             all_prompts_df = all_prompts_df[
                 all_prompts_df["behavior_category"].isin(
@@ -284,10 +295,15 @@ class DialogueGenerator:
             )
 
             if all_prompts_df.empty:
-                print(
-                    f"No prompts found for the specified behavior categories: {self.prompt_category_names}"
+                raise ValueError(
+                    f"--prompt-category-name {self.prompt_category_names} matched "
+                    f"0 of {pre_category_filter_count} prompts. This used to fall "
+                    "back to generating dialogues from a generic placeholder "
+                    "prompt instead of erroring, silently burning API calls on "
+                    "input you didn't intend -- that fallback has been removed. "
+                    f"The behavior_category values actually present in the loaded "
+                    f"data are: {available_categories}."
                 )
-                return []
 
         if "user_first_turn" in all_prompts_df.columns:
             all_prompts_df.rename(
@@ -325,16 +341,35 @@ class DialogueGenerator:
 
         if self.cues:
             original_count = len(prompts)
+            available_cues = sorted(
+                {p.get("cue") for p in prompts if p.get("cue") is not None}
+            )
             prompts = [p for p in prompts if p.get("cue") in self.cues]
             print(
                 f"Filtered prompts by cues: {self.cues}. Kept {len(prompts)} out of {original_count}."
             )
+            if not prompts:
+                raise ValueError(
+                    f"--behaviors/--cues {self.cues} matched 0 of {original_count} "
+                    "prompts (after any category filtering/dedup above). The "
+                    f"cue values actually present at this point are: {available_cues}. "
+                    "Note this is the *generation*-stage cue vocabulary (from "
+                    "first_turns.csv's 'cue' column, Title Case, e.g. "
+                    "'Validation/empathy'), which is a different, non-interchangeable "
+                    "vocabulary from `rate`'s --behaviors-to-rate (from "
+                    "cue_definitions.py, lowercase, split, e.g. 'validation' and "
+                    "'empathy' separately) -- don't reuse a --behaviors-to-rate "
+                    "value here expecting it to match."
+                )
 
         if not prompts:
-            print(
-                "No prompts available after loading and all filtering steps. Using default prompts if any dialogues are generated."
+            raise ValueError(
+                "No prompts available after loading (before any category/cue "
+                "filtering was even applied): the prompt source itself is empty. "
+                f"Source: {'--custom-prompt-csv=' + repr(self.custom_prompt_csv) if self.custom_prompt_csv else 'the bundled first_turns.csv'}. "
+                "Check that the CSV has rows and a 'prompt' or 'user_first_turn' "
+                "column."
             )
-            return []
 
         print(
             f"Successfully prepared {len(prompts)} prompts for dialogue generation."
