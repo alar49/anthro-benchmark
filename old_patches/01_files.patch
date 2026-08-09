@@ -1,0 +1,731 @@
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index c0a1a2f..4fd1be6 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -20,6 +20,7 @@ and produces rated CSV output files.
+ 
+ from collections import Counter
+ 
++import asyncio
+ import os
+ import json
+ import re
+@@ -36,6 +37,7 @@ from anthro_benchmark.classifier.cue_grouping import (
+     LLMGroupClassifier,
+     resolve_call_units,
+ )
++from anthro_benchmark.core.llm_client import BudgetGuard, BudgetExceededError
+ 
+ 
+ def get_majority_vote(scores: list[int]) -> int:
+@@ -69,6 +71,49 @@ def sanitize_model_name(model_name: str) -> str:
+     return re.sub(r"[^a-zA-Z0-9_.-]", "_", model_name)
+ 
+ 
++async def _rate_rows_concurrently_async(row_fn, rows, max_concurrency, desc):
++    semaphore = asyncio.Semaphore(max_concurrency)
++    progress_bar = tqdm(total=len(rows), desc=desc, unit="turn")
++
++    async def _run_one(row):
++        async with semaphore:
++            try:
++                result = await asyncio.to_thread(row_fn, row)
++            except BudgetExceededError as e:
++                # Converted to a value, not re-raised: this lets the
++                # whole batch finish (everything else in flight or
++                # already queued still gets its result recorded) instead
++                # of asyncio.gather aborting on the first failure and
++                # losing every other row's work. Any OTHER exception is
++                # deliberately NOT caught here -- it propagates out of
++                # gather() the same way an uncaught exception in the
++                # original sequential loop would have crashed the whole
++                # rate_dialogues() call, just discovered at batch
++                # granularity instead of per-row.
++                result = e
++        progress_bar.update(1)
++        return result
++
++    try:
++        return await asyncio.gather(*(_run_one(row) for row in rows))
++    finally:
++        progress_bar.close()
++
++
++def _rate_rows_concurrently(row_items, row_fn, max_concurrency, desc):
++    """row_items: list of (index, row) pairs, e.g. from
++    dialogues_df.iterrows(). row_fn(row) -> (row_raw, row_processed,
++    row_final); may raise BudgetExceededError. Returns a list, one entry
++    per row IN THE SAME ORDER as row_items, where each entry is either
++    row_fn's normal return value or a BudgetExceededError instance --
++    order must be preserved because callers index results positionally
++    to line up with dialogues_df's rows."""
++    rows = [row for _, row in row_items]
++    return asyncio.run(
++        _rate_rows_concurrently_async(row_fn, rows, max_concurrency, desc)
++    )
++
++
+ def rate_dialogues(
+     dialogues_csv_path: str,
+     cues_to_rate: list[str],
+@@ -83,6 +128,8 @@ def rate_dialogues(
+     cue_group_config: str | None = None,
+     classifier_max_tokens_base: int | None = None,
+     classifier_max_tokens_per_cue: int | None = None,
++    budget_guard: BudgetGuard | None = None,
++    max_concurrency: int = 1,
+     # --------------
+     verbose: bool = False,
+ ) -> str:
+@@ -129,6 +176,25 @@ def rate_dialogues(
+             Only meaningful when classifier_models are "openrouter/..."
+             models. Applied identically to every classifier model in
+             classifier_models.
++        budget_guard: Optional BudgetGuard shared across every cue unit and
++            every classifier model in this run (one guard total, same
++            pattern as generate sharing one guard between its user and
++            target LLMs). When the cap is hit, rating stops after finishing
++            whatever cue unit was in progress (its columns are still
++            written using whichever models/rows completed) rather than
++            continuing to attempt calls that would immediately fail --
++            already-rated rows and already-completed cue units are not
++            lost.
++        max_concurrency: How many rows to rate at once, per (cue unit,
++            classifier model) combination. Default 1 reproduces the
++            original fully-sequential behavior exactly. Values > 1 run
++            rows concurrently via asyncio.to_thread -- ratings have no
++            cross-row dependency (unlike generate's dialogue turns), so
++            this is where concurrency helps most. Real OS-thread
++            concurrency under the hood, same as generate's
++            max_concurrency -- see BudgetGuard's docstring in
++            llm_client.py for the overshoot caveat when combined with a
++            budget cap.
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -189,6 +255,18 @@ def rate_dialogues(
+         print(f"Cue group config '{cue_group_config}': {len(cues_to_rate)} cues -> {len(call_units)} call unit(s): {call_units}")
+ 
+     # rating loop
++    #
++    # session_budget_exceeded / session_budget_exceeded_message: set when
++    # budget_guard's cap is hit partway through the LLM row loop below.
++    # Rather than crashing or continuing to attempt calls that would
++    # immediately fail, this cue unit still gets its columns written using
++    # whatever models/rows completed (see the "calculate final cross-model
++    # score" step below, which runs unconditionally), and then this flag
++    # is checked once more at the end of the cue-unit loop body to skip
++    # any remaining cue units entirely and go straight to saving the CSV.
++    session_budget_exceeded = False
++    session_budget_exceeded_message = None
++
+     for unit_idx, cue_unit in enumerate(call_units):
+         if verbose:
+             print(f"Processing cue unit {unit_idx + 1}/{len(call_units)}: {cue_unit}...")
+@@ -345,6 +423,8 @@ def rate_dialogues(
+                     "openrouter_provider": classifier_openrouter_provider,
+                     # --------------
+                 }
++                if budget_guard is not None:
++                    classifier_llm_config["budget_guard"] = budget_guard
+                 if max_tokens_for_unit is not None:
+                     classifier_llm_config["max_tokens"] = max_tokens_for_unit
+                 if is_grouped:
+@@ -358,21 +438,15 @@ def rate_dialogues(
+                         cue_examples_list=cue_examples_by_cue[singleton_cue],
+                     )
+ 
+-                current_model_raw = {c: [] for c in cue_unit}
+-                current_model_processed = {c: [] for c in cue_unit}
+-                current_model_final = {c: [] for c in cue_unit}
+-
+-                # row loop for LLM
+-                progress_desc = (
+-                    f"[unit {unit_idx + 1}/{len(call_units)}] {cue_unit} "
+-                    f"| model {model_idx + 1}/{len(classifier_models)} '{model_name}'"
+-                )
+-                for index, row in tqdm(
+-                    dialogues_df.iterrows(),
+-                    total=len(dialogues_df),
+-                    desc=progress_desc,
+-                    unit="turn",
+-                ):
++                def _rate_one_row(row):
++                    """Exactly the original per-row body, extracted so it
++                    can run either sequentially or concurrently (via
++                    asyncio.to_thread) without duplicating logic. May
++                    raise BudgetExceededError (never caught here --
++                    handled by the caller, see below) or any other
++                    exception from the classifier call (also never
++                    caught here -- propagates and is fatal, same as
++                    before this refactor)."""
+                     user_message_raw = row.get("user_message")
+                     assistant_message_raw = row.get("assistant_message")
+                     user_message = (
+@@ -429,10 +503,56 @@ def rate_dialogues(
+                             elif num_samples > 1:
+                                 row_final[c] = get_majority_vote(row_processed[c])
+ 
+-                    for c in cue_unit:
+-                        current_model_raw[c].append(row_raw[c])
+-                        current_model_processed[c].append(row_processed[c])
+-                        current_model_final[c].append(row_final[c])
++                    return row_raw, row_processed, row_final
++
++                progress_desc = (
++                    f"[unit {unit_idx + 1}/{len(call_units)}] {cue_unit} "
++                    f"| model {model_idx + 1}/{len(classifier_models)} '{model_name}'"
++                )
++
++                row_items = list(dialogues_df.iterrows())
++
++                if max_concurrency <= 1:
++                    # Sequential path: behaviorally identical to before
++                    # this refactor, except a BudgetExceededError now
++                    # stops the row loop (padding remaining rows as
++                    # skipped) instead of propagating and crashing the
++                    # whole `rate` command.
++                    row_results = []
++                    row_budget_exceeded_error = None
++                    for _, row in tqdm(row_items, desc=progress_desc, unit="turn"):
++                        if row_budget_exceeded_error is not None:
++                            row_results.append(row_budget_exceeded_error)
++                            continue
++                        try:
++                            row_results.append(_rate_one_row(row))
++                        except BudgetExceededError as e:
++                            row_budget_exceeded_error = e
++                            row_results.append(e)
++                else:
++                    row_results = _rate_rows_concurrently(
++                        row_items, _rate_one_row, max_concurrency, progress_desc
++                    )
++
++                current_model_raw = {c: [] for c in cue_unit}
++                current_model_processed = {c: [] for c in cue_unit}
++                current_model_final = {c: [] for c in cue_unit}
++                model_budget_exceeded_error = None
++                for result in row_results:
++                    if isinstance(result, BudgetExceededError):
++                        model_budget_exceeded_error = model_budget_exceeded_error or result
++                        for c in cue_unit:
++                            current_model_raw[c].append(
++                                ["Skipped - budget/iteration cap reached"] * num_samples
++                            )
++                            current_model_processed[c].append([-1] * num_samples)
++                            current_model_final[c].append(-1)
++                    else:
++                        row_raw, row_processed, row_final = result
++                        for c in cue_unit:
++                            current_model_raw[c].append(row_raw[c])
++                            current_model_processed[c].append(row_processed[c])
++                            current_model_final[c].append(row_final[c])
+ 
+                 for c in cue_unit:
+                     per_cue_raw_samples[c][sanitized_model_name] = current_model_raw[c]
+@@ -441,6 +561,21 @@ def rate_dialogues(
+                 if verbose:
+                     print(f"  Finished rating with model: '{model_name}'.")
+ 
++                if model_budget_exceeded_error is not None:
++                    session_budget_exceeded = True
++                    session_budget_exceeded_message = str(model_budget_exceeded_error)
++                    print(
++                        f"\nBudget/iteration cap reached while rating with "
++                        f"model '{model_name}' on cue unit {cue_unit} "
++                        f"({model_budget_exceeded_error}). This unit's "
++                        "columns will still be written using whatever "
++                        "models/rows completed; remaining classifier "
++                        "model(s) for this unit and any remaining cue "
++                        "unit(s) will not be attempted."
++                    )
++                    break  # stop the model loop for this cue unit
++
++
+         # calculate final cross-model score and add columns -- once per
+         # cue in this unit (a singleton unit runs this exactly once, same
+         # as the original per-cue loop did)
+@@ -499,6 +634,15 @@ def rate_dialogues(
+             dialogues_df[f"{cue_to_rate}_present"] = final_cross_model_scores
+             if verbose:
+                 print(f"Finished processing cue: '{cue_to_rate}'. Added all columns.")
++
++        if session_budget_exceeded:
++            print(
++                f"\nStopping after cue unit {unit_idx + 1}/{len(call_units)} "
++                f"{cue_unit} ({session_budget_exceeded_message}); any "
++                "remaining cue unit(s) will not be attempted. Saving "
++                "everything rated so far."
++            )
++            break
+     # end cue-unit loop
+ 
+     DEFAULT_RATED_DIR = "rated_dialogues"
+@@ -542,6 +686,8 @@ def run_rating_process(
+     cue_group_config: str | None = None,
+     classifier_max_tokens_base: int | None = None,
+     classifier_max_tokens_per_cue: int | None = None,
++    budget_guard: BudgetGuard | None = None,
++    max_concurrency: int = 1,
+     # --------------
+     verbose: bool = True,
+ ) -> str:
+@@ -560,6 +706,8 @@ def run_rating_process(
+         classifier_openrouter_provider: Optional OpenRouter provider-routing
+             object applied to every model in classifier_models. See
+             rate_dialogues()'s docstring for details.
++        budget_guard, max_concurrency: See rate_dialogues()'s docstring --
++            passed straight through.
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -579,6 +727,8 @@ def run_rating_process(
+         cue_group_config=cue_group_config,
+         classifier_max_tokens_base=classifier_max_tokens_base,
+         classifier_max_tokens_per_cue=classifier_max_tokens_per_cue,
++        budget_guard=budget_guard,
++        max_concurrency=max_concurrency,
+         # --------------
+         verbose=verbose,
+     )
+diff --git a/anthro_benchmark/core/llm_client.py b/anthro_benchmark/core/llm_client.py
+index 03db29c..7682cb5 100644
+--- a/anthro_benchmark/core/llm_client.py
++++ b/anthro_benchmark/core/llm_client.py
+@@ -114,6 +114,7 @@ import dataclasses
+ import logging
+ import os
+ import random
++import threading
+ import time
+ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+ 
+@@ -166,6 +167,20 @@ class BudgetGuard:
+     - max_iterations: hard cap on the number of LLM calls per session
+     - max_budget_per_session: hard cap on spend per session
+     - cost_estimator: required when max_budget_per_session is set
++
++    Thread-safe: reserve_call()/record_response() are internally locked so
++    this can be shared across concurrent callers (e.g. multiple dialogues
++    or rating rows generated in parallel via asyncio.to_thread, which runs
++    on real OS threads). Under concurrency the check-then-increment in
++    reserve_call() is only atomic *with the lock*; without it, two threads
++    could both pass the check before either increments, silently
++    exceeding max_iterations. The lock also means the effective ceiling
++    under concurrency is "max_iterations, plus however many calls were
++    already past their own reserve_call() and in flight" -- not an exact
++    global ceiling -- since already-reserved in-flight calls aren't
++    retroactively cancelled. That's an inherent property of concurrent
++    enforcement, not a bug: keep max_concurrency modest relative to
++    max_iterations if you want the overshoot bound to stay small.
+     """
+ 
+     session_id: str
+@@ -174,6 +189,9 @@ class BudgetGuard:
+     cost_estimator: Optional[Callable[[Any], float]] = None
+     iterations: int = 0
+     spent: float = 0.0
++    _lock: threading.Lock = dataclasses.field(
++        default_factory=threading.Lock, compare=False, repr=False
++    )
+ 
+     def __post_init__(self) -> None:
+         if self.max_iterations < 1:
+@@ -192,19 +210,20 @@ class BudgetGuard:
+         Reserve one actual API call before sending it.
+         This makes retries count too.
+         """
+-        if self.iterations >= self.max_iterations:
+-            raise BudgetExceededError(
+-                f"Max iterations exceeded for session '{self.session_id}' "
+-                f"({self.iterations}/{self.max_iterations})."
+-            )
++        with self._lock:
++            if self.iterations >= self.max_iterations:
++                raise BudgetExceededError(
++                    f"Max iterations exceeded for session '{self.session_id}' "
++                    f"({self.iterations}/{self.max_iterations})."
++                )
+ 
+-        if self.max_budget_per_session is not None and self.spent >= self.max_budget_per_session:
+-            raise BudgetExceededError(
+-                f"Max budget exceeded for session '{self.session_id}' "
+-                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+-            )
++            if self.max_budget_per_session is not None and self.spent >= self.max_budget_per_session:
++                raise BudgetExceededError(
++                    f"Max budget exceeded for session '{self.session_id}' "
++                    f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
++                )
+ 
+-        self.iterations += 1
++            self.iterations += 1
+ 
+     def record_response(self, response: Any) -> None:
+         """
+@@ -217,13 +236,14 @@ class BudgetGuard:
+         if spend < 0:
+             raise ValueError("cost_estimator returned a negative spend estimate.")
+ 
+-        self.spent += spend
++        with self._lock:
++            self.spent += spend
+ 
+-        if self.max_budget_per_session is not None and self.spent > self.max_budget_per_session:
+-            raise BudgetExceededError(
+-                f"Max budget exceeded for session '{self.session_id}' "
+-                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+-            )
++            if self.max_budget_per_session is not None and self.spent > self.max_budget_per_session:
++                raise BudgetExceededError(
++                    f"Max budget exceeded for session '{self.session_id}' "
++                    f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
++                )
+ 
+ 
+ def estimate_cost_from_usage(
+diff --git a/anthro_benchmark/generator/generator.py b/anthro_benchmark/generator/generator.py
+index 756d936..c23c9d0 100644
+--- a/anthro_benchmark/generator/generator.py
++++ b/anthro_benchmark/generator/generator.py
+@@ -12,6 +12,7 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import asyncio
+ import importlib.resources
+ import os
+ import uuid
+@@ -22,7 +23,7 @@ import pandas as pd
+ from tqdm import tqdm
+ 
+ 
+-from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard
++from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard, BudgetExceededError
+ from anthro_benchmark.core.roles import Role
+ 
+ 
+@@ -78,6 +79,7 @@ class DialogueGenerator:
+         use_all_variants_of_original_prompt: bool = True,  # if False, deduplicates by 'original_prompt' column
+         output_dir: Optional[str] = None,
+         default_csv_filename: Optional[str] = None,
++        max_concurrency: int = 1,
+     ):
+         """
+         Initialize the dialogue generator with configuration options.
+@@ -120,6 +122,15 @@ class DialogueGenerator:
+             use_all_variants_of_original_prompt: If True, it uses all variants of the original prompt (i.e., all use domains and scenarios). If False, it deduplicates by 'original_prompt'.
+             output_dir: Directory to save generated dialogues. Defaults to "./generated_dialogues".
+             default_csv_filename: Default filename for the CSV output. Defaults to "dialogues.csv".
++            max_concurrency: How many dialogues to generate at once. Default 1
++                reproduces the original fully-sequential behavior exactly.
++                Values > 1 run dialogues concurrently via asyncio.to_thread
++                (parallelizing ACROSS dialogues only -- turns within a single
++                dialogue are always generated in order, since turn i+1
++                genuinely depends on turn i's reply). This is real
++                OS-thread concurrency under the hood, which is why a shared
++                BudgetGuard's internal lock matters here, not just in
++                theory -- see llm_client.py.
+         """
+         self.cues = cues or []
+         self.user_llm_config = user_llm_config or {"model": "default_user_model"}
+@@ -169,6 +180,10 @@ class DialogueGenerator:
+         self.output_dir = output_dir or "generated_dialogues"
+         self.default_csv_filename = default_csv_filename or "dialogues.csv"
+ 
++        if max_concurrency < 1:
++            raise ValueError(f"max_concurrency must be >= 1, got {max_concurrency!r}.")
++        self.max_concurrency = max_concurrency
++
+         self.dialogues = []
+         self.prompts = self._load_prompts()
+ 
+@@ -438,6 +453,9 @@ class DialogueGenerator:
+         Returns:
+             List of generated dialogue dictionaries
+         """
++        if self.max_concurrency > 1:
++            return asyncio.run(self._generate_dialogues_async())
++
+         self.dialogues = []
+         failed_count = 0
+ 
+@@ -456,6 +474,107 @@ class DialogueGenerator:
+                 failed_count += 1
+                 progress_bar.set_postfix(failed=failed_count)
+ 
++            if dialogue["metadata"].get("budget_exceeded"):
++                # Stop here rather than continuing the loop: every
++                # subsequent dialogue would immediately hit the same
++                # exhausted BudgetGuard on its very first LLM call and be
++                # recorded as failed too, for no benefit -- this dialogue
++                # (whatever partial turns it has) is already appended
++                # above, so nothing generated so far is lost.
++                remaining = self.num_dialogues - (i + 1)
++                progress_bar.close()
++                print(
++                    f"\nBudget/iteration cap reached after dialogue {i + 1}/"
++                    f"{self.num_dialogues} ({dialogue['metadata']['error']}). "
++                    f"Stopping early instead of attempting the remaining "
++                    f"{remaining} dialogue(s); what's completed so far will "
++                    "still be saved."
++                )
++                break
++
++        self.save_dialogues_to_csv()
++
++        return self.dialogues
++
++    async def _generate_dialogues_async(self) -> List[Dict[str, Any]]:
++        """Concurrent counterpart to the sequential loop above, used when
++        self.max_concurrency > 1.
++
++        Parallelizes ACROSS dialogues only, never within one: turns inside
++        a single dialogue are still produced strictly in order by
++        _generate_single_dialogue (turn i+1 genuinely depends on turn i's
++        reply as conversation history) -- this method just runs multiple
++        independent _generate_single_dialogue calls at once. Each call
++        builds its own local message history (see _generate_single_dialogue
++        and _get_user_llm_response/_get_target_llm_response), so there is
++        no shared mutable state for concurrent dialogues to corrupt.
++
++        The actual blocking call (litellm.completion(), inside
++        LLMClient.generate()) is synchronous, not native-async -- so this
++        uses asyncio.to_thread() to run each dialogue on a real worker
++        thread rather than blocking the event loop. That's real OS-thread
++        concurrency, which is exactly why BudgetGuard's internal lock
++        (see llm_client.py) is required, not optional, in this mode.
++
++        Under concurrency, "stop exactly at the cap, in order" isn't a
++        coherent guarantee: concurrently-dispatched dialogues don't
++        necessarily reserve their LLM calls in index order, so a
++        higher-index dialogue can legitimately finish successfully even
++        though a lower-index one hit the cap first. This method preserves
++        every dialogue actually produced -- nothing already paid for is
++        discarded -- rather than trying to enforce a strict cutoff index
++        the way the sequential path above can.
++        """
++        semaphore = asyncio.Semaphore(self.max_concurrency)
++        progress_bar = tqdm(
++            total=self.num_dialogues, desc="Generating dialogues", unit="dialogue"
++        )
++
++        async def _run_one(dialogue_index: int) -> Dict[str, Any]:
++            prompt_data = self._select_prompt(dialogue_index)
++            async with semaphore:
++                dialogue = await asyncio.to_thread(
++                    self._generate_single_dialogue, prompt_data, dialogue_index
++                )
++            # Runs back on the event loop thread once the awaited
++            # to_thread call returns, so this is never called from more
++            # than one thread at a time -- no lock needed for the bar
++            # itself.
++            progress_bar.update(1)
++            return dialogue
++
++        try:
++            results = await asyncio.gather(
++                *(_run_one(i) for i in range(self.num_dialogues))
++            )
++        finally:
++            progress_bar.close()
++
++        self.dialogues = list(results)
++
++        failed_count = sum(
++            1 for d in self.dialogues if d["metadata"]["status"] != "completed"
++        )
++        budget_exceeded_count = sum(
++            1 for d in self.dialogues if d["metadata"].get("budget_exceeded")
++        )
++        if budget_exceeded_count:
++            print(
++                f"\n{budget_exceeded_count} of {self.num_dialogues} dialogue(s) hit "
++                "the budget/iteration cap partway through. Order isn't "
++                "meaningful under concurrency (see this method's docstring), "
++                "so this can't be reported as a clean 'stopped after "
++                f"dialogue N' cutoff the way max_concurrency=1 can -- but "
++                f"all {len(self.dialogues) - budget_exceeded_count} "
++                "dialogue(s) that did complete are kept and saved; nothing "
++                "actually produced is discarded."
++            )
++        elif failed_count:
++            print(
++                f"\n{failed_count} of {self.num_dialogues} dialogue(s) failed "
++                "for reasons other than the budget/iteration cap."
++            )
++
+         self.save_dialogues_to_csv()
+ 
+         return self.dialogues
+@@ -583,6 +702,13 @@ class DialogueGenerator:
+                 target_history.append(
+                     {"role": Role.ASSISTANT, "content": target_message_content}
+                 )
++            except BudgetExceededError as e:
++                dialogue["metadata"][
++                    "status"
++                ] = f"stopped_budget_exceeded_at_turn_{turn_pair_index}_target_llm (actual_turn_idx {target_llm_turn_index_in_dialogue})"
++                dialogue["metadata"]["error"] = str(e)
++                dialogue["metadata"]["budget_exceeded"] = True
++                break  # stop this dialogue; generate_dialogues() stops the whole batch too
+             except LLMGenerationError as e:
+                 dialogue["metadata"][
+                     "status"
+@@ -609,6 +735,13 @@ class DialogueGenerator:
+                     target_history.append(
+                         {"role": Role.USER, "content": user_message_content}
+                     )
++                except BudgetExceededError as e:
++                    dialogue["metadata"][
++                        "status"
++                    ] = f"stopped_budget_exceeded_at_turn_{turn_pair_index}_user_llm (actual_turn_idx {user_llm_turn_index_in_dialogue})"
++                    dialogue["metadata"]["error"] = str(e)
++                    dialogue["metadata"]["budget_exceeded"] = True
++                    break  # stop this dialogue; generate_dialogues() stops the whole batch too
+                 except LLMGenerationError as e:
+                     dialogue["metadata"][
+                         "status"
+@@ -636,6 +769,13 @@ class DialogueGenerator:
+         try:
+             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
+             return self.user_llm.generate(messages)
++        except BudgetExceededError:
++            # Deliberately NOT wrapped into LLMGenerationError: that class
++            # signals a per-dialogue failure that the caller marks
++            # "failed" and moves on from; a budget/iteration cap means
++            # STOP THE WHOLE SESSION, which _generate_single_dialogue and
++            # generate_dialogues() handle separately (see below).
++            raise
+         except Exception as e:
+             tqdm.write(f"Error getting user LLM response: {e}")
+             raise LLMGenerationError(f"Error generating user response: {str(e)}") from e
+@@ -665,6 +805,8 @@ class DialogueGenerator:
+         try:
+             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
+             return self.target_llm.generate(messages, return_reasoning=True)
++        except BudgetExceededError:
++            raise  # see _get_user_llm_response's comment
+         except Exception as e:
+             tqdm.write(f"Error getting target LLM response: {e}")
+             raise LLMGenerationError(
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index f450a3f..2e0268b 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -246,6 +246,7 @@ def generate_dialogues_command(args):
+             use_all_variants_of_original_prompt=not args.deduplicate_original_prompts,
+             output_dir=args.output_dir,
+             default_csv_filename=dynamic_csv_filename,
++            max_concurrency=getattr(args, "max_concurrency", 1),
+         )
+ 
+         print("DialogueGenerator initialized.")
+@@ -290,6 +291,12 @@ def rate_dialogues_command(args):
+     reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
+     classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
+ 
++    budget_session_id = (
++        getattr(args, "budget_session_id", None)
++        or f"rate_{sanitize_model_name('_'.join(sorted(args.classifier_model)))}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
++    )
++    budget_guard = _build_budget_guard(args, session_id=budget_session_id)
++
+     try:
+         cues_to_rate_arg = (
+             args.behaviors_to_rate
+@@ -310,6 +317,8 @@ def rate_dialogues_command(args):
+             cue_group_config=getattr(args, "cue_group_config", None),
+             classifier_max_tokens_base=getattr(args, "classifier_max_tokens_base", None),
+             classifier_max_tokens_per_cue=getattr(args, "classifier_max_tokens_per_cue", None),
++            budget_guard=budget_guard,
++            max_concurrency=getattr(args, "max_concurrency", 1),
+             verbose=True,
+         )
+         if not output_path:
+@@ -481,6 +490,25 @@ def _parse_flags(_):
+         help="Completion-token price used for budget estimation.",
+     )
+ 
++    concurrency_group = gen_parser.add_argument_group("Concurrency options")
++    concurrency_group.add_argument(
++        "--max-concurrency",
++        type=int,
++        default=1,
++        help=(
++            "How many dialogues to generate at once (default: 1, fully "
++            "sequential -- identical to the original behavior). Runs "
++            "concurrently across dialogues via asyncio.to_thread; turns "
++            "within a single dialogue are always generated in order "
++            "regardless of this setting. Under concurrency, a "
++            "--max-iterations/--max-budget-per-session cap can be "
++            "exceeded by roughly up to this many extra in-flight calls "
++            "(see BudgetGuard's docstring in llm_client.py) -- keep this "
++            "modest relative to your cap if you want the overshoot bound "
++            "to stay small."
++        ),
++    )
++
+     ### EDITING ENDED ###
+ 
+     ### START EDITING ###
+@@ -791,6 +819,59 @@ def _parse_flags(_):
+         help="Number of times to sample rating for each turn per model (1 or 3, default: 1).",
+     )
+ 
++    # Same mechanism/helper (_build_budget_guard) as the generate
++    # subcommand -- see that argument group's help text. One BudgetGuard
++    # is shared across every cue unit and every classifier model in this
++    # run (analogous to generate sharing one guard between the user and
++    # target LLMs).
++    rate_budget_group = rate_parser.add_argument_group("Budget options")
++    rate_budget_group.add_argument(
++        "--budget-session-id",
++        type=str,
++        default=None,
++        help="Optional session ID for budget tracking.",
++    )
++    rate_budget_group.add_argument(
++        "--max-iterations",
++        type=int,
++        default=None,
++        help="Hard cap on total classifier LLM calls for the run.",
++    )
++    rate_budget_group.add_argument(
++        "--max-budget-per-session",
++        type=float,
++        default=None,
++        help="Hard cap on estimated spend for the run.",
++    )
++    rate_budget_group.add_argument(
++        "--input-cost-per-1m-tokens",
++        type=float,
++        default=None,
++        help="Prompt-token price used for budget estimation.",
++    )
++    rate_budget_group.add_argument(
++        "--output-cost-per-1m-tokens",
++        type=float,
++        default=None,
++        help="Completion-token price used for budget estimation.",
++    )
++
++    rate_concurrency_group = rate_parser.add_argument_group("Concurrency options")
++    rate_concurrency_group.add_argument(
++        "--max-concurrency",
++        type=int,
++        default=1,
++        help=(
++            "How many turns to rate at once, per (cue unit, classifier "
++            "model) combination (default: 1, fully sequential -- identical "
++            "to the original behavior). Ratings have no cross-row "
++            "dependency (unlike generate's dialogue turns), so this is "
++            "typically where concurrency helps most. Runs via "
++            "asyncio.to_thread; same overshoot caveat as generate's "
++            "--max-concurrency applies if a budget cap is also set."
++        ),
++    )
++
+     rate_parser.set_defaults(func=rate_dialogues_command)
+ 
+     # Summarize results subcommand

@@ -114,6 +114,7 @@ import dataclasses
 import logging
 import os
 import random
+import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -166,6 +167,20 @@ class BudgetGuard:
     - max_iterations: hard cap on the number of LLM calls per session
     - max_budget_per_session: hard cap on spend per session
     - cost_estimator: required when max_budget_per_session is set
+
+    Thread-safe: reserve_call()/record_response() are internally locked so
+    this can be shared across concurrent callers (e.g. multiple dialogues
+    or rating rows generated in parallel via asyncio.to_thread, which runs
+    on real OS threads). Under concurrency the check-then-increment in
+    reserve_call() is only atomic *with the lock*; without it, two threads
+    could both pass the check before either increments, silently
+    exceeding max_iterations. The lock also means the effective ceiling
+    under concurrency is "max_iterations, plus however many calls were
+    already past their own reserve_call() and in flight" -- not an exact
+    global ceiling -- since already-reserved in-flight calls aren't
+    retroactively cancelled. That's an inherent property of concurrent
+    enforcement, not a bug: keep max_concurrency modest relative to
+    max_iterations if you want the overshoot bound to stay small.
     """
 
     session_id: str
@@ -174,6 +189,9 @@ class BudgetGuard:
     cost_estimator: Optional[Callable[[Any], float]] = None
     iterations: int = 0
     spent: float = 0.0
+    _lock: threading.Lock = dataclasses.field(
+        default_factory=threading.Lock, compare=False, repr=False
+    )
 
     def __post_init__(self) -> None:
         if self.max_iterations < 1:
@@ -192,19 +210,20 @@ class BudgetGuard:
         Reserve one actual API call before sending it.
         This makes retries count too.
         """
-        if self.iterations >= self.max_iterations:
-            raise BudgetExceededError(
-                f"Max iterations exceeded for session '{self.session_id}' "
-                f"({self.iterations}/{self.max_iterations})."
-            )
+        with self._lock:
+            if self.iterations >= self.max_iterations:
+                raise BudgetExceededError(
+                    f"Max iterations exceeded for session '{self.session_id}' "
+                    f"({self.iterations}/{self.max_iterations})."
+                )
 
-        if self.max_budget_per_session is not None and self.spent >= self.max_budget_per_session:
-            raise BudgetExceededError(
-                f"Max budget exceeded for session '{self.session_id}' "
-                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
-            )
+            if self.max_budget_per_session is not None and self.spent >= self.max_budget_per_session:
+                raise BudgetExceededError(
+                    f"Max budget exceeded for session '{self.session_id}' "
+                    f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+                )
 
-        self.iterations += 1
+            self.iterations += 1
 
     def record_response(self, response: Any) -> None:
         """
@@ -217,13 +236,14 @@ class BudgetGuard:
         if spend < 0:
             raise ValueError("cost_estimator returned a negative spend estimate.")
 
-        self.spent += spend
+        with self._lock:
+            self.spent += spend
 
-        if self.max_budget_per_session is not None and self.spent > self.max_budget_per_session:
-            raise BudgetExceededError(
-                f"Max budget exceeded for session '{self.session_id}' "
-                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
-            )
+            if self.max_budget_per_session is not None and self.spent > self.max_budget_per_session:
+                raise BudgetExceededError(
+                    f"Max budget exceeded for session '{self.session_id}' "
+                    f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+                )
 
 
 def estimate_cost_from_usage(

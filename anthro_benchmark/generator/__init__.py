@@ -12,10 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .generator import DialogueGenerator, LLMGenerationError, DEFAULT_USER_SYSTEM_PROMPT
+from .generator import (
+    DialogueGenerator,
+    LLMGenerationError,
+    DEFAULT_USER_SYSTEM_PROMPT,
+    NATURAL_END_SENTINEL,
+)
 
 __all__ = [
     "DialogueGenerator",
     "LLMGenerationError",
     "DEFAULT_USER_SYSTEM_PROMPT",
+    "NATURAL_END_SENTINEL",
 ]

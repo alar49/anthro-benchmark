@@ -246,6 +246,9 @@ def generate_dialogues_command(args):
             use_all_variants_of_original_prompt=not args.deduplicate_original_prompts,
             output_dir=args.output_dir,
             default_csv_filename=dynamic_csv_filename,
+            max_concurrency=getattr(args, "max_concurrency", 1),
+            strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+            stop_on_natural_end=getattr(args, "stop_on_natural_end", False),
         )
 
         print("DialogueGenerator initialized.")
@@ -290,6 +293,12 @@ def rate_dialogues_command(args):
     reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
     classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
 
+    budget_session_id = (
+        getattr(args, "budget_session_id", None)
+        or f"rate_{sanitize_model_name('_'.join(sorted(args.classifier_model)))}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    )
+    budget_guard = _build_budget_guard(args, session_id=budget_session_id)
+
     try:
         cues_to_rate_arg = (
             args.behaviors_to_rate
@@ -310,6 +319,8 @@ def rate_dialogues_command(args):
             cue_group_config=getattr(args, "cue_group_config", None),
             classifier_max_tokens_base=getattr(args, "classifier_max_tokens_base", None),
             classifier_max_tokens_per_cue=getattr(args, "classifier_max_tokens_per_cue", None),
+            budget_guard=budget_guard,
+            max_concurrency=getattr(args, "max_concurrency", 1),
             verbose=True,
         )
         if not output_path:
@@ -479,6 +490,64 @@ def _parse_flags(_):
         type=float,
         default=None,
         help="Completion-token price used for budget estimation.",
+    )
+
+    concurrency_group = gen_parser.add_argument_group("Concurrency options")
+    concurrency_group.add_argument(
+        "--max-concurrency",
+        type=int,
+        default=1,
+        help=(
+            "How many dialogues to generate at once (default: 1, fully "
+            "sequential -- identical to the original behavior). Runs "
+            "concurrently across dialogues via asyncio.to_thread; turns "
+            "within a single dialogue are always generated in order "
+            "regardless of this setting. Under concurrency, a "
+            "--max-iterations/--max-budget-per-session cap can be "
+            "exceeded by roughly up to this many extra in-flight calls "
+            "(see BudgetGuard's docstring in llm_client.py) -- keep this "
+            "modest relative to your cap if you want the overshoot bound "
+            "to stay small."
+        ),
+    )
+
+    concurrency_group.add_argument(
+        "--strict-batch-ordering",
+        action="store_true",
+        help=(
+            "Only relevant with --max-concurrency > 1. Default off: "
+            "dispatch continuously for maximum throughput (a new dialogue "
+            "starts the instant a slot frees up); if a budget cap is hit "
+            "mid-run, which dialogues end up complete doesn't follow index "
+            "order. Set this to dispatch in batches of --max-concurrency "
+            "instead, one batch fully finished before the next starts -- "
+            "bounds that ambiguity to within one batch, at a measured "
+            "throughput cost (roughly 1-15% under ordinary latency "
+            "variance, 2x+ if a straggler shows up in a batch). Only "
+            "matters if a budget cap actually binds mid-run; irrelevant "
+            "with no cap or a generous one."
+        ),
+    )
+
+    early_stop_group = gen_parser.add_argument_group("Early-stopping options")
+    early_stop_group.add_argument(
+        "--stop-on-natural-end",
+        action="store_true",
+        help=(
+            "Default off, reproducing the original behavior exactly "
+            "(every dialogue runs the full --num-turns regardless of "
+            "content). When set, the USER LLM (never the target -- see "
+            "generator.py's NATURAL_END_INSTRUCTION_TEMPLATE comment for "
+            "why) is instructed to recognize when the target's message "
+            "is a natural conversational close and, if so, give one "
+            "final reply and stop the dialogue there instead of "
+            "continuing to the full turn count. Avoids paying for a "
+            "string of trivial closing-exchange turns (each re-sending "
+            "the whole growing conversation as input tokens) after a "
+            "conversation has already wrapped up. Affects dialogue "
+            "length distribution -- leave this off if your experimental "
+            "design specifically requires fixed-length dialogues."
+        ),
     )
 
     ### EDITING ENDED ###
@@ -789,6 +858,59 @@ def _parse_flags(_):
         default=1,
         choices=[1, 3],
         help="Number of times to sample rating for each turn per model (1 or 3, default: 1).",
+    )
+
+    # Same mechanism/helper (_build_budget_guard) as the generate
+    # subcommand -- see that argument group's help text. One BudgetGuard
+    # is shared across every cue unit and every classifier model in this
+    # run (analogous to generate sharing one guard between the user and
+    # target LLMs).
+    rate_budget_group = rate_parser.add_argument_group("Budget options")
+    rate_budget_group.add_argument(
+        "--budget-session-id",
+        type=str,
+        default=None,
+        help="Optional session ID for budget tracking.",
+    )
+    rate_budget_group.add_argument(
+        "--max-iterations",
+        type=int,
+        default=None,
+        help="Hard cap on total classifier LLM calls for the run.",
+    )
+    rate_budget_group.add_argument(
+        "--max-budget-per-session",
+        type=float,
+        default=None,
+        help="Hard cap on estimated spend for the run.",
+    )
+    rate_budget_group.add_argument(
+        "--input-cost-per-1m-tokens",
+        type=float,
+        default=None,
+        help="Prompt-token price used for budget estimation.",
+    )
+    rate_budget_group.add_argument(
+        "--output-cost-per-1m-tokens",
+        type=float,
+        default=None,
+        help="Completion-token price used for budget estimation.",
+    )
+
+    rate_concurrency_group = rate_parser.add_argument_group("Concurrency options")
+    rate_concurrency_group.add_argument(
+        "--max-concurrency",
+        type=int,
+        default=1,
+        help=(
+            "How many turns to rate at once, per (cue unit, classifier "
+            "model) combination (default: 1, fully sequential -- identical "
+            "to the original behavior). Ratings have no cross-row "
+            "dependency (unlike generate's dialogue turns), so this is "
+            "typically where concurrency helps most. Runs via "
+            "asyncio.to_thread; same overshoot caveat as generate's "
+            "--max-concurrency applies if a budget cap is also set."
+        ),
     )
 
     rate_parser.set_defaults(func=rate_dialogues_command)
