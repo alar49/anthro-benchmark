@@ -144,7 +144,19 @@ def generate_dialogues_command(args):
         if shared_temperature is not None
         else args.target_llm_temperature
     )
-    
+
+    shared_max_tokens = getattr(args, "max_tokens", None)
+    user_max_tokens = (
+        shared_max_tokens
+        if shared_max_tokens is not None
+        else getattr(args, "user_llm_max_tokens", None)
+    )
+    target_max_tokens = (
+        shared_max_tokens
+        if shared_max_tokens is not None
+        else getattr(args, "target_llm_max_tokens", None)
+    )
+
     budget_session_id = (
         getattr(args, "budget_session_id", None)
         or f"{sanitize_model_name(args.target_llm_model)}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -167,7 +179,11 @@ def generate_dialogues_command(args):
         "initial_backoff": args.initial_backoff,
         "max_backoff": args.max_backoff,
     }
-    
+    if user_max_tokens is not None:
+        user_llm_config["max_tokens"] = user_max_tokens
+    if target_max_tokens is not None:
+        target_llm_config["max_tokens"] = target_max_tokens
+
     if budget_guard is not None:
         user_llm_config["budget_guard"] = budget_guard
         target_llm_config["budget_guard"] = budget_guard
@@ -441,6 +457,37 @@ def _parse_flags(_):
         help="Shared temperature for both user and target LLMs. If set, overrides the per-model temperature flags.",
     )
     llm_group.add_argument(
+        "--max-tokens",
+        type=int,
+        default=None,
+        help=(
+            "Shared output-token cap (max_tokens) for both the User and "
+            "Target LLMs. If set, overrides --user-llm-max-tokens/"
+            "--target-llm-max-tokens. Circuit breaker against a runaway "
+            "generation (e.g. a provider that repeats a degenerate token "
+            "instead of stopping) burning input tokens turn after turn -- "
+            "not a cost-optimization lever, so set it generously (well "
+            "above your longest expected reply). Only bounds output "
+            "tokens, never input/prompt tokens. Default: unset (unbounded, "
+            "matches prior behavior). If --reasoning-mode is 'on' for the "
+            "Target LLM, most providers count reasoning tokens against "
+            "this same budget alongside the visible reply -- too tight a "
+            "cap can truncate the reasoning before any reply is produced."
+        ),
+    )
+    llm_group.add_argument(
+        "--user-llm-max-tokens",
+        type=int,
+        default=None,
+        help="Output-token cap (max_tokens) for the User LLM only. Ignored if --max-tokens is set.",
+    )
+    llm_group.add_argument(
+        "--target-llm-max-tokens",
+        type=int,
+        default=None,
+        help="Output-token cap (max_tokens) for the Target LLM only. Ignored if --max-tokens is set.",
+    )
+    llm_group.add_argument(
         "--max-retries",
         type=int,
         default=5,
@@ -522,7 +569,7 @@ def _parse_flags(_):
             "order. Set this to dispatch in batches of --max-concurrency "
             "instead, one batch fully finished before the next starts -- "
             "bounds that ambiguity to within one batch, at a measured "
-            "throughput cost (roughly 1-15% under ordinary latency "
+            "throughput cost (roughly 1-15%% under ordinary latency "
             "variance, 2x+ if a straggler shows up in a batch). Only "
             "matters if a budget cap actually binds mid-run; irrelevant "
             "with no cap or a generous one."

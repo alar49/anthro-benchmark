@@ -98,6 +98,9 @@ class DialogueGenerator:
         num_dialogues: Optional[int] = None,
         dialogues_per_condition: Optional[int] = None,  # NEW
         temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        user_max_tokens: Optional[int] = None,
+        target_max_tokens: Optional[int] = None,
         budget_guard: Optional[BudgetGuard] = None,
         reasoning_mode: bool = False, # EDITED
         reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
@@ -146,6 +149,26 @@ class DialogueGenerator:
                 prompt data to contain at least one recognized condition
                 column; raises ValueError otherwise, and if both this and
                 num_dialogues are supplied.
+            max_tokens, user_max_tokens, target_max_tokens: Optional output-token
+                cap (the standard OpenAI/LiteLLM "max_tokens" parameter) applied
+                per LLM call, as a circuit breaker against a runaway/looping
+                generation (e.g. a provider repeating a degenerate token
+                indefinitely instead of stopping) -- NOT a cost-optimization
+                lever, so set it generously. This only ever bounds the
+                completion/output side of a call; it never limits input/prompt
+                tokens, which are whatever the growing conversation history
+                happens to be. max_tokens is a SHARED default applied to both
+                the user and target LLM configs; user_max_tokens/
+                target_max_tokens override it for one role only. All three are
+                applied via setdefault(), so an explicit "max_tokens" key
+                already present in user_llm_config/target_llm_config (e.g. set
+                directly by a caller, as the CLI does) always wins. Default
+                None on all three preserves prior behavior exactly (unbounded).
+                Note: for a call with reasoning_mode/reasoning_effort enabled,
+                most providers count reasoning tokens against this same output
+                budget alongside the visible answer -- a cap set too tight can
+                truncate the reasoning trace before any visible reply is
+                produced, leaving content empty rather than merely short.
             prompt_category_names: List of prompt category names (e.g., ["personhood", "physical_embodiment"]) to load from prompt csv.
             custom_prompt_csv: Path to custom CSV file to use for dialogue generation. Uses prompt_sets.csv if no CSV is specified.
             use_all_variants_of_original_prompt: If True, it uses all variants of the original prompt (i.e., all use domains and scenarios). If False, it deduplicates by 'original_prompt'.
@@ -205,6 +228,24 @@ class DialogueGenerator:
         if self.temperature is not None:
             self.user_llm_config.setdefault("temperature", self.temperature)
             self.target_llm_config.setdefault("temperature", self.temperature)
+
+        # Same setdefault pattern as temperature above: max_tokens is a
+        # shared fallback, user_max_tokens/target_max_tokens override it
+        # per role, and an explicit "max_tokens" already in the passed-in
+        # config dict always wins over either. See this method's
+        # docstring for why this is an output-token safety net, not an
+        # input-token limit.
+        self.max_tokens = max_tokens
+        resolved_user_max_tokens = (
+            user_max_tokens if user_max_tokens is not None else self.max_tokens
+        )
+        resolved_target_max_tokens = (
+            target_max_tokens if target_max_tokens is not None else self.max_tokens
+        )
+        if resolved_user_max_tokens is not None:
+            self.user_llm_config.setdefault("max_tokens", resolved_user_max_tokens)
+        if resolved_target_max_tokens is not None:
+            self.target_llm_config.setdefault("max_tokens", resolved_target_max_tokens)
 
         self.budget_guard = budget_guard
         if self.budget_guard is not None:
