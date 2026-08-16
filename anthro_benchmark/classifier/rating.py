@@ -25,7 +25,7 @@ import os
 import json
 import re
 import sys
-from typing import Any
+from typing import Any, Dict, Union
 
 import pandas as pd
 from tqdm import tqdm
@@ -37,7 +37,7 @@ from anthro_benchmark.classifier.cue_grouping import (
     LLMGroupClassifier,
     resolve_call_units,
 )
-from anthro_benchmark.core.llm_client import BudgetGuard, BudgetExceededError
+from anthro_benchmark.core.llm_client import BudgetGuard, BudgetExceededError, RateLimiter
 
 
 def get_majority_vote(scores: list[int]) -> int:
@@ -128,6 +128,12 @@ def rate_dialogues(
     cue_group_config: str | None = None,
     classifier_max_tokens_base: int | None = None,
     classifier_max_tokens_per_cue: int | None = None,
+    classifier_timeout: float | None = None,
+    classifier_max_retries: int = 5,
+    classifier_max_timeout_retries: int | None = None,
+    classifier_initial_backoff: float = 2.0,
+    classifier_max_backoff: float = 60.0,
+    rate_limiter: Union[RateLimiter, Dict[str, RateLimiter], None] = None,
     budget_guard: BudgetGuard | None = None,
     max_concurrency: int = 1,
     # --------------
@@ -169,6 +175,46 @@ def rate_dialogues(
             cap risks truncating a response before its Yes/No verdict is
             emitted, which a parser reads as a missing/ambiguous rating,
             not an explicit error.
+        classifier_timeout: Optional per-call ceiling in seconds, applied
+            identically to every classifier model in classifier_models.
+            None (default) preserves prior behavior exactly (no
+            client-side cap). See LLMClient's timeout param in
+            llm_client.py for exactly what happens when it's exceeded,
+            and how that interacts with retries.
+        classifier_max_retries: Maximum retry attempts per classifier call
+            for transient errors OTHER than a timeout (429, 5xx,
+            connection drops). Applied identically to every model in
+            classifier_models. Default 5 matches LLMClient's own default,
+            so omitting this changes nothing versus prior behavior (this
+            simply wasn't configurable here before).
+        classifier_max_timeout_retries: Maximum retry attempts
+            specifically for a classifier_timeout expiry, independent of
+            classifier_max_retries -- see LLMClient's max_timeout_retries
+            param in llm_client.py for the full rationale (in short: a
+            timeout retry has an unknown, possibly-nonzero provider-side
+            cost never visible to budget_guard's dollar tracking, unlike
+            a 429/connection error, so it's often worth capping tighter).
+            None (default) uses the same value as classifier_max_retries.
+        classifier_initial_backoff, classifier_max_backoff: Backoff
+            bounds (seconds) for classifier call retries. Defaults match
+            LLMClient's own prior hardcoded values, so omitting these
+            changes nothing versus prior behavior.
+        rate_limiter: Optional RateLimiter (see llm_client.py), for
+            staying under a provider's own requests/tokens-per-minute
+            limits instead of finding out you exceeded them via a 429 or
+            a hung connection. Either:
+              - a single RateLimiter, shared across every classifier
+                model and cue unit in this run (use when every model in
+                classifier_models draws on the same provider quota, e.g.
+                one OpenRouter account/key for all of them); or
+              - a {model_name: RateLimiter} dict, giving each classifier
+                model its own independent limiter (use when models are
+                mixed across providers/tiers with genuinely different
+                limits -- e.g. a free-tier model alongside a paid one,
+                where throttling them together would needlessly slow the
+                paid model down to the free one's pace). A model name
+                present in classifier_models but missing from this dict
+                gets no rate limiting.
         classifier_openrouter_provider: Optional OpenRouter provider-routing
             object (see LLMClient's openrouter_provider param / OpenRouter's
             own docs at
@@ -421,12 +467,30 @@ def rate_dialogues(
                     "reasoning_mode": classifier_reasoning_mode,
                     "reasoning_effort": classifier_reasoning_effort,
                     "openrouter_provider": classifier_openrouter_provider,
+                    "max_retries": classifier_max_retries,
+                    "initial_backoff": classifier_initial_backoff,
+                    "max_backoff": classifier_max_backoff,
                     # --------------
                 }
+                if classifier_max_timeout_retries is not None:
+                    classifier_llm_config["max_timeout_retries"] = classifier_max_timeout_retries
                 if budget_guard is not None:
                     classifier_llm_config["budget_guard"] = budget_guard
                 if max_tokens_for_unit is not None:
                     classifier_llm_config["max_tokens"] = max_tokens_for_unit
+                if classifier_timeout is not None:
+                    classifier_llm_config["timeout"] = classifier_timeout
+                if rate_limiter is not None:
+                    # dict -> per-model instance (missing model = no
+                    # limiting for it); single instance -> shared by every
+                    # model. See this function's docstring.
+                    model_rate_limiter = (
+                        rate_limiter.get(model_name)
+                        if isinstance(rate_limiter, dict)
+                        else rate_limiter
+                    )
+                    if model_rate_limiter is not None:
+                        classifier_llm_config["rate_limiter"] = model_rate_limiter
                 if is_grouped:
                     group_classifier = LLMGroupClassifier(classifier_llm_config, cue_unit)
                 else:
@@ -686,6 +750,12 @@ def run_rating_process(
     cue_group_config: str | None = None,
     classifier_max_tokens_base: int | None = None,
     classifier_max_tokens_per_cue: int | None = None,
+    classifier_timeout: float | None = None,
+    classifier_max_retries: int = 5,
+    classifier_max_timeout_retries: int | None = None,
+    classifier_initial_backoff: float = 2.0,
+    classifier_max_backoff: float = 60.0,
+    rate_limiter: Union[RateLimiter, Dict[str, RateLimiter], None] = None,
     budget_guard: BudgetGuard | None = None,
     max_concurrency: int = 1,
     # --------------
@@ -706,8 +776,11 @@ def run_rating_process(
         classifier_openrouter_provider: Optional OpenRouter provider-routing
             object applied to every model in classifier_models. See
             rate_dialogues()'s docstring for details.
-        budget_guard, max_concurrency: See rate_dialogues()'s docstring --
-            passed straight through.
+        classifier_timeout, classifier_max_retries,
+            classifier_max_timeout_retries, classifier_initial_backoff,
+            classifier_max_backoff, rate_limiter, budget_guard,
+            max_concurrency: See rate_dialogues()'s docstring -- passed
+            straight through.
         verbose: Whether to print progress information
 
     Returns:
@@ -727,6 +800,12 @@ def run_rating_process(
         cue_group_config=cue_group_config,
         classifier_max_tokens_base=classifier_max_tokens_base,
         classifier_max_tokens_per_cue=classifier_max_tokens_per_cue,
+        classifier_timeout=classifier_timeout,
+        classifier_max_retries=classifier_max_retries,
+        classifier_max_timeout_retries=classifier_max_timeout_retries,
+        classifier_initial_backoff=classifier_initial_backoff,
+        classifier_max_backoff=classifier_max_backoff,
+        rate_limiter=rate_limiter,
         budget_guard=budget_guard,
         max_concurrency=max_concurrency,
         # --------------

@@ -110,13 +110,14 @@
 
 ### NEW VERSION ###
 
+import collections
 import dataclasses
 import logging
 import os
 import random
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
 
 import litellm
 try:
@@ -244,6 +245,127 @@ class BudgetGuard:
                     f"Max budget exceeded for session '{self.session_id}' "
                     f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
                 )
+
+
+class RateLimiter:
+    """
+    Thread-safe, client-side throttle for staying under a provider's own
+    rate limits (requests/min, tokens/min) rather than finding out you've
+    exceeded them via a 429 or a hung connection.
+
+    Share ONE instance across every LLMClient whose calls draw on the same
+    provider-side quota (e.g. one OpenRouter account/key) -- exactly the
+    same "one shared object, not one per model" pattern as BudgetGuard.
+    Give each independently-limited provider/key its own instance instead.
+
+    All three caps are optional and independent; set only the ones you
+    need. All are enforced by acquire() BLOCKING (sleeping) the calling
+    thread until it's safe to proceed -- unlike BudgetGuard, which raises,
+    a rate limit is something to wait out, not abort on.
+
+    - min_seconds_between_calls: flat minimum gap between the START of
+      consecutive calls, serialized fairly across threads (each caller
+      gets the next open slot, not a random one). This is the simplest,
+      most exact of the three -- use it when a provider's limit is easiest
+      to think of as "no more than 1 call every N seconds".
+    - max_requests_per_minute: sliding 60s window on call COUNT.
+    - max_tokens_per_minute: sliding 60s window on token COUNT. IMPORTANT
+      caveat: a call's real token cost isn't known until its response
+      comes back, so this can only check the window's ALREADY-RECORDED
+      total before letting a new call through, then record the real usage
+      after via record_usage(). A single large call can therefore still
+      push the window over the cap; subsequent calls are then held back
+      to compensate. This is the standard approach client-side TPM
+      throttling uses (the provider's own server-side limit is the only
+      way to get a hard, non-approximate guarantee) -- it prevents
+      sustained overshoot, not a single-call spike.
+
+    acquire() must be called immediately before dispatching each request
+    (including retries -- each retry is a real call against the same
+    quota). record_usage() must be called immediately after a successful
+    response, with that call's total token count.
+    """
+
+    def __init__(
+        self,
+        min_seconds_between_calls: Optional[float] = None,
+        max_requests_per_minute: Optional[float] = None,
+        max_tokens_per_minute: Optional[float] = None,
+    ):
+        if min_seconds_between_calls is not None and min_seconds_between_calls < 0:
+            raise ValueError("min_seconds_between_calls must be >= 0.")
+        if max_requests_per_minute is not None and max_requests_per_minute <= 0:
+            raise ValueError("max_requests_per_minute must be > 0.")
+        if max_tokens_per_minute is not None and max_tokens_per_minute <= 0:
+            raise ValueError("max_tokens_per_minute must be > 0.")
+
+        self.min_seconds_between_calls = min_seconds_between_calls
+        self.max_requests_per_minute = max_requests_per_minute
+        self.max_tokens_per_minute = max_tokens_per_minute
+
+        self._lock = threading.Lock()
+        self._next_open_slot: Optional[float] = None  # for min_seconds_between_calls
+        self._request_times: Deque[float] = collections.deque()  # for RPM
+        self._token_events: Deque[Tuple[float, float]] = collections.deque()  # for TPM
+
+    _WINDOW_SECONDS = 60.0
+
+    def _wait_for_min_gap(self) -> None:
+        if not self.min_seconds_between_calls:
+            return
+        with self._lock:
+            now = time.monotonic()
+            if self._next_open_slot is None or now >= self._next_open_slot:
+                self._next_open_slot = now + self.min_seconds_between_calls
+                wait = 0.0
+            else:
+                wait = self._next_open_slot - now
+                self._next_open_slot += self.min_seconds_between_calls
+        if wait > 0:
+            time.sleep(wait)
+
+    def _wait_for_rpm(self) -> None:
+        if not self.max_requests_per_minute:
+            return
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                while self._request_times and now - self._request_times[0] >= self._WINDOW_SECONDS:
+                    self._request_times.popleft()
+                if len(self._request_times) < self.max_requests_per_minute:
+                    self._request_times.append(now)
+                    return
+                wait = self._WINDOW_SECONDS - (now - self._request_times[0])
+            time.sleep(max(wait, 0.01))
+
+    def _wait_for_tpm(self) -> None:
+        if not self.max_tokens_per_minute:
+            return
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                while self._token_events and now - self._token_events[0][0] >= self._WINDOW_SECONDS:
+                    self._token_events.popleft()
+                total = sum(tokens for _, tokens in self._token_events)
+                if total < self.max_tokens_per_minute:
+                    return
+                wait = self._WINDOW_SECONDS - (now - self._token_events[0][0])
+            time.sleep(max(wait, 0.01))
+
+    def acquire(self) -> None:
+        """Block until a call is safe to make under all configured caps."""
+        self._wait_for_min_gap()
+        self._wait_for_rpm()
+        self._wait_for_tpm()
+
+    def record_usage(self, total_tokens: Optional[int]) -> None:
+        """Record a completed call's real token cost against the TPM
+        window. No-op if max_tokens_per_minute isn't set, or total_tokens
+        isn't known (e.g. the provider didn't report usage)."""
+        if not self.max_tokens_per_minute or not total_tokens:
+            return
+        with self._lock:
+            self._token_events.append((time.monotonic(), float(total_tokens)))
 
 
 def estimate_cost_from_usage(
@@ -554,9 +676,12 @@ class LLMClient:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         max_retries: int = 5,
+        max_timeout_retries: Optional[int] = None,
         initial_backoff: float = 2.0,
         max_backoff: float = 60.0,
+        timeout: Optional[float] = None,
         budget_guard: Optional[BudgetGuard] = None,
+        rate_limiter: Optional[RateLimiter] = None,
         **extra_config: Any,
     ):
         self.raw_model = model
@@ -566,17 +691,34 @@ class LLMClient:
         self.openrouter_provider = openrouter_provider
         self.openrouter_router_metadata = openrouter_router_metadata
         self.max_retries = max_retries
+        # None (default) means "use the same ceiling as max_retries" --
+        # i.e. identical to the pre-split behavior. Set explicitly to
+        # give timeouts their OWN, independent retry budget (see
+        # generate()'s APITimeoutError handling for why you'd want this
+        # tighter than max_retries: each timeout retry has an unknown,
+        # possibly-nonzero provider-side cost that never shows up in
+        # BudgetGuard's dollar tracking, unlike a 429/connection error,
+        # which is unambiguously free).
+        self.max_timeout_retries = (
+            max_timeout_retries if max_timeout_retries is not None else max_retries
+        )
         self.initial_backoff = initial_backoff
         self.max_backoff = max_backoff
+        self.timeout = timeout
         self.extra_config = extra_config
         self.budget_guard = budget_guard
+        self.rate_limiter = rate_limiter
 
         if self.max_retries < 1:
             raise ValueError("max_retries must be >= 1")
+        if self.max_timeout_retries < 1:
+            raise ValueError("max_timeout_retries must be >= 1")
         if self.initial_backoff <= 0:
             raise ValueError("initial_backoff must be > 0")
         if self.max_backoff < self.initial_backoff:
             raise ValueError("max_backoff must be >= initial_backoff")
+        if self.timeout is not None and self.timeout <= 0:
+            raise ValueError("timeout must be > 0")
 
         self.model = model
 
@@ -683,6 +825,7 @@ class LLMClient:
         """
 
         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
+        rate_limiter = kwargs.pop("rate_limiter", self.rate_limiter)
 
         runtime_metadata = kwargs.pop("metadata", None)
         runtime_reasoning = kwargs.pop("reasoning", None)
@@ -700,6 +843,13 @@ class LLMClient:
             "temperature": self.temperature,
             "num_retries": 0,  # centralize retry behavior here; no hidden retry loops
         }
+        if self.timeout is not None:
+            # Per-call ceiling so a hung/very slow provider can't block
+            # this thread indefinitely -- LiteLLM raises APITimeoutError
+            # past this, which the retry loop below already treats as
+            # transient (retried with backoff, same as a 429 or connection
+            # drop), so each attempt is bounded rather than the whole call.
+            payload["timeout"] = self.timeout
         if self.api_key:
             # Only set explicitly when we actually resolved one (see
             # __init__) -- omitting the key entirely, rather than passing
@@ -788,16 +938,22 @@ class LLMClient:
 
             payload["reasoning"] = reasoning
 
-        attempt = 0
+        attempt = 0  # non-timeout transient errors (429/5xx/connection): bounded by self.max_retries
+        timeout_attempt = 0  # APITimeoutError specifically: bounded by self.max_timeout_retries, independently
         unknown_exception_attempts = 0
         current_backoff = self.initial_backoff
+        timeout_current_backoff = self.initial_backoff
 
-        while attempt < self.max_retries:
+        while True:
             if budget_guard is not None:
                 budget_guard.reserve_call()
-
-            attempt += 1
             try:
+                if rate_limiter is not None:
+                    # Deliberately inside the retry loop: a retry is a
+                    # real second call against the same provider quota,
+                    # not a free re-attempt.
+                    rate_limiter.acquire()
+
                 response = self.client.completion(**payload)
 
                 if budget_guard is not None:
@@ -805,6 +961,17 @@ class LLMClient:
 
                 usage = getattr(response, "usage", None)
                 token_usage = _extract_token_usage(usage)
+
+                if rate_limiter is not None:
+                    total_tokens_this_call = getattr(usage, "total_tokens", None)
+                    if total_tokens_this_call is None and (
+                        token_usage.prompt_tokens is not None
+                        or token_usage.completion_tokens is not None
+                    ):
+                        total_tokens_this_call = (token_usage.prompt_tokens or 0) + (
+                            token_usage.completion_tokens or 0
+                        )
+                    rate_limiter.record_usage(total_tokens_this_call)
 
                 def _build_return(
                     content: str, reasoning_text: str
@@ -887,20 +1054,70 @@ class LLMClient:
                 )
                 raise
 
+            except APITimeoutError as e:
+                # Own counter, own cap (self.max_timeout_retries), own
+                # backoff progression -- entirely independent of the
+                # max_retries pool below. Rationale: a timeout means WE
+                # gave up waiting, not that the provider rejected
+                # anything, so unlike a real 4xx it's always worth
+                # retrying -- but its retry budget is kept separate on
+                # purpose, since (a) a run mixing several 429s and a
+                # timeout on the same call shouldn't have the timeout
+                # silently inherit whatever's left of the 429 budget or
+                # vice versa, and (b) each timeout retry has an unknown
+                # (possibly nonzero) provider-side cost even though it
+                # never returned a response to bill against locally --
+                # see this method's docstring -- so its ceiling can be
+                # tuned tighter than max_retries independently of how
+                # generous max_retries is for unambiguously-free failures
+                # like 429/connection errors.
+                timeout_attempt += 1
+                if timeout_attempt >= self.max_timeout_retries:
+                    logger.error(
+                        "Max timeout-retry attempts (%s) exhausted for model '%s' "
+                        "(independent of --max-retries=%s for other errors). "
+                        "Last error: %s",
+                        self.max_timeout_retries,
+                        self.model,
+                        self.max_retries,
+                        e,
+                    )
+                    raise
+
+                sleep_time = min(
+                    timeout_current_backoff * random.uniform(0.75, 1.25),
+                    self.max_backoff,
+                )
+                timeout_current_backoff *= 2.0
+
+                logger.warning(
+                    "Timeout (Attempt %s/%s of max_timeout_retries, independent "
+                    "of max_retries=%s for other errors): %s. Retrying in %.2f "
+                    "seconds...",
+                    timeout_attempt,
+                    self.max_timeout_retries,
+                    self.max_retries,
+                    e,
+                    sleep_time,
+                )
+                time.sleep(sleep_time)
+
             except (
                 RateLimitError,
                 InternalServerError,
                 APIConnectionError,
-                APITimeoutError,
                 APIError,
             ) as e:
                 status_code = getattr(e, "status_code", None)
 
-                # Fail fast on general client errors, except 429.
+                # Fail fast on a genuine 4xx client error (malformed
+                # request, unknown model, etc.) except 429 -- those
+                # indicate a mistake that retrying won't fix.
                 if status_code and 400 <= status_code < 500 and status_code != 429:
                     logger.error("Non-retryable client error status %s: %s", status_code, e)
                     raise
 
+                attempt += 1
                 if attempt >= self.max_retries:
                     logger.error(
                         "Max retry attempts (%s) exhausted for model '%s'. Last error: %s",
@@ -966,10 +1183,6 @@ class LLMClient:
                     sleep_time,
                 )
                 time.sleep(sleep_time)
-
-        raise RuntimeError(
-            f"Failed to generate completion for model '{self.model}' after {self.max_retries} attempts."
-        )
 
 
 # Example of a real budget setup outside the class:

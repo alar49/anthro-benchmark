@@ -23,7 +23,13 @@ import pandas as pd
 from tqdm import tqdm
 
 
-from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard, BudgetExceededError, TokenUsage
+from anthro_benchmark.core.llm_client import (
+    LLMClient,
+    BudgetGuard,
+    BudgetExceededError,
+    TokenUsage,
+    RateLimiter,
+)
 from anthro_benchmark.core.roles import Role
 
 
@@ -101,6 +107,10 @@ class DialogueGenerator:
         max_tokens: Optional[int] = None,
         user_max_tokens: Optional[int] = None,
         target_max_tokens: Optional[int] = None,
+        timeout: Optional[float] = None,
+        user_timeout: Optional[float] = None,
+        target_timeout: Optional[float] = None,
+        rate_limiter: Optional[RateLimiter] = None,
         budget_guard: Optional[BudgetGuard] = None,
         reasoning_mode: bool = False, # EDITED
         reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
@@ -169,6 +179,22 @@ class DialogueGenerator:
                 budget alongside the visible answer -- a cap set too tight can
                 truncate the reasoning trace before any visible reply is
                 produced, leaving content empty rather than merely short.
+            timeout, user_timeout, target_timeout: Optional per-call
+                ceiling in seconds. Same shared/per-role override pattern
+                and setdefault precedence as max_tokens above. None (the
+                default) preserves prior behavior exactly (no client-side
+                cap -- calls can hang as long as the provider/transport
+                allows). See LLMClient's timeout param in llm_client.py
+                for exactly what happens when it's exceeded.
+            rate_limiter: Optional RateLimiter (see llm_client.py) shared
+                between the user and target LLM configs, for staying
+                under a provider's own requests/tokens-per-minute limits.
+                Same setdefault precedence as budget_guard: an explicit
+                "rate_limiter" already in user_llm_config/target_llm_config
+                wins over this. Pass one shared instance when both roles
+                draw on the same provider quota (the common case); build
+                two instances and set them directly in each config dict
+                instead if the roles have independent quotas.
             prompt_category_names: List of prompt category names (e.g., ["personhood", "physical_embodiment"]) to load from prompt csv.
             custom_prompt_csv: Path to custom CSV file to use for dialogue generation. Uses prompt_sets.csv if no CSV is specified.
             use_all_variants_of_original_prompt: If True, it uses all variants of the original prompt (i.e., all use domains and scenarios). If False, it deduplicates by 'original_prompt'.
@@ -246,6 +272,40 @@ class DialogueGenerator:
             self.user_llm_config.setdefault("max_tokens", resolved_user_max_tokens)
         if resolved_target_max_tokens is not None:
             self.target_llm_config.setdefault("max_tokens", resolved_target_max_tokens)
+
+        # Same setdefault pattern again for timeout: a per-call ceiling
+        # (seconds) so one hung/very slow provider call can't block the
+        # whole run indefinitely -- see LLMClient's timeout param and
+        # RateLimiter's docstring in llm_client.py for how this interacts
+        # with the retry loop.
+        self.timeout = timeout
+        resolved_user_timeout = user_timeout if user_timeout is not None else self.timeout
+        resolved_target_timeout = (
+            target_timeout if target_timeout is not None else self.timeout
+        )
+        if resolved_user_timeout is not None:
+            self.user_llm_config.setdefault("timeout", resolved_user_timeout)
+        if resolved_target_timeout is not None:
+            self.target_llm_config.setdefault("timeout", resolved_target_timeout)
+
+        # rate_limiter, unlike timeout, is a stateful shared OBJECT rather
+        # than a plain value, so it follows budget_guard's pattern instead
+        # (one instance, same reference installed on both configs unless
+        # a caller already put a different one in user_llm_config/
+        # target_llm_config directly -- setdefault() never overrides
+        # that). Pass ONE shared RateLimiter here when user_llm and
+        # target_llm draw on the same provider-side quota (typical: same
+        # account/key for both roles) so their combined call rate is
+        # throttled together, not independently at the configured cap
+        # each -- see RateLimiter's docstring in llm_client.py. For
+        # independently-limited roles (different providers/keys), build
+        # two RateLimiter instances and put each directly in its own
+        # config dict before calling this constructor instead of using
+        # this shared param.
+        self.rate_limiter = rate_limiter
+        if self.rate_limiter is not None:
+            self.user_llm_config.setdefault("rate_limiter", self.rate_limiter)
+            self.target_llm_config.setdefault("rate_limiter", self.rate_limiter)
 
         self.budget_guard = budget_guard
         if self.budget_guard is not None:

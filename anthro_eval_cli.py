@@ -29,7 +29,7 @@ from anthro_benchmark.generator import (
     DEFAULT_USER_SYSTEM_PROMPT,
 )
 from anthro_benchmark.classifier import run_rating_process, CUE_GROUP_CONFIGS
-from anthro_benchmark.core.llm_client import BudgetGuard, estimate_cost_from_usage
+from anthro_benchmark.core.llm_client import BudgetGuard, RateLimiter, estimate_cost_from_usage
 
 
 # helper function for file/column name sanitation
@@ -120,8 +120,45 @@ def _build_budget_guard(args, session_id: str):
         max_budget_per_session=max_budget_per_session,
         cost_estimator=cost_estimator,
     )
-    
-### EDITING END ###
+
+
+def _build_rate_limiter(
+    min_seconds_between_calls: Optional[float],
+    max_requests_per_minute: Optional[float],
+    max_requests_per_second: Optional[float],
+    max_tokens_per_minute: Optional[float],
+) -> Optional[RateLimiter]:
+    """Build ONE RateLimiter from resolved flag values, or None if none of
+    them were set (matches _build_budget_guard's "no flags -> no object"
+    convention). --max-requests-per-minute/--max-requests-per-second
+    configure the same underlying cap in different units -- exactly one
+    (or neither) may be set."""
+    if max_requests_per_minute is not None and max_requests_per_second is not None:
+        raise ValueError(
+            "Set at most one of --max-requests-per-minute / "
+            "--max-requests-per-second (or the --classifier- equivalents) "
+            "-- they configure the same underlying cap, just in different "
+            "units."
+        )
+
+    requests_per_minute = max_requests_per_minute
+    if max_requests_per_second is not None:
+        requests_per_minute = max_requests_per_second * 60.0
+
+    if (
+        min_seconds_between_calls is None
+        and requests_per_minute is None
+        and max_tokens_per_minute is None
+    ):
+        return None
+
+    return RateLimiter(
+        min_seconds_between_calls=min_seconds_between_calls,
+        max_requests_per_minute=requests_per_minute,
+        max_tokens_per_minute=max_tokens_per_minute,
+    )
+
+    ### EDITING END ###
 
 def generate_dialogues_command(args):
     print("Starting dialogue generation...")
@@ -157,6 +194,36 @@ def generate_dialogues_command(args):
         else getattr(args, "target_llm_max_tokens", None)
     )
 
+    shared_timeout = getattr(args, "timeout", None)
+    user_timeout = (
+        shared_timeout
+        if shared_timeout is not None
+        else getattr(args, "user_llm_timeout", None)
+    )
+    target_timeout = (
+        shared_timeout
+        if shared_timeout is not None
+        else getattr(args, "target_llm_timeout", None)
+    )
+
+    # Rate limiting: build 1 instance (--rate-limit-scope=shared, the
+    # default) or 2 independent ones (per-model) from the SAME configured
+    # thresholds -- see _build_rate_limiter's and RateLimiter's docstrings
+    # for why "shared" vs "per-model" isn't just a convenience choice.
+    _rl_min_gap = getattr(args, "min_seconds_between_calls", None)
+    _rl_rpm = getattr(args, "max_requests_per_minute", None)
+    _rl_rps = getattr(args, "max_requests_per_second", None)
+    _rl_tpm = getattr(args, "max_tokens_per_minute", None)
+    _rl_scope = getattr(args, "rate_limit_scope", "shared")
+
+    user_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+    if user_rate_limiter is None:
+        target_rate_limiter = None
+    elif _rl_scope == "shared":
+        target_rate_limiter = user_rate_limiter
+    else:
+        target_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+
     budget_session_id = (
         getattr(args, "budget_session_id", None)
         or f"{sanitize_model_name(args.target_llm_model)}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -179,10 +246,21 @@ def generate_dialogues_command(args):
         "initial_backoff": args.initial_backoff,
         "max_backoff": args.max_backoff,
     }
+    if getattr(args, "max_timeout_retries", None) is not None:
+        user_llm_config["max_timeout_retries"] = args.max_timeout_retries
+        target_llm_config["max_timeout_retries"] = args.max_timeout_retries
     if user_max_tokens is not None:
         user_llm_config["max_tokens"] = user_max_tokens
     if target_max_tokens is not None:
         target_llm_config["max_tokens"] = target_max_tokens
+    if user_timeout is not None:
+        user_llm_config["timeout"] = user_timeout
+    if target_timeout is not None:
+        target_llm_config["timeout"] = target_timeout
+    if user_rate_limiter is not None:
+        user_llm_config["rate_limiter"] = user_rate_limiter
+    if target_rate_limiter is not None:
+        target_llm_config["rate_limiter"] = target_rate_limiter
 
     if budget_guard is not None:
         user_llm_config["budget_guard"] = budget_guard
@@ -309,6 +387,29 @@ def rate_dialogues_command(args):
     reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
     classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
 
+    # Rate limiting: build either one shared instance or a {model:
+    # RateLimiter} dict (one independent instance per --classifier-model)
+    # from the SAME configured thresholds -- see rate_dialogues()'s
+    # docstring in rating.py and RateLimiter's in llm_client.py for why
+    # "shared" vs "per-model" isn't just a convenience choice, and why
+    # per-model is the default here specifically (unlike generate's
+    # shared default).
+    _rl_min_gap = getattr(args, "classifier_min_seconds_between_calls", None)
+    _rl_rpm = getattr(args, "classifier_max_requests_per_minute", None)
+    _rl_rps = getattr(args, "classifier_max_requests_per_second", None)
+    _rl_tpm = getattr(args, "classifier_max_tokens_per_minute", None)
+    _rl_scope = getattr(args, "classifier_rate_limit_scope", "per-model")
+
+    if _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm) is None:
+        classifier_rate_limiter = None
+    elif _rl_scope == "shared":
+        classifier_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+    else:
+        classifier_rate_limiter = {
+            model: _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+            for model in args.classifier_model
+        }
+
     budget_session_id = (
         getattr(args, "budget_session_id", None)
         or f"rate_{sanitize_model_name('_'.join(sorted(args.classifier_model)))}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -335,6 +436,12 @@ def rate_dialogues_command(args):
             cue_group_config=getattr(args, "cue_group_config", None),
             classifier_max_tokens_base=getattr(args, "classifier_max_tokens_base", None),
             classifier_max_tokens_per_cue=getattr(args, "classifier_max_tokens_per_cue", None),
+            classifier_timeout=getattr(args, "classifier_timeout", None),
+            classifier_max_retries=getattr(args, "classifier_max_retries", 5),
+            classifier_max_timeout_retries=getattr(args, "classifier_max_timeout_retries", None),
+            classifier_initial_backoff=getattr(args, "classifier_initial_backoff", 2.0),
+            classifier_max_backoff=getattr(args, "classifier_max_backoff", 60.0),
+            rate_limiter=classifier_rate_limiter,
             budget_guard=budget_guard,
             max_concurrency=getattr(args, "max_concurrency", 1),
             verbose=True,
@@ -488,10 +595,57 @@ def _parse_flags(_):
         help="Output-token cap (max_tokens) for the Target LLM only. Ignored if --max-tokens is set.",
     )
     llm_group.add_argument(
+        "--timeout",
+        type=float,
+        default=None,
+        help=(
+            "Shared per-call timeout in seconds for both the User and "
+            "Target LLMs. If set, overrides --user-llm-timeout/"
+            "--target-llm-timeout. Bounds how long a single call can hang "
+            "before it's treated as failed, instead of blocking this "
+            "thread indefinitely on a stuck provider. A timeout is "
+            "retried like any other transient error, but against its OWN "
+            "budget -- see --max-timeout-retries below, not --max-retries. "
+            "Default: unset (no client-side cap, matches prior behavior "
+            "-- a call can hang as long as the provider/transport "
+            "allows)."
+        ),
+    )
+    llm_group.add_argument(
+        "--user-llm-timeout",
+        type=float,
+        default=None,
+        help="Per-call timeout in seconds for the User LLM only. Ignored if --timeout is set.",
+    )
+    llm_group.add_argument(
+        "--target-llm-timeout",
+        type=float,
+        default=None,
+        help="Per-call timeout in seconds for the Target LLM only. Ignored if --timeout is set.",
+    )
+    llm_group.add_argument(
         "--max-retries",
         type=int,
         default=5,
-        help="Maximum transient retry attempts per LLM call.",
+        help="Maximum retry attempts per LLM call for transient errors OTHER than a timeout (429, 5xx, connection drops). See --max-timeout-retries for timeouts specifically.",
+    )
+    llm_group.add_argument(
+        "--max-timeout-retries",
+        type=int,
+        default=None,
+        help=(
+            "Maximum retry attempts specifically for a --timeout expiry, "
+            "kept independent of --max-retries: a run of ordinary 429s/"
+            "5xx errors won't eat into this budget, and vice versa. "
+            "Worth setting LOWER than --max-retries if you're relying on "
+            "--timeout for recovery, since each timeout retry has an "
+            "unknown, possibly-nonzero provider-side cost that's never "
+            "visible to --max-budget-per-session (we never get a "
+            "response back to bill it against, unlike a 429/connection "
+            "error, which is unambiguously free). Default: unset -- uses "
+            "the same value as --max-retries, matching pre-split "
+            "behavior."
+        ),
     )
     llm_group.add_argument(
         "--initial-backoff",
@@ -537,6 +691,70 @@ def _parse_flags(_):
         type=float,
         default=None,
         help="Completion-token price used for budget estimation.",
+    )
+
+    rate_limit_group = gen_parser.add_argument_group("Rate limiting options")
+    rate_limit_group.add_argument(
+        "--min-seconds-between-calls",
+        type=float,
+        default=None,
+        help=(
+            "Minimum wait, in seconds, enforced between the START of "
+            "consecutive LLM calls -- a flat pacing throttle (your "
+            "'waiting time'), independent of the caps below. Under "
+            "--rate-limit-scope=shared (the default), User and Target "
+            "calls are paced against ONE shared cadence; under "
+            "per-model, each gets its own. Default: unset (no pacing)."
+        ),
+    )
+    rate_limit_group.add_argument(
+        "--max-requests-per-minute",
+        type=float,
+        default=None,
+        help=(
+            "Cap on LLM calls in any rolling 60-second window. Mutually "
+            "exclusive with --max-requests-per-second (same underlying "
+            "cap, different unit)."
+        ),
+    )
+    rate_limit_group.add_argument(
+        "--max-requests-per-second",
+        type=float,
+        default=None,
+        help=(
+            "Same cap as --max-requests-per-minute, expressed per second "
+            "(converted internally as value * 60). Mutually exclusive "
+            "with --max-requests-per-minute."
+        ),
+    )
+    rate_limit_group.add_argument(
+        "--max-tokens-per-minute",
+        type=float,
+        default=None,
+        help=(
+            "Cap on total tokens (input+output combined) in any rolling "
+            "60-second window, enforced using each call's ACTUAL usage "
+            "once it's known -- a single large call can still push the "
+            "window over the cap; later calls are then held back to "
+            "compensate. Reactive, not a hard preemptive guarantee -- see "
+            "RateLimiter's docstring in llm_client.py."
+        ),
+    )
+    rate_limit_group.add_argument(
+        "--rate-limit-scope",
+        choices=["shared", "per-model"],
+        default="shared",
+        help=(
+            "Only matters if at least one cap above is set. 'shared' "
+            "(default): User and Target LLM calls are throttled TOGETHER "
+            "against one combined budget -- correct when both use the "
+            "same provider account/key, which is the common case. "
+            "'per-model': each gets its OWN independent budget at the "
+            "same configured limits -- use this if they're on different "
+            "providers/keys with genuinely separate quotas, since "
+            "'shared' would otherwise split one real limit between two "
+            "roles that don't actually share it, under-using each."
+        ),
     )
 
     concurrency_group = gen_parser.add_argument_group("Concurrency options")
@@ -787,6 +1005,76 @@ def _parse_flags(_):
         default=0.7,
         help="Temperature for the classifier LLM(s).",
     )
+    rate_llm_group.add_argument(
+        "--classifier-timeout",
+        type=float,
+        default=None,
+        help=(
+            "Per-call timeout in seconds, applied identically to every "
+            "model in --classifier-model. Bounds how long a single rating "
+            "call can hang before it's treated as failed, instead of "
+            "blocking indefinitely on a stuck provider. A timeout is "
+            "retried like any other transient error, but against its OWN "
+            "budget -- see --classifier-max-timeout-retries below, not "
+            "--classifier-max-retries. Default: unset (no client-side "
+            "cap, matches prior behavior)."
+        ),
+    )
+    rate_llm_group.add_argument(
+        "--classifier-max-retries",
+        type=int,
+        default=5,
+        help=(
+            "Maximum retry attempts per classifier call for transient "
+            "errors OTHER than a timeout (429, 5xx, connection drops). "
+            "Applied identically to every model in --classifier-model. "
+            "See --classifier-max-timeout-retries for timeouts "
+            "specifically. Previously not configurable here at all -- "
+            "classifier calls always used LLMClient's hardcoded default "
+            "of 5; this flag's default matches that, so omitting it "
+            "changes nothing."
+        ),
+    )
+    rate_llm_group.add_argument(
+        "--classifier-max-timeout-retries",
+        type=int,
+        default=None,
+        help=(
+            "Maximum retry attempts specifically for a "
+            "--classifier-timeout expiry, kept independent of "
+            "--classifier-max-retries: a run of ordinary 429s/5xx errors "
+            "won't eat into this budget, and vice versa. Worth setting "
+            "LOWER than --classifier-max-retries if you're relying on "
+            "--classifier-timeout for recovery, since each timeout retry "
+            "has an unknown, possibly-nonzero provider-side cost that's "
+            "never visible to --max-budget-per-session (we never get a "
+            "response back to bill it against). Default: unset -- uses "
+            "the same value as --classifier-max-retries."
+        ),
+    )
+    rate_llm_group.add_argument(
+        "--classifier-initial-backoff",
+        type=float,
+        default=2.0,
+        help=(
+            "Initial retry backoff in seconds for classifier calls "
+            "(doubles on each subsequent retry, capped at "
+            "--classifier-max-backoff). Previously not configurable here "
+            "-- default matches LLMClient's prior hardcoded value, so "
+            "omitting it changes nothing."
+        ),
+    )
+    rate_llm_group.add_argument(
+        "--classifier-max-backoff",
+        type=float,
+        default=60.0,
+        help=(
+            "Maximum retry backoff in seconds for classifier calls. "
+            "Previously not configurable here -- default matches "
+            "LLMClient's prior hardcoded value, so omitting it changes "
+            "nothing."
+        ),
+    )
 
     ### EDITING START HERE ###
     
@@ -957,6 +1245,74 @@ def _parse_flags(_):
             "typically where concurrency helps most. Runs via "
             "asyncio.to_thread; same overshoot caveat as generate's "
             "--max-concurrency applies if a budget cap is also set."
+        ),
+    )
+
+    rate_rate_limit_group = rate_parser.add_argument_group("Rate limiting options")
+    rate_rate_limit_group.add_argument(
+        "--classifier-min-seconds-between-calls",
+        type=float,
+        default=None,
+        help=(
+            "Minimum wait, in seconds, enforced between the START of "
+            "consecutive classifier calls -- a flat pacing throttle "
+            "(your 'waiting time'), independent of the caps below. Under "
+            "--classifier-rate-limit-scope=per-model (the default), each "
+            "model in --classifier-model gets its own pacing cadence; "
+            "under shared, every model is paced against ONE combined "
+            "cadence. Default: unset (no pacing)."
+        ),
+    )
+    rate_rate_limit_group.add_argument(
+        "--classifier-max-requests-per-minute",
+        type=float,
+        default=None,
+        help=(
+            "Cap on classifier calls in any rolling 60-second window. "
+            "Mutually exclusive with --classifier-max-requests-per-second "
+            "(same underlying cap, different unit)."
+        ),
+    )
+    rate_rate_limit_group.add_argument(
+        "--classifier-max-requests-per-second",
+        type=float,
+        default=None,
+        help=(
+            "Same cap as --classifier-max-requests-per-minute, expressed "
+            "per second (converted internally as value * 60). Mutually "
+            "exclusive with --classifier-max-requests-per-minute."
+        ),
+    )
+    rate_rate_limit_group.add_argument(
+        "--classifier-max-tokens-per-minute",
+        type=float,
+        default=None,
+        help=(
+            "Cap on total tokens (input+output combined) in any rolling "
+            "60-second window, enforced using each call's ACTUAL usage "
+            "once it's known -- a single large call can still push the "
+            "window over the cap; later calls are then held back to "
+            "compensate. Reactive, not a hard preemptive guarantee -- see "
+            "RateLimiter's docstring in llm_client.py."
+        ),
+    )
+    rate_rate_limit_group.add_argument(
+        "--classifier-rate-limit-scope",
+        choices=["shared", "per-model"],
+        default="per-model",
+        help=(
+            "Only matters if at least one cap above is set AND more than "
+            "one --classifier-model is given. 'per-model' (default): each "
+            "classifier model gets its OWN independent budget at the same "
+            "configured limits -- the safer default for rating, since "
+            "mixing a free/tightly-limited model with a paid one is "
+            "common here, and throttling them together would needlessly "
+            "slow the paid model down to the free one's pace. 'shared': "
+            "every classifier model is throttled TOGETHER against one "
+            "combined budget -- use this only if every model in "
+            "--classifier-model genuinely draws on the same provider "
+            "account/key and you want their combined call rate bounded "
+            "as one pool."
         ),
     )
 
