@@ -391,7 +391,7 @@ index 17aa04c..1ae821b 100644
 +            you compare both against the same output_dir.
 +
 +    Both sets are computed at two granularities:
-+      - overall: pooled across the whole dataset (as before) -- 
++      - overall: pooled across the whole dataset (as before) --
 +        cue_percentages.json / cue_percentages.png / category_radar.png
 +        and their windowed counterparts.
 +      - per-dialogue: one row per dialogue_id, in per_dialogue_stats*.csv

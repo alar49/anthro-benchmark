@@ -464,7 +464,12 @@ def summarize_command(args):
     try:
         from anthro_benchmark.analysis.analysis import run_analysis
 
-        run_analysis(rated_csv_path=args.rated_csv, output_dir=args.output_dir)
+        run_analysis(
+            rated_csv_path=args.rated_csv,
+            output_dir=args.output_dir,
+            first_n_turns=args.first_n_turns,
+            require_min_turns=args.require_min_turns,
+        )
     except ImportError as e:
         print(f"Import Error during analysis: {e}", file=sys.stderr)
         print(
@@ -1334,6 +1339,39 @@ def _parse_flags(_):
         type=str,
         default="analysis_results",
         help="Directory to save analysis results (plots, summary stats) (default: analysis_results).",
+    )
+    summarize_parser.add_argument(
+        "--first-n-turns",
+        type=int,
+        default=5,
+        help=(
+            "In addition to the 'final' results (every rated turn, "
+            "whatever length each dialogue reached), also compute the "
+            "same statistics restricted to each dialogue's first N "
+            "turn-pairs -- for a fixed-length comparison against prior "
+            "work that didn't have variable-length dialogues (e.g. from "
+            "--stop-on-natural-end). A dialogue that ended earlier than "
+            "N turns contributes whatever it has rather than being "
+            "excluded, unless --require-min-turns is also set. "
+            "Default: 5."
+        ),
+    )
+    summarize_parser.add_argument(
+        "--require-min-turns",
+        action="store_true",
+        default=False,
+        help=(
+            "Off by default. When set, the first-N-turns results ONLY "
+            "include dialogues whose total length is at least "
+            "--first-n-turns -- shorter dialogues are excluded from that "
+            "view entirely (they're still included in the 'final' "
+            "results). Use this for a strict fixed-length comparison "
+            "where every included dialogue contributes exactly N turns, "
+            "not fewer. Output filenames get a '_strict' suffix when "
+            "this is set, so toggling it and re-running doesn't "
+            "overwrite the other version's output in the same "
+            "--output-dir."
+        ),
     )
 
     summarize_parser.set_defaults(func=summarize_command)
