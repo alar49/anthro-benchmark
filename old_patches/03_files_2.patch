@@ -1,0 +1,233 @@
+diff --git a/anthro_benchmark/generator/generator.py b/anthro_benchmark/generator/generator.py
+index 291877d..6f32c30 100644
+--- a/anthro_benchmark/generator/generator.py
++++ b/anthro_benchmark/generator/generator.py
+@@ -107,6 +107,7 @@ class DialogueGenerator:
+         output_dir: Optional[str] = None,
+         default_csv_filename: Optional[str] = None,
+         max_concurrency: int = 1,
++        strict_batch_ordering: bool = False,
+         stop_on_natural_end: bool = False,
+     ):
+         """
+@@ -159,6 +160,21 @@ class DialogueGenerator:
+                 OS-thread concurrency under the hood, which is why a shared
+                 BudgetGuard's internal lock matters here, not just in
+                 theory -- see llm_client.py.
++            strict_batch_ordering: Only relevant when max_concurrency > 1.
++                Default False dispatches continuously (a new dialogue
++                starts the instant a concurrency slot frees up) for
++                maximum throughput; if a budget cap is hit mid-run, which
++                dialogues end up complete doesn't follow index order at
++                all. True dispatches in batches of size max_concurrency,
++                one batch fully finished before the next starts, bounding
++                that same ambiguity to within one batch at a measured
++                throughput cost (roughly 1-15% under ordinary latency
++                variance, 2x+ when a genuine straggler -- a slow response,
++                or a retried call -- is present in a batch). See
++                _generate_dialogues_async's docstring for the full
++                tradeoff. Only matters at all if a budget cap actually
++                binds mid-run; with no cap, or one generous enough to
++                never trigger, both settings produce identical results.
+             stop_on_natural_end: Default False reproduces the original
+                 behavior exactly -- every dialogue runs the full
+                 num_turns regardless of content. When True, appends an
+@@ -235,6 +251,7 @@ class DialogueGenerator:
+         if max_concurrency < 1:
+             raise ValueError(f"max_concurrency must be >= 1, got {max_concurrency!r}.")
+         self.max_concurrency = max_concurrency
++        self.strict_batch_ordering = strict_batch_ordering
+ 
+         self.dialogues = []
+         self.prompts = self._load_prompts()
+@@ -559,7 +576,11 @@ class DialogueGenerator:
+         independent _generate_single_dialogue calls at once. Each call
+         builds its own local message history (see _generate_single_dialogue
+         and _get_user_llm_response/_get_target_llm_response), so there is
+-        no shared mutable state for concurrent dialogues to corrupt.
++        no shared mutable state for concurrent dialogues to corrupt --
++        concurrency here only ever affects WHICH DIALOGUES end up complete
++        vs. cut short when a budget cap is hit mid-run, never the internal
++        user/target sequencing WITHIN any one dialogue (that's enforced by
++        which function is called at each line, not by timing).
+ 
+         The actual blocking call (litellm.completion(), inside
+         LLMClient.generate()) is synchronous, not native-async -- so this
+@@ -568,58 +589,111 @@ class DialogueGenerator:
+         concurrency, which is exactly why BudgetGuard's internal lock
+         (see llm_client.py) is required, not optional, in this mode.
+ 
+-        Under concurrency, "stop exactly at the cap, in order" isn't a
+-        coherent guarantee: concurrently-dispatched dialogues don't
+-        necessarily reserve their LLM calls in index order, so a
+-        higher-index dialogue can legitimately finish successfully even
+-        though a lower-index one hit the cap first. This method preserves
+-        every dialogue actually produced -- nothing already paid for is
+-        discarded -- rather than trying to enforce a strict cutoff index
+-        the way the sequential path above can.
++        Two dispatch strategies, chosen by self.strict_batch_ordering:
++
++        - False (default): CONTINUOUS -- a new dialogue starts the instant
++          any of the max_concurrency slots frees up, via asyncio.Semaphore.
++          Maximum throughput. If a budget cap is hit mid-run, which
++          dialogues ended up complete vs. cut short doesn't follow dialogue
++          index order at all -- a straggler anywhere in the whole run can
++          leave a lower-index dialogue incomplete while later ones finish.
++          Nothing is ever lost or corrupted by this (every dialogue
++          produced is kept, see below) -- it only affects how precisely
++          you can say "generation stopped after dialogue N".
++
++        - True: CHUNKED -- dispatched in batches of size max_concurrency,
++          one batch fully awaited before the next starts. Bounds that same
++          ambiguity to within one batch: every batch before the one that
++          hits the cap is guaranteed fully complete, every batch after it
++          never starts at all. Costs real throughput to get that guarantee
++          -- measured at roughly 1-15% slower than continuous under
++          ordinary latency variance, but 2x+ slower when a genuine
++          straggler is present in a batch (a slow provider response, or a
++          call that needed a retry) -- because a single slow dialogue then
++          blocks the *next entire batch* from starting even when other
++          concurrency slots are sitting idle. Worth it if you're relying
++          on a tight --max-iterations/--max-budget-per-session cap as a
++          hard, precisely-accounted stop; not worth it if the budget cap
++          is a loose safety net you don't expect to actually hit, or if
++          your priority is raw throughput.
++
++        Either way: this only ever matters when a budget cap actually
++        binds mid-run. With no cap, or a cap generous enough to never
++        trigger, both strategies produce the exact same set of fully
++        completed dialogues (only their wall-clock time differs).
+         """
+-        semaphore = asyncio.Semaphore(self.max_concurrency)
+         progress_bar = tqdm(
+             total=self.num_dialogues, desc="Generating dialogues", unit="dialogue"
+         )
+ 
+         async def _run_one(dialogue_index: int) -> Dict[str, Any]:
+             prompt_data = self._select_prompt(dialogue_index)
+-            async with semaphore:
+-                dialogue = await asyncio.to_thread(
+-                    self._generate_single_dialogue, prompt_data, dialogue_index
+-                )
+-            # Runs back on the event loop thread once the awaited
+-            # to_thread call returns, so this is never called from more
+-            # than one thread at a time -- no lock needed for the bar
+-            # itself.
++            dialogue = await asyncio.to_thread(
++                self._generate_single_dialogue, prompt_data, dialogue_index
++            )
+             progress_bar.update(1)
+             return dialogue
+ 
++        self.dialogues = []
+         try:
+-            results = await asyncio.gather(
+-                *(_run_one(i) for i in range(self.num_dialogues))
+-            )
++            if self.strict_batch_ordering:
++                stopped_at_chunk_start = None
++                chunk_size = self.max_concurrency
++                for chunk_start in range(0, self.num_dialogues, chunk_size):
++                    chunk_end = min(chunk_start + chunk_size, self.num_dialogues)
++                    chunk_results = await asyncio.gather(
++                        *(_run_one(i) for i in range(chunk_start, chunk_end))
++                    )
++                    self.dialogues.extend(chunk_results)
++                    if any(d["metadata"].get("budget_exceeded") for d in chunk_results):
++                        stopped_at_chunk_start = chunk_start
++                        break
++            else:
++                semaphore = asyncio.Semaphore(self.max_concurrency)
++
++                async def _run_one_gated(dialogue_index: int) -> Dict[str, Any]:
++                    async with semaphore:
++                        return await _run_one(dialogue_index)
++
++                self.dialogues = list(
++                    await asyncio.gather(
++                        *(_run_one_gated(i) for i in range(self.num_dialogues))
++                    )
++                )
+         finally:
+             progress_bar.close()
+ 
+-        self.dialogues = list(results)
+-
+         failed_count = sum(
+             1 for d in self.dialogues if d["metadata"]["status"] not in _SUCCESSFUL_STATUSES
+         )
+         budget_exceeded_count = sum(
+             1 for d in self.dialogues if d["metadata"].get("budget_exceeded")
+         )
+-        if budget_exceeded_count:
++        if budget_exceeded_count and self.strict_batch_ordering:
++            never_started = self.num_dialogues - len(self.dialogues)
++            print(
++                f"\nBudget/iteration cap reached in the dialogue-{stopped_at_chunk_start}"
++                f"..{len(self.dialogues) - 1} batch (batch size {self.max_concurrency}). "
++                f"Dialogues 0..{stopped_at_chunk_start - 1} are guaranteed fully "
++                f"complete ({stopped_at_chunk_start} of them). Within the "
++                f"affected batch, {budget_exceeded_count} of {len(self.dialogues) - stopped_at_chunk_start} "
++                "hit the cap -- which ones is not meaningful to report in "
++                "index order within a single concurrent batch (see this "
++                f"method's docstring). The remaining {never_started} "
++                "dialogue(s) after this batch were never started at all. "
++                "Everything actually produced is kept; nothing is discarded."
++            )
++        elif budget_exceeded_count:
+             print(
+                 f"\n{budget_exceeded_count} of {self.num_dialogues} dialogue(s) hit "
+                 "the budget/iteration cap partway through. Order isn't "
+-                "meaningful under concurrency (see this method's docstring), "
+-                "so this can't be reported as a clean 'stopped after "
+-                f"dialogue N' cutoff the way max_concurrency=1 can -- but "
+-                f"all {len(self.dialogues) - budget_exceeded_count} "
+-                "dialogue(s) that did complete are kept and saved; nothing "
+-                "actually produced is discarded."
++                "meaningful under continuous-dispatch concurrency (see this "
++                "method's docstring; pass strict_batch_ordering=True / "
++                "--strict-batch-ordering for a tighter, index-bounded "
++                f"guarantee at some throughput cost) -- but all "
++                f"{len(self.dialogues) - budget_exceeded_count} dialogue(s) "
++                "that did complete are kept and saved; nothing actually "
++                "produced is discarded."
+             )
+         elif failed_count:
+             print(
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index e163930..93c7d31 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -247,6 +247,7 @@ def generate_dialogues_command(args):
+             output_dir=args.output_dir,
+             default_csv_filename=dynamic_csv_filename,
+             max_concurrency=getattr(args, "max_concurrency", 1),
++            strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+             stop_on_natural_end=getattr(args, "stop_on_natural_end", False),
+         )
+ 
+@@ -510,6 +511,24 @@ def _parse_flags(_):
+         ),
+     )
+ 
++    concurrency_group.add_argument(
++        "--strict-batch-ordering",
++        action="store_true",
++        help=(
++            "Only relevant with --max-concurrency > 1. Default off: "
++            "dispatch continuously for maximum throughput (a new dialogue "
++            "starts the instant a slot frees up); if a budget cap is hit "
++            "mid-run, which dialogues end up complete doesn't follow index "
++            "order. Set this to dispatch in batches of --max-concurrency "
++            "instead, one batch fully finished before the next starts -- "
++            "bounds that ambiguity to within one batch, at a measured "
++            "throughput cost (roughly 1-15% under ordinary latency "
++            "variance, 2x+ if a straggler shows up in a batch). Only "
++            "matters if a budget cap actually binds mid-run; irrelevant "
++            "with no cap or a generous one."
++        ),
++    )
++
+     early_stop_group = gen_parser.add_argument_group("Early-stopping options")
+     early_stop_group.add_argument(
+         "--stop-on-natural-end",

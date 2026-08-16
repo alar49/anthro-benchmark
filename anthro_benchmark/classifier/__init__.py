@@ -14,8 +14,11 @@
 
 from .rating import run_rating_process
 from .classifiers import LLMClassifier
+from .cue_grouping import CUE_GROUP_CONFIGS, LLMGroupClassifier
 
 __all__ = [
     "LLMClassifier",
     "run_rating_process",
+    "CUE_GROUP_CONFIGS",
+    "LLMGroupClassifier",
 ]

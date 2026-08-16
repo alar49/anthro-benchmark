@@ -1,0 +1,638 @@
+# # Copyright 2025 The Anthropomorphism Benchmark Project Authors
+# #
+# # Licensed under the Apache License, Version 2.0 (the "License");
+# # you may not use this file except in compliance with the License.
+# # You may obtain a copy of the License at
+# #
+# #       https://www.apache.org/licenses/LICENSE-2.0
+# #
+# # Unless required by applicable law or agreed to in writing, software
+# # distributed under the License is distributed on an "AS IS" BASIS,
+# # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# # See the License for the specific language governing permissions and
+# # limitations under the License.
+# 
+# """
+# LLM client initialization and management for dialogue generation.
+# 
+# Alternative Gem_version
+# """
+# 
+# import dataclasses
+# import os
+# from typing import Optional
+# from openai import OpenAI
+# 
+# 
+# @dataclasses.dataclass
+# class LLMClient:
+#     """Base class for LLM clients."""
+# 
+#     model: str
+#     temperature: float = 0.7
+#     # --- NEW: Explicitly define fields so __init__ doesn't crash ---
+#     reasoning_mode: bool = False
+#     reasoning_effort: Optional[str] = None
+# 
+#     def generate(self, messages: list, **kwargs) -> str:
+#         """
+#         Generate a response from the LLM.
+# 
+#         Args:
+#             messages: List of message dictionaries
+#             **kwargs: Additional parameters to pass to the LLM
+# 
+#         Returns:
+#             Generated text response
+#         """
+#         # Route OpenRouter models through the official OpenAI client
+#         if self.model.startswith("openrouter/"):
+#             # Strip the prefix to get the exact Model ID
+#             actual_model = self.model.replace("openrouter/", "")
+#             
+#             client = OpenAI(
+#                 base_url="https://openrouter.ai/api/v1",
+#                 api_key=os.environ.get("OPENROUTER_API_KEY")
+#             )
+#             
+#             extra_body = kwargs.pop("extra_body", {})
+#             
+#             # Use instance variables (self) instead of popping kwargs
+#             if self.reasoning_mode:
+#                 # OpenRouter standard for exposing reasoning tokens uses an underscore
+#                 extra_body["include_reasoning"] = True
+#                 
+#             if self.reasoning_effort:
+#                 # Standard OpenAI-compatible param uses an underscore
+#                 kwargs["reasoning_effort"] = self.reasoning_effort
+#                 
+#             if extra_body:
+#                 kwargs["extra_body"] = extra_body
+# 
+#             # Execute the call
+#             response = client.chat.completions.create(
+#                 model=actual_model,
+#                 messages=messages,
+#                 temperature=self.temperature,
+#                 **kwargs
+#             )
+#             
+#             # Return the generated text
+#             return response.choices[0].message.content
+#             
+#         # Fallback to litellm for all other providers
+#         else:
+#             import litellm
+#             
+#             # Pass reasoning effort to litellm if it's set
+#             if self.reasoning_effort:
+#                 kwargs["reasoning_effort"] = self.reasoning_effort
+# 
+#             response = litellm.completion(
+#                 model=self.model,
+#                 messages=messages,
+#                 temperature=self.temperature,
+#                 **kwargs
+#             )
+#             #return response.choices[0].message.content #changing return to...
+# 
+#             message = response.choices[0].message
+#             content = message.content
+#             
+#             # If you want to append the reasoning to the content:
+#             if self.reasoning_mode and hasattr(message, "model_extra") and message.model_extra:
+#                 reasoning = message.model_extra.get("reasoning")
+#                 if reasoning:
+#                     return f"<think>\n{reasoning}\n</think>\n\n{content}"
+#                     
+#             return content
+
+
+### NEW VERSION ###
+
+import dataclasses
+import logging
+import os
+import random
+import time
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import litellm
+try:
+    from litellm import (
+        APIConnectionError,
+        APIError,
+        APITimeoutError,
+        AuthenticationError,
+        BadRequestError,
+        InternalServerError,
+        PermissionDeniedError,
+        RateLimitError,
+    )
+except ImportError:
+    from litellm import (
+        APIConnectionError,
+        APIError,
+        AuthenticationError,
+        BadRequestError,
+        InternalServerError,
+        PermissionDeniedError,
+        RateLimitError,
+    )
+    from openai import APITimeoutError
+
+logger = logging.getLogger(__name__)
+
+ALLOWED_REASONING_EFFORTS = {
+    "none",
+    "minimal",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+    "max",
+}
+
+
+class BudgetExceededError(RuntimeError):
+    """Raised when the external per-session budget guard is exceeded."""
+
+
+@dataclasses.dataclass
+class BudgetGuard:
+    """
+    External safety layer.
+
+    - max_iterations: hard cap on the number of LLM calls per session
+    - max_budget_per_session: hard cap on spend per session
+    - cost_estimator: required when max_budget_per_session is set
+    """
+
+    session_id: str
+    max_iterations: int = 25
+    max_budget_per_session: Optional[float] = None
+    cost_estimator: Optional[Callable[[Any], float]] = None
+    iterations: int = 0
+    spent: float = 0.0
+
+    def __post_init__(self) -> None:
+        if self.max_iterations < 1:
+            raise ValueError("max_iterations must be >= 1")
+
+        if self.max_budget_per_session is not None and self.max_budget_per_session < 0:
+            raise ValueError("max_budget_per_session must be >= 0")
+
+        if self.max_budget_per_session is not None and self.cost_estimator is None:
+            raise ValueError(
+                "max_budget_per_session requires a cost_estimator for reliable dollar enforcement."
+            )
+
+    def reserve_call(self) -> None:
+        """
+        Reserve one actual API call before sending it.
+        This makes retries count too.
+        """
+        if self.iterations >= self.max_iterations:
+            raise BudgetExceededError(
+                f"Max iterations exceeded for session '{self.session_id}' "
+                f"({self.iterations}/{self.max_iterations})."
+            )
+
+        if self.max_budget_per_session is not None and self.spent >= self.max_budget_per_session:
+            raise BudgetExceededError(
+                f"Max budget exceeded for session '{self.session_id}' "
+                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+            )
+
+        self.iterations += 1
+
+    def record_response(self, response: Any) -> None:
+        """
+        Add the estimated cost of a successful response.
+        """
+        if self.cost_estimator is None:
+            return
+
+        spend = float(self.cost_estimator(response))
+        if spend < 0:
+            raise ValueError("cost_estimator returned a negative spend estimate.")
+
+        self.spent += spend
+
+        if self.max_budget_per_session is not None and self.spent > self.max_budget_per_session:
+            raise BudgetExceededError(
+                f"Max budget exceeded for session '{self.session_id}' "
+                f"(${self.spent:.6f}/${self.max_budget_per_session:.6f})."
+            )
+
+
+def estimate_cost_from_usage(
+    response: Any,
+    input_cost_per_1m_tokens: float,
+    output_cost_per_1m_tokens: float,
+    *,
+    strict: bool = True,
+) -> float:
+    """
+    Generic cost estimator.
+
+    Supply your actual model/provider pricing here.
+    If strict=True and the response has no usage block, we fail fast
+    rather than silently undercounting spend.
+    """
+    usage = getattr(response, "usage", None)
+    if usage is None:
+        if strict:
+            raise RuntimeError(
+                "Response does not expose usage; cannot enforce max_budget_per_session safely."
+            )
+        return 0.0
+
+    input_tokens = getattr(usage, "prompt_tokens", None)
+    if input_tokens is None:
+        input_tokens = getattr(usage, "input_tokens", None)
+
+    output_tokens = getattr(usage, "completion_tokens", None)
+    if output_tokens is None:
+        output_tokens = getattr(usage, "output_tokens", None)
+
+    input_tokens = int(input_tokens or 0)
+    output_tokens = int(output_tokens or 0)
+
+    return (
+        (input_tokens / 1_000_000.0) * float(input_cost_per_1m_tokens)
+        + (output_tokens / 1_000_000.0) * float(output_cost_per_1m_tokens)
+    )
+
+
+def _merge_metadata(*parts: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    metadata: Dict[str, Any] = {}
+    for part in parts:
+        if isinstance(part, dict):
+            metadata.update(part)
+    return metadata
+
+
+def _stringify_reasoning_content(reasoning_content: Any) -> str:
+    if reasoning_content is None:
+        return ""
+
+    if isinstance(reasoning_content, str):
+        return reasoning_content.strip()
+
+    if isinstance(reasoning_content, list):
+        chunks: List[str] = []
+        for item in reasoning_content:
+            if isinstance(item, str):
+                chunks.append(item)
+                continue
+
+            if isinstance(item, dict):
+                for key in ("text", "reasoning", "content", "thinking"):
+                    value = item.get(key)
+                    if value:
+                        chunks.append(str(value))
+                        break
+                continue
+
+            for attr in ("text", "reasoning", "content", "thinking"):
+                value = getattr(item, attr, None)
+                if value:
+                    chunks.append(str(value))
+                    break
+
+        return "\n".join(chunks).strip()
+
+    return str(reasoning_content).strip()
+
+
+def _extract_reasoning_content(message: Any) -> str:
+    reasoning_content = getattr(message, "reasoning_content", None)
+
+    if reasoning_content is None:
+        model_extra = getattr(message, "model_extra", None)
+        if isinstance(model_extra, dict):
+            reasoning_content = (
+                model_extra.get("reasoning_content")
+                or model_extra.get("reasoning")
+                or model_extra.get("thinking_blocks")
+            )
+
+    if reasoning_content is None:
+        reasoning_content = getattr(message, "thinking_blocks", None)
+
+    return _stringify_reasoning_content(reasoning_content)
+
+
+class LLMClient:
+    """
+    LiteLLM-first client.
+
+    Design goals:
+    - route OpenRouter through LiteLLM too
+    - keep temperature caller-controlled
+    - keep reasoning visible to the caller
+    - retry only transient failures
+    - fail fast on config/programming mistakes
+    - keep unknown-exception retries very limited
+    - avoid hidden retry loops by forcing num_retries=0 here
+    """
+
+    def __init__(
+        self,
+        model: str,
+        temperature: float = 0.7,
+        reasoning_mode: bool = False,
+        reasoning_effort: Optional[str] = None,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        max_retries: int = 5,
+        initial_backoff: float = 2.0,
+        max_backoff: float = 60.0,
+        budget_guard: Optional[BudgetGuard] = None,
+        **extra_config: Any,
+    ):
+        self.raw_model = model
+        self.temperature = temperature
+        self.reasoning_mode = reasoning_mode
+        self.reasoning_effort = reasoning_effort
+        self.max_retries = max_retries
+        self.initial_backoff = initial_backoff
+        self.max_backoff = max_backoff
+        self.extra_config = extra_config
+        self.budget_guard = budget_guard
+
+        if self.max_retries < 1:
+            raise ValueError("max_retries must be >= 1")
+        if self.initial_backoff <= 0:
+            raise ValueError("initial_backoff must be > 0")
+        if self.max_backoff < self.initial_backoff:
+            raise ValueError("max_backoff must be >= initial_backoff")
+
+        if model.startswith("openrouter/"):
+            #self.model = model[len("openrouter/") :] #OLD VERSION
+            # NEW VERSION = Keep the LiteLLM provider prefix intact.
+            self.model = model
+
+            resolved_base_url = base_url or "https://openrouter.ai/api/v1"
+            resolved_api_key = (
+                api_key
+                or os.environ.get("OPENROUTER_API_KEY")
+                or os.environ.get("OPENAI_API_KEY")
+            )
+        else:
+            self.model = model
+            resolved_base_url = base_url
+            resolved_api_key = api_key or os.environ.get("OPENAI_API_KEY")
+
+        if not resolved_api_key:
+            raise ValueError(
+                "API key must be provided via arguments or environment variables "
+                "(OPENROUTER_API_KEY / OPENAI_API_KEY)."
+            )
+
+        self.api_key = resolved_api_key
+        self.base_url = resolved_base_url
+
+        # Keep the old attribute name while using LiteLLM as the primary layer.
+        self.client = litellm
+
+    def generate(
+        self,
+        messages: List[Dict[str, str]],
+        *,
+        return_reasoning: bool = False,
+        **kwargs,
+    ) -> Union[str, Tuple[str, str]]:
+        """
+        Send messages via LiteLLM and return the model's reply.
+
+        By default this returns ONLY the final answer as a plain string,
+        even when reasoning/thinking mode is enabled. The reasoning trace
+        (if any) is never concatenated into that string. This matters
+        because the returned value is reused verbatim as conversation
+        history, CSV output, and classifier-prompt input elsewhere in this
+        codebase -- none of which are designed to parse a "<think>...</think>"
+        blob, and feeding it to them corrupts history/echo behavior and
+        rating results.
+
+        Pass return_reasoning=True to also get the reasoning trace (e.g.
+        for logging/inspection): the return value is then a
+        (content, reasoning_text) tuple, where reasoning_text is "" if the
+        provider returned none.
+        """
+
+        budget_guard = kwargs.pop("budget_guard", self.budget_guard)
+
+        runtime_metadata = kwargs.pop("metadata", None)
+        runtime_reasoning = kwargs.pop("reasoning", None)
+
+        reasoning_mode = kwargs.pop("reasoning_mode", self.reasoning_mode)
+        reasoning_effort = kwargs.pop("reasoning_effort", self.reasoning_effort)
+
+        payload: Dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "num_retries": 0,  # centralize retry behavior here; no hidden retry loops
+            "api_key": self.api_key,
+        }
+
+        if self.base_url:
+            payload["api_base"] = self.base_url
+
+        if self.extra_config:
+            payload.update(self.extra_config)
+
+        if kwargs:
+            payload.update(kwargs)
+
+        if budget_guard is not None:
+            payload["metadata"] = _merge_metadata(
+                payload.get("metadata"),
+                runtime_metadata,
+                {"session_id": budget_guard.session_id},
+            )
+        elif runtime_metadata is not None:
+            payload["metadata"] = _merge_metadata(payload.get("metadata"), runtime_metadata)
+
+        if runtime_reasoning is not None:
+            payload["reasoning"] = runtime_reasoning
+        elif reasoning_mode or reasoning_effort:
+            reasoning: Dict[str, Any] = {
+                "enabled": True,
+                "exclude": False,  # keep reasoning tokens in the response for exploration
+            }
+
+            if reasoning_effort:
+                if reasoning_effort not in ALLOWED_REASONING_EFFORTS:
+                    raise ValueError(
+                        f"Unsupported reasoning_effort={reasoning_effort!r}. "
+                        f"Supported values include: {sorted(ALLOWED_REASONING_EFFORTS)}"
+                    )
+                reasoning["effort"] = reasoning_effort
+
+            # Optional cap if you later want to limit thinking spend:
+            # reasoning["max_tokens"] = 1024
+
+            payload["reasoning"] = reasoning
+
+        attempt = 0
+        unknown_exception_attempts = 0
+        current_backoff = self.initial_backoff
+
+        while attempt < self.max_retries:
+            if budget_guard is not None:
+                budget_guard.reserve_call()
+
+            attempt += 1
+            try:
+                response = self.client.completion(**payload)
+
+                if budget_guard is not None:
+                    budget_guard.record_response(response)
+
+                if not getattr(response, "choices", None):
+                    return ("", "") if return_reasoning else ""
+
+                choice = response.choices[0]
+                message = getattr(choice, "message", None)
+                if message is None:
+                    return ("", "") if return_reasoning else ""
+
+                content = getattr(message, "content", None) or ""
+                reasoning_text = _extract_reasoning_content(message)
+
+                if return_reasoning:
+                    return content, reasoning_text
+
+                return content
+
+            except BadRequestError as e:
+                logger.error(
+                    "Permanent BadRequestError (Attempt %s/%s): %s",
+                    attempt,
+                    self.max_retries,
+                    e,
+                )
+                raise
+
+            except (AuthenticationError, PermissionDeniedError) as e:
+                logger.error(
+                    "Permanent Auth/Permission Error (Attempt %s/%s): %s",
+                    attempt,
+                    self.max_retries,
+                    e,
+                )
+                raise
+
+            except (
+                RateLimitError,
+                InternalServerError,
+                APIConnectionError,
+                APITimeoutError,
+                APIError,
+            ) as e:
+                status_code = getattr(e, "status_code", None)
+
+                # Fail fast on general client errors, except 429.
+                if status_code and 400 <= status_code < 500 and status_code != 429:
+                    logger.error("Non-retryable client error status %s: %s", status_code, e)
+                    raise
+
+                if attempt >= self.max_retries:
+                    logger.error(
+                        "Max retry attempts (%s) exhausted for model '%s'. Last error: %s",
+                        self.max_retries,
+                        self.model,
+                        e,
+                    )
+                    raise
+
+                retry_after_header = None
+                if hasattr(e, "response") and getattr(e, "response", None) is not None:
+                    retry_after_header = e.response.headers.get("Retry-After")
+                elif hasattr(e, "headers") and getattr(e, "headers", None) is not None:
+                    retry_after_header = e.headers.get("Retry-After")
+
+                if retry_after_header:
+                    try:
+                        sleep_time = float(retry_after_header)
+                        logger.info(
+                            "Honoring Retry-After header: waiting %s seconds.",
+                            sleep_time,
+                        )
+                    except ValueError:
+                        sleep_time = min(
+                            current_backoff * random.uniform(0.75, 1.25),
+                            self.max_backoff,
+                        )
+                        current_backoff *= 2.0
+                else:
+                    sleep_time = min(
+                        current_backoff * random.uniform(0.75, 1.25),
+                        self.max_backoff,
+                    )
+                    current_backoff *= 2.0
+
+                logger.warning(
+                    "Transient network/provider error (%s: %s). "
+                    "Retrying attempt %s/%s in %.2f seconds...",
+                    type(e).__name__,
+                    e,
+                    attempt,
+                    self.max_retries,
+                    sleep_time,
+                )
+                time.sleep(sleep_time)
+
+            except Exception as e:
+                # Very limited fallback for truly unexpected exceptions.
+                unknown_exception_attempts += 1
+                if unknown_exception_attempts > 1 or attempt >= self.max_retries:
+                    raise
+
+                sleep_time = min(
+                    current_backoff * random.uniform(0.75, 1.25),
+                    self.max_backoff,
+                )
+                current_backoff *= 2.0
+
+                logger.warning(
+                    "Unexpected exception (%s: %s). One limited retry in %.2f seconds...",
+                    type(e).__name__,
+                    e,
+                    sleep_time,
+                )
+                time.sleep(sleep_time)
+
+        raise RuntimeError(
+            f"Failed to generate completion for model '{self.model}' after {self.max_retries} attempts."
+        )
+
+
+# Example of a real budget setup outside the class:
+#
+# budget_guard = BudgetGuard(
+#     session_id="session-001",
+#     max_iterations=25,
+#     max_budget_per_session=5.00,
+#     cost_estimator=lambda response: estimate_cost_from_usage(
+#         response,
+#         input_cost_per_1m_tokens=0.50,   # fill in your real model pricing
+#         output_cost_per_1m_tokens=1.50,  # fill in your real model pricing
+#     ),
+# )
+#
+# client = LLMClient(
+#     model="openrouter/anthropic/claude-3.7-sonnet",
+#     temperature=0.4,                 # you control this
+#     reasoning_mode=True,
+#     reasoning_effort="medium",       # documented values like low/medium/high
+#     budget_guard=budget_guard,
+# )
+#
+# answer = client.generate([
+#     {"role": "user", "content": "Explain the problem step by step."}
+# ])
+# print(answer)

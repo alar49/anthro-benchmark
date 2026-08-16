@@ -1,0 +1,873 @@
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index f7ba403..f37c134 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -24,6 +24,7 @@ import os
+ import json
+ import re
+ import sys
++from typing import Any
+ 
+ import pandas as pd
+ from tqdm import tqdm
+@@ -73,6 +74,7 @@ def rate_dialogues(
+     # --- EDITED ---
+     classifier_reasoning_mode: bool = False, 
+     classifier_reasoning_effort: str | None = None,
++    classifier_openrouter_provider: dict[str, Any] | None = None,
+     # --------------
+     verbose: bool = False,
+ ) -> str:
+@@ -87,6 +89,13 @@ def rate_dialogues(
+         classifier_temperature: Temperature for the classifier LLM(s)
+         num_samples: Number of times to sample rating for each turn per model (1 or 3)
+         output_rated_csv: Path for the output CSV. If None, generates a filename
++        classifier_openrouter_provider: Optional OpenRouter provider-routing
++            object (see LLMClient's openrouter_provider param / OpenRouter's
++            own docs at
++            https://openrouter.ai/docs/guides/routing/provider-selection).
++            Only meaningful when classifier_models are "openrouter/..."
++            models. Applied identically to every classifier model in
++            classifier_models.
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -259,6 +268,7 @@ def rate_dialogues(
+                     # --- EDITED ---
+                     "reasoning_mode": classifier_reasoning_mode,
+                     "reasoning_effort": classifier_reasoning_effort,
++                    "openrouter_provider": classifier_openrouter_provider,
+                     # --------------
+                 }
+                 classifier = LLMClassifier(
+@@ -441,6 +451,7 @@ def run_rating_process(
+     # --- EDITED ---
+     classifier_reasoning_mode: bool = False, 
+     classifier_reasoning_effort: str | None = None,
++    classifier_openrouter_provider: dict[str, Any] | None = None,
+     # --------------
+     verbose: bool = True,
+ ) -> str:
+@@ -454,6 +465,9 @@ def run_rating_process(
+         classifier_temperature: Temperature for the classifier LLM(s)
+         num_samples: Number of times to sample rating for each turn per model (1 or 3)
+         output_rated_csv: Path for the output CSV. If None, generates a filename
++        classifier_openrouter_provider: Optional OpenRouter provider-routing
++            object applied to every model in classifier_models. See
++            rate_dialogues()'s docstring for details.
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -469,6 +483,7 @@ def run_rating_process(
+         # --- EDITED ---
+         classifier_reasoning_mode=classifier_reasoning_mode, 
+         classifier_reasoning_effort=classifier_reasoning_effort,
++        classifier_openrouter_provider=classifier_openrouter_provider,
+         # --------------
+         verbose=verbose,
+     )
+diff --git a/anthro_benchmark/core/llm_client.py b/anthro_benchmark/core/llm_client.py
+index 798e950..0c2e75f 100644
+--- a/anthro_benchmark/core/llm_client.py
++++ b/anthro_benchmark/core/llm_client.py
+@@ -374,6 +374,13 @@ class LLMClient:
+     - route OpenRouter through LiteLLM too
+     - keep temperature caller-controlled
+     - keep reasoning visible to the caller
++    - allow pinning which OpenRouter backend(s) serve a model, since
++      OpenRouter load-balances across providers by default and different
++      providers for the same model slug can silently support different
++      request parameters (e.g. one honors `reasoning`, another drops it)
++    - surface which OpenRouter backend actually served each call (when
++      available) so that kind of silent mismatch shows up in the logs
++      instead of requiring a manual OpenRouter dashboard check
+     - retry only transient failures
+     - fail fast on config/programming mistakes
+     - keep unknown-exception retries very limited
+@@ -386,6 +393,8 @@ class LLMClient:
+         temperature: float = 0.7,
+         reasoning_mode: bool = False,
+         reasoning_effort: Optional[str] = None,
++        openrouter_provider: Optional[Dict[str, Any]] = None,
++        openrouter_router_metadata: bool = True,
+         api_key: Optional[str] = None,
+         base_url: Optional[str] = None,
+         max_retries: int = 5,
+@@ -398,6 +407,8 @@ class LLMClient:
+         self.temperature = temperature
+         self.reasoning_mode = reasoning_mode
+         self.reasoning_effort = reasoning_effort
++        self.openrouter_provider = openrouter_provider
++        self.openrouter_router_metadata = openrouter_router_metadata
+         self.max_retries = max_retries
+         self.initial_backoff = initial_backoff
+         self.max_backoff = max_backoff
+@@ -433,6 +444,16 @@ class LLMClient:
+                 "(OPENROUTER_API_KEY / OPENAI_API_KEY)."
+             )
+ 
++        if self.openrouter_provider and not self.model.startswith("openrouter/"):
++            raise ValueError(
++                f"openrouter_provider={self.openrouter_provider!r} was set but "
++                f"model={self.model!r} is not an 'openrouter/...' model. "
++                "OpenRouter's provider-routing object (order/allow_fallbacks/"
++                "require_parameters/etc.) only has an effect on requests that "
++                "actually go to OpenRouter, so this is almost certainly a "
++                "config mistake rather than a no-op you want."
++            )
++
+         self.api_key = resolved_api_key
+         self.base_url = resolved_base_url
+ 
+@@ -471,6 +492,10 @@ class LLMClient:
+ 
+         reasoning_mode = kwargs.pop("reasoning_mode", self.reasoning_mode)
+         reasoning_effort = kwargs.pop("reasoning_effort", self.reasoning_effort)
++        openrouter_provider = kwargs.pop("openrouter_provider", self.openrouter_provider)
++        openrouter_router_metadata = kwargs.pop(
++            "openrouter_router_metadata", self.openrouter_router_metadata
++        )
+ 
+         payload: Dict[str, Any] = {
+             "model": self.model,
+@@ -489,6 +514,48 @@ class LLMClient:
+         if kwargs:
+             payload.update(kwargs)
+ 
++        if openrouter_provider:
++            # OpenRouter's provider-routing object (order/allow_fallbacks/
++            # require_parameters/etc., see
++            # https://openrouter.ai/docs/guides/routing/provider-selection)
++            # has to travel inside `extra_body`, not as a bare top-level
++            # `provider=` kwarg. LiteLLM's OpenAI-compatible layer only
++            # recognizes a fixed set of top-level params; passing
++            # provider-specific fields any other way has historically been
++            # silently dropped or rejected outright depending on the LiteLLM
++            # version (see https://github.com/BerriAI/litellm/issues/6857).
++            # `extra_body` is the one channel LiteLLM explicitly merges
++            # verbatim into the JSON body it sends to OpenRouter.
++            extra_body = dict(payload.get("extra_body") or {})
++            if "provider" in extra_body:
++                raise ValueError(
++                    "Both openrouter_provider and an extra_body['provider'] "
++                    "(passed via extra_config or generate() kwargs) were set "
++                    "for the same call. Set the provider-routing object in "
++                    "exactly one place to avoid ambiguity about which wins."
++                )
++            extra_body["provider"] = openrouter_provider
++            payload["extra_body"] = extra_body
++
++        if self.model.startswith("openrouter/") and openrouter_router_metadata:
++            # Ask OpenRouter to include routing metadata (which underlying
++            # provider actually served this call, whether it fell back to
++            # another one, etc.) on the response, so a provider silently
++            # mis-serving a call -- the exact Google AI Studio/Darkbloom
++            # reasoning issue that motivated openrouter_provider above --
++            # is visible in the log line below without needing OpenRouter's
++            # dashboard. This is an EXPERIMENTAL OpenRouter feature (see
++            # https://openrouter.ai/docs/guides/features/router-metadata):
++            # the response shape may change without notice. OpenRouter's own
++            # docs are inconsistent about whether "X-OpenRouter-Experimental-
++            # Metadata" or "X-OpenRouter-Metadata" is the current header
++            # name (one page calls the former current, another calls it
++            # legacy), so both are sent; an unrecognized header is harmless.
++            extra_headers = dict(payload.get("extra_headers") or {})
++            extra_headers.setdefault("X-OpenRouter-Experimental-Metadata", "enabled")
++            extra_headers.setdefault("X-OpenRouter-Metadata", "enabled")
++            payload["extra_headers"] = extra_headers
++
+         if budget_guard is not None:
+             payload["metadata"] = _merge_metadata(
+                 payload.get("metadata"),
+@@ -547,10 +614,25 @@ class LLMClient:
+ 
+                 usage = getattr(response, "usage", None)
+                 reasoning_token_count = _extract_reasoning_token_count(usage)
++
++                # See the extra_headers block above: when present, this is
++                # OpenRouter's own account of which provider served the
++                # call, whether it fell back, etc. -- not something we
++                # infer indirectly from token counts.
++                openrouter_metadata = getattr(response, "openrouter_metadata", None)
++                served_by_provider = None
++                if isinstance(openrouter_metadata, dict):
++                    endpoints = openrouter_metadata.get("endpoints") or {}
++                    for endpoint in endpoints.get("available") or []:
++                        if isinstance(endpoint, dict) and endpoint.get("selected"):
++                            served_by_provider = endpoint.get("provider")
++                            break
++
+                 logger.info(
+                     "LLM call usage | model=%s reasoning_requested=%s "
+                     "reasoning_text_extracted=%s reasoning_tokens_reported=%s "
+-                    "prompt_tokens=%s completion_tokens=%s total_tokens=%s",
++                    "prompt_tokens=%s completion_tokens=%s total_tokens=%s "
++                    "openrouter_provider_requested=%s openrouter_served_by=%s",
+                     self.model,
+                     bool(reasoning_mode or reasoning_effort or runtime_reasoning is not None),
+                     bool(reasoning_text),
+@@ -558,7 +640,19 @@ class LLMClient:
+                     getattr(usage, "prompt_tokens", None),
+                     getattr(usage, "completion_tokens", None),
+                     getattr(usage, "total_tokens", None),
++                    openrouter_provider or None,
++                    served_by_provider,
+                 )
++                if openrouter_metadata is not None:
++                    # Full router metadata (attempts, fallbacks, pipeline
++                    # stages, etc.) at DEBUG level -- verbose, but this is
++                    # exactly what you'd want when actually chasing down a
++                    # routing problem rather than just confirming one exists.
++                    logger.debug(
++                        "LLM call OpenRouter routing metadata | model=%s metadata=%s",
++                        self.model,
++                        openrouter_metadata,
++                    )
+ 
+                 if return_reasoning:
+                     return content, reasoning_text
+@@ -687,6 +781,21 @@ class LLMClient:
+ #     reasoning_mode=True,
+ #     reasoning_effort="medium",       # documented values like low/medium/high
+ #     budget_guard=budget_guard,
++#     # Pin routing to a specific backend, in priority order, and refuse to
++#     # silently fall back to one that might not honor `reasoning` at all
++#     # (see https://openrouter.ai/docs/guides/routing/provider-selection).
++#     # Only valid for "openrouter/..." models.
++#     openrouter_provider={
++#         "order": ["Google AI Studio"],
++#         "allow_fallbacks": False,
++#         "require_parameters": True,
++#     },
++#     # Default True for "openrouter/..." models: asks OpenRouter to report
++#     # which backend actually served each call (logged at INFO as
++#     # openrouter_served_by=..., full detail at DEBUG). Experimental on
++#     # OpenRouter's side -- see
++#     # https://openrouter.ai/docs/guides/features/router-metadata -- so set
++#     # openrouter_router_metadata=False if it ever misbehaves.
+ # )
+ #
+ # answer = client.generate([
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index 1746514..b9485aa 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -16,6 +16,7 @@ import argparse
+ import os
+ import sys
+ from datetime import datetime
++from typing import Any, Dict, Optional
+ import re
+ import traceback
+ 
+@@ -49,6 +50,43 @@ def _reasoning_effort_from_args(args):
+     return None
+ 
+ 
++def _openrouter_provider_from_args(args, prefix: str) -> Optional[Dict[str, Any]]:
++    """
++    Assemble an OpenRouter `provider` routing object (see
++    https://openrouter.ai/docs/guides/routing/provider-selection) from the
++    --{prefix}-openrouter-* flags for one LLM role.
++
++    `prefix` is "user_llm" or "target_llm", matching the argparse dest
++    names generated from --user-llm-openrouter-* / --target-llm-openrouter-*.
++
++    Returns None (leaving OpenRouter's own default load-balancing untouched)
++    if none of the relevant flags were set for that role, so callers that
++    don't care about this never see an empty dict cluttering their config.
++    """
++    order = getattr(args, f"{prefix}_openrouter_provider_order", None)
++    no_fallbacks = getattr(args, f"{prefix}_openrouter_no_fallbacks", False)
++    require_parameters = getattr(args, f"{prefix}_openrouter_require_parameters", False)
++
++    provider: Dict[str, Any] = {}
++    if order:
++        provider["order"] = list(order)
++    if no_fallbacks:
++        provider["allow_fallbacks"] = False
++    if require_parameters:
++        provider["require_parameters"] = True
++
++    if no_fallbacks and not order:
++        print(
++            f"Warning: --{prefix.replace('_', '-')}-openrouter-no-fallbacks was set "
++            f"without --{prefix.replace('_', '-')}-openrouter-provider-order. This "
++            "disables fallbacks for OpenRouter's own default (price-based) provider "
++            "choice, rather than pinning to a specific provider list -- almost "
++            "certainly not what you want."
++        )
++
++    return provider or None
++
++
+ def _build_budget_guard(args, session_id: str):
+     max_iterations = getattr(args, "max_iterations", None)
+     max_budget_per_session = getattr(args, "max_budget_per_session", None)
+@@ -133,7 +171,16 @@ def generate_dialogues_command(args):
+     if budget_guard is not None:
+         user_llm_config["budget_guard"] = budget_guard
+         target_llm_config["budget_guard"] = budget_guard
+-        
++
++    user_openrouter_provider = _openrouter_provider_from_args(args, "user_llm")
++    target_openrouter_provider = _openrouter_provider_from_args(args, "target_llm")
++    if user_openrouter_provider:
++        user_llm_config["openrouter_provider"] = user_openrouter_provider
++        print(f"User LLM OpenRouter provider routing: {user_openrouter_provider}")
++    if target_openrouter_provider:
++        target_llm_config["openrouter_provider"] = target_openrouter_provider
++        print(f"Target LLM OpenRouter provider routing: {target_openrouter_provider}")
++
+ ####### EDIT FINISH HERE #######
+ 
+     # handle system prompts
+@@ -241,13 +288,16 @@ def rate_dialogues_command(args):
+     """
+ 
+     reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
+-    
++    classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
++
+     try:
+         cues_to_rate_arg = (
+             args.behaviors_to_rate
+             if hasattr(args, "behaviors_to_rate") and args.behaviors_to_rate
+             else getattr(args, "cues_to_rate", None)
+         )
++        if classifier_openrouter_provider:
++            print(f"Classifier LLM OpenRouter provider routing: {classifier_openrouter_provider}")
+         output_path = run_rating_process(
+             dialogues_csv_path=args.dialogues_csv,
+             cues_to_rate=cues_to_rate_arg,
+@@ -256,6 +306,7 @@ def rate_dialogues_command(args):
+             num_samples=args.num_samples,
+             output_rated_csv=getattr(args, "output_rated_csv", None),
+             classifier_reasoning_effort=reasoning_effort, ### EDITED
++            classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
+             verbose=True,
+         )
+         if not output_path:
+@@ -446,6 +497,98 @@ def _parse_flags(_):
+ 
+     ### EDIT ENDED ###
+ 
++    ### NEW: OpenRouter provider-routing options ###
++    #
++    # Why this exists: OpenRouter load-balances a single model slug across
++    # multiple backend providers by default (see
++    # https://openrouter.ai/docs/guides/routing/provider-selection). Those
++    # providers don't all support the same request parameters -- e.g. for
++    # "google/gemma-3-27b-it:free" on OpenRouter, the "Google AI Studio"
++    # backend honors `reasoning`, but a fallback backend ("Darkbloom") has
++    # been observed to silently ignore it (reasoning_tokens_reported=0 with
++    # no error), rather than reject the request. These flags let you pin
++    # (and optionally *require*) specific backends per LLM role so this
++    # doesn't happen invisibly mid-run.
++    openrouter_group = gen_parser.add_argument_group("OpenRouter provider routing options")
++    openrouter_group.add_argument(
++        "--user-llm-openrouter-provider-order",
++        type=str,
++        nargs="+",
++        default=None,
++        metavar="PROVIDER_SLUG",
++        help=(
++            "OpenRouter provider slug(s) to try, in priority order, for the "
++            "User LLM (e.g. 'google-ai-studio' or 'Google AI Studio' -- "
++            "OpenRouter's provider slugs and display names both work; use "
++            "the copy button on the model's OpenRouter page to get the "
++            "exact slug). Only meaningful when --user-llm-model starts with "
++            "'openrouter/'. Unlisted providers remain available as "
++            "fallbacks unless --user-llm-openrouter-no-fallbacks is also "
++            "set."
++        ),
++    )
++    openrouter_group.add_argument(
++        "--user-llm-openrouter-no-fallbacks",
++        action="store_true",
++        help=(
++            "Disable fallback to any provider not listed in "
++            "--user-llm-openrouter-provider-order. Requires that flag to "
++            "also be set."
++        ),
++    )
++    openrouter_group.add_argument(
++        "--user-llm-openrouter-require-parameters",
++        action="store_true",
++        help=(
++            "Only route the User LLM's requests to providers that support "
++            "every parameter in the request. A provider that would "
++            "otherwise silently ignore an unsupported parameter is excluded "
++            "instead. Usually unnecessary for the User LLM, since reasoning "
++            "is never requested for it -- provided mainly for symmetry with "
++            "--target-llm-openrouter-require-parameters."
++        ),
++    )
++    openrouter_group.add_argument(
++        "--target-llm-openrouter-provider-order",
++        type=str,
++        nargs="+",
++        default=None,
++        metavar="PROVIDER_SLUG",
++        help=(
++            "Same as --user-llm-openrouter-provider-order, but for the "
++            "Target LLM. This is the one that matters when --reasoning-mode "
++            "is 'on': if the Target LLM's model has multiple OpenRouter "
++            "backends and only some of them honor `reasoning`, pin to a "
++            "backend that does (e.g. --target-llm-openrouter-provider-order "
++            "'Google AI Studio') to stop reasoning-token generation from "
++            "silently dropping to 0 on calls that get routed elsewhere."
++        ),
++    )
++    openrouter_group.add_argument(
++        "--target-llm-openrouter-no-fallbacks",
++        action="store_true",
++        help=(
++            "Disable fallback to any provider not listed in "
++            "--target-llm-openrouter-provider-order. Requires that flag to "
++            "also be set. Set this if you want the run to fail loudly "
++            "rather than silently fall back to a provider you haven't "
++            "verified supports reasoning."
++        ),
++    )
++    openrouter_group.add_argument(
++        "--target-llm-openrouter-require-parameters",
++        action="store_true",
++        help=(
++            "Only route the Target LLM's requests to providers that "
++            "support every parameter in the request (notably `reasoning` "
++            "when --reasoning-mode is 'on'). A provider that would "
++            "otherwise silently ignore reasoning is excluded from routing "
++            "instead, so a misrouted call fails or falls back visibly "
++            "rather than quietly returning reasoning_tokens=0."
++        ),
++    )
++    ### END NEW ###
++
+     gen_control_group = gen_parser.add_argument_group("Generation control options")
+     dialogue_count_group = gen_control_group.add_mutually_exclusive_group()
+     dialogue_count_group.add_argument(
+@@ -543,6 +686,52 @@ def _parse_flags(_):
+ 
+     ### EDIT ENDED ###
+ 
++    ### NEW: OpenRouter provider-routing options (classifier LLM) ###
++    #
++    # Same mechanism as the generate subcommand's user/target flags -- see
++    # that argument group's help text for the full rationale. Applied
++    # identically to every model passed via --classifier-model, so don't
++    # set these if you're mixing OpenRouter and non-OpenRouter classifier
++    # models in the same run (LLMClient will raise a clear error for the
++    # non-OpenRouter one(s) rather than silently ignoring it).
++    classifier_openrouter_group = rate_parser.add_argument_group(
++        "OpenRouter provider routing options"
++    )
++    classifier_openrouter_group.add_argument(
++        "--classifier-openrouter-provider-order",
++        type=str,
++        nargs="+",
++        default=None,
++        metavar="PROVIDER_SLUG",
++        help=(
++            "OpenRouter provider slug(s) to try, in priority order, for "
++            "every model in --classifier-model (e.g. 'Google AI Studio'). "
++            "Only meaningful when those models are 'openrouter/...' models. "
++            "Unlisted providers remain available as fallbacks unless "
++            "--classifier-openrouter-no-fallbacks is also set."
++        ),
++    )
++    classifier_openrouter_group.add_argument(
++        "--classifier-openrouter-no-fallbacks",
++        action="store_true",
++        help=(
++            "Disable fallback to any provider not listed in "
++            "--classifier-openrouter-provider-order. Requires that flag to "
++            "also be set."
++        ),
++    )
++    classifier_openrouter_group.add_argument(
++        "--classifier-openrouter-require-parameters",
++        action="store_true",
++        help=(
++            "Only route classifier requests to providers that support "
++            "every parameter in the request (notably `reasoning` when "
++            "--reasoning-mode is 'on'). A provider that would otherwise "
++            "silently ignore reasoning is excluded from routing instead."
++        ),
++    )
++    ### END NEW ###
++
+     rate_config_group = rate_parser.add_argument_group("Rating Configuration")
+     rate_config_group.add_argument(
+         "--behaviors-to-rate",
+diff --git a/docs/openrouter_provider_routing.md b/docs/openrouter_provider_routing.md
+new file mode 100644
+index 0000000..c596cc0
+--- /dev/null
++++ b/docs/openrouter_provider_routing.md
+@@ -0,0 +1,365 @@
++# OpenRouter provider routing
++
++This guide covers a set of flags added to `anthro-eval generate` and
++`anthro-eval rate` that control **which underlying provider OpenRouter uses**
++to serve a model, plus a related observability feature that reports which
++provider actually served each call. Both exist because of a real bug found
++while running this benchmark, described below.
++
++- [The problem this solves](#the-problem-this-solves)
++- [Background: how OpenRouter provider routing works](#background-how-openrouter-provider-routing-works)
++- [The flags](#the-flags)
++  - [`--*-openrouter-provider-order`](#--openrouter-provider-order)
++  - [`--*-openrouter-no-fallbacks`](#--openrouter-no-fallbacks)
++  - [`--*-openrouter-require-parameters`](#--openrouter-require-parameters)
++- [Full flag reference](#full-flag-reference)
++- [Worked example: the bug that motivated this](#worked-example-the-bug-that-motivated-this)
++- [Observability: seeing which provider served each call](#observability-seeing-which-provider-served-each-call)
++- [Using this from Python directly](#using-this-from-python-directly)
++- [Common mistakes](#common-mistakes)
++- [Caveats and what hasn't been tested](#caveats-and-what-hasnt-been-tested)
++- [References](#references)
++
++## The problem this solves
++
++OpenRouter doesn't run models itself; a single model slug (e.g.
++`google/gemma-3-27b-it:free`) can be served by several different backend
++providers, and OpenRouter load-balances requests across them by default.
++That would be invisible and harmless if every provider behaved identically
++-- but they don't. In this project, running the *same* target-model config
++with `reasoning_mode` enabled produced full reasoning tokens on the first
++call of a run and then **silently zero reasoning tokens on every call after
++it**, with no error. The cause: OpenRouter was routing the first call to a
++backend that honored the `reasoning` request parameter (Google AI Studio),
++then falling back to a different backend for later calls (in this case,
++"Darkbloom") that accepted the request but simply ignored `reasoning`
++instead of rejecting it. Nothing crashed. Nothing warned. The run just quietly
++stopped measuring what it thought it was measuring.
++
++The flags below let you pin a model to a specific provider (or ordered list
++of providers), refuse to silently fall back to an unlisted one, and/or tell
++OpenRouter to only route to providers that support every parameter you
++actually sent -- so a mismatch like this fails loudly or falls back visibly
++instead of returning a "successful" response with the wrong data in it.
++
++## Background: how OpenRouter provider routing works
++
++Every request OpenRouter receives can carry an optional `provider` object
++that controls routing. Full details are in [OpenRouter's own
++docs](https://openrouter.ai/docs/guides/routing/provider-selection); the
++fields this project exposes are:
++
++| OpenRouter field | What it does |
++| --- | --- |
++| `order` | An ordered list of provider names to try, e.g. `["Google AI Studio", "DeepInfra"]`. OpenRouter tries them in that order. |
++| `allow_fallbacks` | Whether OpenRouter may use a provider **not** in `order` if all listed ones are unavailable. Defaults to `true`. |
++| `require_parameters` | If `true`, OpenRouter excludes any provider that doesn't support every parameter in your request (e.g. `reasoning`), instead of routing to it and having it ignore the unsupported one. |
++
++These three are exposed as CLI flags. OpenRouter's `provider` object has
++several other fields (`sort`, `ignore`, `only`, `data_collection`,
++`quantizations`, `max_price`, ...) that aren't wired up as dedicated flags,
++but if you're calling `LLMClient` directly from Python rather than through
++the CLI, you can pass any of them -- see
++[Using this from Python directly](#using-this-from-python-directly).
++
++## The flags
++
++Three flags exist for **each** LLM role that can talk to OpenRouter:
++
++- `generate`: `--user-llm-*` and `--target-llm-*`
++- `rate`: `--classifier-*` (applies identically to every model passed to
++  `--classifier-model`)
++
++They're independent per role. Pinning the target model's provider doesn't
++touch the user model's, and vice versa.
++
++### `--*-openrouter-provider-order`
++
++Takes one or more provider names, in priority order:
++
++```bash
++--target-llm-openrouter-provider-order "Google AI Studio"
++```
++
++```bash
++--target-llm-openrouter-provider-order "Google AI Studio" "DeepInfra"
++```
++
++This alone does **not** forbid other providers -- it just says "prefer
++these, in this order." If none of the listed providers are available,
++OpenRouter still falls back to whatever else serves the model, unless you
++also set `--*-openrouter-no-fallbacks`.
++
++Only meaningful when the corresponding model flag
++(`--user-llm-model` / `--target-llm-model` / `--classifier-model`) is an
++`openrouter/...` model. Setting it on anything else is an error --
++`LLMClient` raises immediately rather than silently doing nothing (see
++[Common mistakes](#common-mistakes)).
++
++Provider names are OpenRouter's own display names / slugs (e.g. "Google AI
++Studio", "DeepInfra", "Together"). Check the model's page on
++[openrouter.ai/models](https://openrouter.ai/models) to see which providers
++actually serve it and what they're called there.
++
++### `--*-openrouter-no-fallbacks`
++
++A plain switch (no value). Disables fallback to any provider **not** listed
++in `--*-openrouter-provider-order`:
++
++```bash
++--target-llm-openrouter-provider-order "Google AI Studio" \
++--target-llm-openrouter-no-fallbacks
++```
++
++With both flags set, if Google AI Studio is unavailable, the call fails
++instead of silently going to another provider. That's the point: an
++explicit, loud failure is far more useful than a quiet fallback to a
++provider you haven't verified behaves the way you expect.
++
++Setting `--*-openrouter-no-fallbacks` **without** `--*-openrouter-provider-order`
++is almost always a mistake -- it disables fallback from whatever single
++provider OpenRouter's own default (price-based) selection would have picked,
++rather than pinning to a provider list you've chosen. The CLI prints a
++warning if you do this, but doesn't stop you (there might be a real use case
++for "give me your best-priced provider, but fail rather than fall back if
++it's down").
++
++### `--*-openrouter-require-parameters`
++
++A plain switch. Tells OpenRouter to exclude, from routing consideration,
++any provider that doesn't support every parameter present in the request:
++
++```bash
++--target-llm-openrouter-require-parameters
++```
++
++This is the belt-and-suspenders complement to pinning a provider by name.
++Even with no `--*-openrouter-provider-order` set at all, this flag alone
++would have caught the original bug: OpenRouter would have excluded
++"Darkbloom" from consideration for any request that included `reasoning`,
++since Darkbloom doesn't honor it, rather than routing there and getting back
++a response with `reasoning_tokens: 0`.
++
++It's most useful for the **target** model when `--reasoning-mode on` is set,
++since `reasoning` is the parameter most likely to silently vary in support
++across providers. It's provided for the user/classifier roles too, for
++symmetry, but those roles never request reasoning in this codebase, so it's
++unlikely to change anything there.
++
++## Full flag reference
++
++**`generate` subcommand:**
++
++| Flag | Applies to | Type |
++| --- | --- | --- |
++| `--user-llm-openrouter-provider-order PROVIDER [PROVIDER ...]` | User LLM | ordered list |
++| `--user-llm-openrouter-no-fallbacks` | User LLM | switch |
++| `--user-llm-openrouter-require-parameters` | User LLM | switch |
++| `--target-llm-openrouter-provider-order PROVIDER [PROVIDER ...]` | Target LLM | ordered list |
++| `--target-llm-openrouter-no-fallbacks` | Target LLM | switch |
++| `--target-llm-openrouter-require-parameters` | Target LLM | switch |
++
++**`rate` subcommand:**
++
++| Flag | Applies to | Type |
++| --- | --- | --- |
++| `--classifier-openrouter-provider-order PROVIDER [PROVIDER ...]` | every `--classifier-model` | ordered list |
++| `--classifier-openrouter-no-fallbacks` | every `--classifier-model` | switch |
++| `--classifier-openrouter-require-parameters` | every `--classifier-model` | switch |
++
++None of these have effect unless the relevant model is an `openrouter/...`
++model; setting them on a non-OpenRouter model raises an error rather than
++being ignored.
++
++## Worked example: the bug that motivated this
++
++This mirrors the actual scenario that surfaced the issue: `google/gemma-3-27b-it:free`
++on OpenRouter is served by both Google AI Studio and a second provider
++("Darkbloom") that doesn't support `reasoning`.
++
++Pin the target model to Google AI Studio only, and belt-and-suspenders it
++with `require_parameters` in case the provider name ever changes or a new
++non-reasoning-capable provider gets added later:
++
++```bash
++anthro-eval generate \
++  --user-llm-model "openrouter/google/gemma-3-27b-it:free" \
++  --target-llm-model "openrouter/google/gemma-3-27b-it:free" \
++  --reasoning-mode on \
++  --reasoning-effort medium \
++  --target-llm-openrouter-provider-order "Google AI Studio" \
++  --target-llm-openrouter-no-fallbacks \
++  --target-llm-openrouter-require-parameters \
++  --prompt-category-name "internal states" \
++  --num-dialogues 10 \
++  --output-dir generated_dialogues
++```
++
++Note that `--user-llm-openrouter-*` isn't set here at all: the user LLM
++never requests reasoning in this codebase, so it doesn't matter which
++provider serves it, and it's fine to let OpenRouter load-balance it as
++usual (which is also cheaper/faster, since you're not restricting it to a
++single backend).
++
++If you instead want to rate an existing dialogues CSV with the same model
++as a classifier, and want the same guarantee:
++
++```bash
++anthro-eval rate \
++  --dialogues-csv generated_dialogues/your_dialogue_file.csv \
++  --classifier-model "openrouter/google/gemma-3-27b-it:free" \
++  --classifier-openrouter-provider-order "Google AI Studio" \
++  --classifier-openrouter-no-fallbacks \
++  --behaviors-to-rate "empathy" "desires"
++```
++
++## Observability: seeing which provider served each call
++
++Independent of the flags above, `LLMClient` now asks OpenRouter to report,
++on every response, which provider actually served the call. This is on by
++default for any `openrouter/...` model (no flag needed) and shows up in the
++existing per-call log line:
++
++```
++LLM call usage | model=openrouter/google/gemma-3-27b-it:free reasoning_requested=True
++reasoning_text_extracted=True reasoning_tokens_reported=847
++prompt_tokens=210 completion_tokens=340 total_tokens=550
++openrouter_provider_requested={'order': ['Google AI Studio'], 'allow_fallbacks': False}
++openrouter_served_by=Google AI Studio
++```
++
++`openrouter_served_by` is the actual provider that handled that specific
++call, straight from OpenRouter -- not inferred from token counts. This is
++exactly the piece of information that would have made the original bug
++obvious on the very first affected call, instead of requiring a trip to
++OpenRouter's Activity dashboard after the fact.
++
++Enabling more detail: the full routing metadata OpenRouter returns
++(routing strategy, fallback attempts, pipeline stages like guardrails or
++context compression, etc.) is logged at `DEBUG` level under the same
++logger (`anthro_benchmark.core.llm_client`), since it's fairly verbose:
++
++```
++LLM call OpenRouter routing metadata | model=openrouter/google/gemma-3-27b-it:free
++metadata={'requested': 'google/gemma-3-27b-it:free', 'strategy': 'direct',
++'attempt': 1, 'endpoints': {'available': [{'provider': 'Google AI Studio',
++'selected': True}, {'provider': 'Darkbloom', 'selected': False}]}}
++```
++
++To see it, raise the log level for that logger, e.g. in Python before
++running a generation/rating job:
++
++```python
++import logging
++logging.getLogger("anthro_benchmark.core.llm_client").setLevel(logging.DEBUG)
++```
++
++**This feature is opt-in on OpenRouter's side and marked experimental by
++OpenRouter.** OpenRouter's docs describe the response shape as unstable --
++fields may be added, renamed, or removed without notice -- so treat
++`openrouter_served_by` and the DEBUG-level metadata as best-effort debugging
++aids, not something to build downstream logic on top of. If it ever stops
++showing up or looks wrong, that's OpenRouter's side changing, not
++necessarily a bug in this codebase.
++
++If you ever want to turn it off (e.g. if OpenRouter changes something and it
++starts causing problems), it's a Python-level constructor flag rather than a
++CLI flag right now: `LLMClient(..., openrouter_router_metadata=False)`. There's
++no CLI switch for it since there was no reason to expect anyone would want
++it off, but this is easy to add if that changes.
++
++## Using this from Python directly
++
++If you're scripting against `LLMClient` directly rather than through the
++CLI, `openrouter_provider` accepts the raw OpenRouter `provider` object, so
++any field OpenRouter supports works, not just the three the CLI exposes:
++
++```python
++from anthro_benchmark.core.llm_client import LLMClient
++
++client = LLMClient(
++    model="openrouter/google/gemma-3-27b-it:free",
++    reasoning_mode=True,
++    reasoning_effort="medium",
++    openrouter_provider={
++        "order": ["Google AI Studio"],
++        "allow_fallbacks": False,
++        "require_parameters": True,
++        # any other OpenRouter provider field also works here, e.g.:
++        # "sort": "throughput",
++        # "data_collection": "deny",
++    },
++)
++```
++
++`openrouter_provider` and `openrouter_router_metadata` can also be
++overridden per call rather than fixed at construction time:
++
++```python
++client.generate(messages, openrouter_provider={"order": ["DeepInfra"]})
++client.generate(messages, openrouter_router_metadata=False)
++```
++
++## Common mistakes
++
++- **Setting a provider-routing flag on a non-OpenRouter model.** `LLMClient`
++  raises a `ValueError` immediately rather than silently ignoring it, since
++  a routing object that quietly does nothing is far more confusing than a
++  loud error at startup.
++- **Mixing OpenRouter and non-OpenRouter models in one `--classifier-model`
++  list, with `--classifier-openrouter-*` flags set.** These flags apply
++  identically to *every* model in that list. If some are `openrouter/...`
++  and some aren't, the non-OpenRouter one(s) will raise the same
++  `ValueError` above. Either don't mix, or don't set these flags when you
++  do.
++- **`--*-openrouter-no-fallbacks` without `--*-openrouter-provider-order`.**
++  Valid, but almost never what you want -- see
++  [the flag's own section](#--openrouter-no-fallbacks) above. The CLI warns
++  when it detects this.
++- **Setting both `openrouter_provider` and a hand-rolled
++  `extra_body={"provider": ...}`** (only possible via direct Python/`extra_config`
++  use, not through the CLI). `LLMClient` raises rather than picking a winner
++  silently -- set the provider-routing object in exactly one place.
++- **Assuming a provider name from the OpenRouter website works verbatim.**
++  Double-check the exact name/slug on the model's OpenRouter page; a typo'd
++  provider name is simply never matched, which (with `--no-fallbacks` set)
++  looks identical to "provider unavailable" from the outside.
++
++## Caveats and what hasn't been tested
++
++Everything above was verified against the actual installed `litellm`
++version's internals (request-body construction, response-object field
++passthrough) and with mocked end-to-end tests through the CLI, but **not
++against a live OpenRouter call** -- there was no live network access
++available while implementing this. Specifically un-tested against the real
++API:
++
++- Whether OpenRouter accepts both `X-OpenRouter-Metadata` and
++  `X-OpenRouter-Experimental-Metadata` gracefully when both are sent (the
++  implementation sends both as a hedge, since OpenRouter's own docs
++  disagree on which one is current vs. legacy).
++- The exact real-world shape of `openrouter_metadata` on a genuine response
++  for the models you use -- OpenRouter's docs sample may not perfectly match
++  what a given model/provider combination actually returns.
++- Real-world behavior of `require_parameters` combined with `:free` model
++  variants specifically (rate-limit/availability characteristics of free
++  tiers can interact with routing in ways that are hard to predict from
++  docs alone).
++
++Recommended before trusting this across a full batch run: a single dialogue
++or a small `--num-dialogues` run with `--target-llm-openrouter-require-parameters`
++and `--reasoning-mode on`, checking that `reasoning_tokens_reported` and
++`openrouter_served_by` show the expected provider on every turn, not just
++the first.
++
++## References
++
++- OpenRouter, [Provider Selection](https://openrouter.ai/docs/guides/routing/provider-selection)
++  -- the `provider` object fields (`order`, `allow_fallbacks`,
++  `require_parameters`, and others not exposed as CLI flags here).
++- OpenRouter, [Router Metadata](https://openrouter.ai/docs/guides/features/router-metadata)
++  -- the `openrouter_metadata` response field, its experimental status, and
++  the header(s) that enable it.
++- [BerriAI/litellm#6857](https://github.com/BerriAI/litellm/issues/6857) --
++  why a bare `provider=` keyword argument to `litellm.completion()` doesn't
++  work reliably, and why `extra_body={"provider": {...}}` is used instead.
