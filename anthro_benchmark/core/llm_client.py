@@ -386,6 +386,76 @@ def _extract_reasoning_token_count(usage: Any) -> Optional[int]:
     return None
 
 
+@dataclasses.dataclass(frozen=True)
+class TokenUsage:
+    """
+    Best-effort token accounting for a single LLM call, as reported by the
+    provider's own `usage` block (via LiteLLM). All fields are None -- not
+    0 -- when the provider didn't report that particular figure, since
+    "unreported" and "zero" mean different things here.
+
+    prompt_tokens: input/context tokens for this call. NEVER includes
+        completion/reasoning tokens -- this is purely what was sent in.
+    completion_tokens: total output tokens as reported by the provider.
+        For reasoning-enabled calls, most providers (including OpenAI's
+        o-series and, per LiteLLM's normalization, most reasoning models
+        surfaced through OpenRouter) report this as reasoning tokens PLUS
+        visible-answer tokens combined, not visible-answer tokens alone.
+    reasoning_tokens: the reasoning/thinking subset of completion_tokens,
+        if the provider breaks it out separately. None means "not
+        reported", not "no reasoning happened".
+    answer_tokens: best-effort visible-answer-only token count, computed
+        as completion_tokens - reasoning_tokens when both are known.
+        Equal to completion_tokens whenever reasoning_tokens is unknown,
+        since there's nothing to subtract -- so this is a floor, not a
+        guaranteed-exact count, when reasoning is involved but unreported.
+    """
+
+    prompt_tokens: Optional[int]
+    completion_tokens: Optional[int]
+    reasoning_tokens: Optional[int]
+    answer_tokens: Optional[int]
+
+
+def _extract_token_usage(usage: Any) -> TokenUsage:
+    """Best-effort TokenUsage from a response's `usage` block. See
+    TokenUsage's docstring for the exact meaning of each field."""
+    if usage is None:
+        return TokenUsage(None, None, None, None)
+
+    def _get(obj: Any, key: str) -> Any:
+        if isinstance(obj, dict):
+            return obj.get(key)
+        return getattr(obj, key, None)
+
+    prompt_tokens = _get(usage, "prompt_tokens")
+    if prompt_tokens is None:
+        prompt_tokens = _get(usage, "input_tokens")
+    prompt_tokens = int(prompt_tokens) if prompt_tokens is not None else None
+
+    completion_tokens = _get(usage, "completion_tokens")
+    if completion_tokens is None:
+        completion_tokens = _get(usage, "output_tokens")
+    completion_tokens = int(completion_tokens) if completion_tokens is not None else None
+
+    reasoning_tokens = _extract_reasoning_token_count(usage)
+
+    if completion_tokens is not None and reasoning_tokens is not None:
+        # max(..., 0): guard against a provider inconsistency (reasoning
+        # reported larger than the completion total it should be part of)
+        # producing a negative count instead of a misleading one.
+        answer_tokens = max(completion_tokens - reasoning_tokens, 0)
+    else:
+        answer_tokens = completion_tokens
+
+    return TokenUsage(
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        reasoning_tokens=reasoning_tokens,
+        answer_tokens=answer_tokens,
+    )
+
+
 # --- Provider-aware API key resolution -------------------------------------
 #
 # LiteLLM identifies a model's provider either from an explicit
@@ -582,8 +652,9 @@ class LLMClient:
         messages: List[Dict[str, str]],
         *,
         return_reasoning: bool = False,
+        return_usage: bool = False,
         **kwargs,
-    ) -> Union[str, Tuple[str, str]]:
+    ) -> Union[str, Tuple[str, str], Tuple[str, "TokenUsage"], Tuple[str, str, "TokenUsage"]]:
         """
         Send messages via LiteLLM and return the model's reply.
 
@@ -600,6 +671,15 @@ class LLMClient:
         for logging/inspection): the return value is then a
         (content, reasoning_text) tuple, where reasoning_text is "" if the
         provider returned none.
+
+        Pass return_usage=True to also get a TokenUsage snapshot (input/
+        completion/reasoning/answer-only token counts for this one call,
+        straight from the provider's own usage block -- see TokenUsage's
+        docstring for exactly what each field does and doesn't include).
+        It's always the LAST element of the return value, so combining
+        both flags returns (content, reasoning_text, usage) rather than
+        changing where reasoning_text sits. return_reasoning=False,
+        return_usage=False (the default) is unaffected: still a plain str.
         """
 
         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
@@ -723,19 +803,30 @@ class LLMClient:
                 if budget_guard is not None:
                     budget_guard.record_response(response)
 
+                usage = getattr(response, "usage", None)
+                token_usage = _extract_token_usage(usage)
+
+                def _build_return(
+                    content: str, reasoning_text: str
+                ) -> Union[str, Tuple[str, str], Tuple[str, TokenUsage], Tuple[str, str, TokenUsage]]:
+                    if return_reasoning and return_usage:
+                        return content, reasoning_text, token_usage
+                    if return_reasoning:
+                        return content, reasoning_text
+                    if return_usage:
+                        return content, token_usage
+                    return content
+
                 if not getattr(response, "choices", None):
-                    return ("", "") if return_reasoning else ""
+                    return _build_return("", "")
 
                 choice = response.choices[0]
                 message = getattr(choice, "message", None)
                 if message is None:
-                    return ("", "") if return_reasoning else ""
+                    return _build_return("", "")
 
                 content = getattr(message, "content", None) or ""
                 reasoning_text = _extract_reasoning_content(message)
-
-                usage = getattr(response, "usage", None)
-                reasoning_token_count = _extract_reasoning_token_count(usage)
 
                 # See the extra_headers block above: when present, this is
                 # OpenRouter's own account of which provider served the
@@ -758,9 +849,9 @@ class LLMClient:
                     self.model,
                     bool(reasoning_mode or reasoning_effort or runtime_reasoning is not None),
                     bool(reasoning_text),
-                    reasoning_token_count,
-                    getattr(usage, "prompt_tokens", None),
-                    getattr(usage, "completion_tokens", None),
+                    token_usage.reasoning_tokens,
+                    token_usage.prompt_tokens,
+                    token_usage.completion_tokens,
                     getattr(usage, "total_tokens", None),
                     openrouter_provider or None,
                     served_by_provider,
@@ -776,10 +867,7 @@ class LLMClient:
                         openrouter_metadata,
                     )
 
-                if return_reasoning:
-                    return content, reasoning_text
-
-                return content
+                return _build_return(content, reasoning_text)
 
             except BadRequestError as e:
                 logger.error(

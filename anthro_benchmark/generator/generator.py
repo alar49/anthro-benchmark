@@ -23,7 +23,7 @@ import pandas as pd
 from tqdm import tqdm
 
 
-from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard, BudgetExceededError
+from anthro_benchmark.core.llm_client import LLMClient, BudgetGuard, BudgetExceededError, TokenUsage
 from anthro_benchmark.core.roles import Role
 
 
@@ -848,7 +848,7 @@ class DialogueGenerator:
 
             target_llm_turn_index_in_dialogue = len(dialogue["turns"])
             try:
-                target_message_content, target_reasoning_text = (
+                target_message_content, target_reasoning_text, target_usage = (
                     self._get_target_llm_response(
                         target_history, effective_target_system_prompt
                     )
@@ -863,6 +863,7 @@ class DialogueGenerator:
                         # into user_history/target_history/CSV as if it were
                         # part of the reply.
                         "reasoning": target_reasoning_text,
+                        "usage": target_usage,
                     }
                 )
                 user_history.append({"role": Role.USER, "content": target_message_content})
@@ -886,7 +887,7 @@ class DialogueGenerator:
             if i < self.num_turns - 1:
                 user_llm_turn_index_in_dialogue = len(dialogue["turns"])
                 try:
-                    user_message_content = self._get_user_llm_response(
+                    user_message_content, user_usage = self._get_user_llm_response(
                         user_history, formatted_user_llm_system_prompt
                     )
 
@@ -905,6 +906,11 @@ class DialogueGenerator:
                             "turn_index": user_llm_turn_index_in_dialogue,
                             "role": Role.USER,
                             "message": clean_message_content,
+                            # Usage reflects the actual call that was made,
+                            # regardless of clean_message_content ending up
+                            # empty (e.g. a sentinel-only natural-end reply)
+                            # -- see _get_user_llm_response docstring.
+                            "usage": user_usage,
                         }
                     )
 
@@ -947,7 +953,7 @@ class DialogueGenerator:
 
     def _get_user_llm_response(
         self, history: List[Dict[str, str]], system_prompt: str
-    ) -> str:
+    ) -> Tuple[str, TokenUsage]:
         """
         Get a response from the user LLM.
         Args:
@@ -955,14 +961,19 @@ class DialogueGenerator:
             system_prompt: The specific system prompt to use.
 
         Returns:
-            Generated response text
+            (content, usage) tuple. usage is a TokenUsage snapshot for this
+            single call, straight from the provider -- populated even when
+            content ends up empty/sentinel-only (e.g. a natural-end reply
+            that's stripped down to nothing), since the call itself still
+            happened and still cost real input/output tokens regardless of
+            what's left in content afterward.
 
         Raises:
             LLMGenerationError: If an error occurs during LLM generation.
         """
         try:
             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
-            return self.user_llm.generate(messages)
+            return self.user_llm.generate(messages, return_usage=True)
         except BudgetExceededError:
             # Deliberately NOT wrapped into LLMGenerationError: that class
             # signals a per-dialogue failure that the caller marks
@@ -976,7 +987,7 @@ class DialogueGenerator:
 
     def _get_target_llm_response(
         self, history: List[Dict[str, str]], system_prompt: str
-    ) -> Tuple[str, str]:
+    ) -> Tuple[str, str, TokenUsage]:
         """
         Get a response from the target LLM.
 
@@ -985,20 +996,22 @@ class DialogueGenerator:
             system_prompt: The specific system prompt.
 
         Returns:
-            (content, reasoning_text) tuple. content is the plain reply with
-            no reasoning trace mixed in -- this is what should be reused as
-            conversation history/CSV output/rating input. reasoning_text is
-            the raw reasoning trace ("" if none was produced) kept separate
-            purely for optional inspection; it must never be concatenated
-            back into content or passed to another model as if it were a
-            conversational turn.
+            (content, reasoning_text, usage) tuple. content is the plain
+            reply with no reasoning trace mixed in -- this is what should
+            be reused as conversation history/CSV output/rating input.
+            reasoning_text is the raw reasoning trace ("" if none was
+            produced) kept separate purely for optional inspection; it
+            must never be concatenated back into content or passed to
+            another model as if it were a conversational turn. usage is a
+            TokenUsage snapshot for this single call, straight from the
+            provider.
 
         Raises:
             LLMGenerationError: If an error occurs during LLM generation.
         """
         try:
             messages = [{"role": Role.SYSTEM, "content": system_prompt}] + history
-            return self.target_llm.generate(messages, return_reasoning=True)
+            return self.target_llm.generate(messages, return_reasoning=True, return_usage=True)
         except BudgetExceededError:
             raise  # see _get_user_llm_response's comment
         except Exception as e:
@@ -1037,9 +1050,11 @@ class DialogueGenerator:
             for i in range(0, len(turns_data), 2):
                 user_turn_data = turns_data[i]
                 user_message = user_turn_data["message"]
+                user_usage = user_turn_data.get("usage")
 
                 assistant_message = ""
                 assistant_reasoning = ""
+                assistant_usage = None
                 if i + 1 < len(turns_data):
                     assistant_turn_data = turns_data[i + 1]
                     if assistant_turn_data["role"] == Role.ASSISTANT:
@@ -1047,6 +1062,7 @@ class DialogueGenerator:
                         # Kept in its own column, never merged into
                         # assistant_message -- see _get_target_llm_response.
                         assistant_reasoning = assistant_turn_data.get("reasoning", "") or ""
+                        assistant_usage = assistant_turn_data.get("usage")
                     else:
                         print(
                             f"Warning: Expected assistant message at turn index {i+1} for dialogue {dialogue_id}, found role {assistant_turn_data['role']}"
@@ -1070,6 +1086,27 @@ class DialogueGenerator:
                     "user_message": user_message,
                     "assistant_message": assistant_message,
                     "assistant_reasoning": assistant_reasoning,
+                    # --- Per-call token accounting (see TokenUsage's
+                    # docstring in llm_client.py for exact semantics).
+                    # Populated even on rows where the visible message is
+                    # empty (e.g. a sentinel-only natural-end closing
+                    # reply): the call still happened and still cost real
+                    # tokens regardless of what's left after stripping the
+                    # sentinel out of the displayed content. Left blank
+                    # (None) only when that side of the row has no
+                    # associated call at all -- the seed/initial human
+                    # message, or the target side of a trailing
+                    # unpaired natural-end row where no target call was
+                    # ever made. ..._output_tokens excludes reasoning_
+                    # tokens when the provider reports them separately;
+                    # otherwise it equals the provider's raw completion
+                    # count (see TokenUsage.answer_tokens).
+                    "user_input_tokens": user_usage.prompt_tokens if user_usage else None,
+                    "user_reasoning_tokens": user_usage.reasoning_tokens if user_usage else None,
+                    "user_output_tokens": user_usage.answer_tokens if user_usage else None,
+                    "target_input_tokens": assistant_usage.prompt_tokens if assistant_usage else None,
+                    "target_reasoning_tokens": assistant_usage.reasoning_tokens if assistant_usage else None,
+                    "target_output_tokens": assistant_usage.answer_tokens if assistant_usage else None,
                     "dialogue_status": meta.get("status"),
                     "dialogue_error": meta.get("error", ""),
                 }
@@ -1097,6 +1134,12 @@ class DialogueGenerator:
                 "user_message",
                 "assistant_message",
                 "assistant_reasoning",
+                "user_input_tokens",
+                "user_reasoning_tokens",
+                "user_output_tokens",
+                "target_input_tokens",
+                "target_reasoning_tokens",
+                "target_output_tokens",
                 "dialogue_status",
                 "dialogue_error",
             ]
