@@ -30,6 +30,7 @@ from anthro_benchmark.core.llm_client import (
     TokenUsage,
     RateLimiter,
 )
+from anthro_benchmark.core.io_utils import atomic_to_csv
 from anthro_benchmark.core.roles import Role
 
 
@@ -121,6 +122,7 @@ class DialogueGenerator:
         default_csv_filename: Optional[str] = None,
         max_concurrency: int = 1,
         strict_batch_ordering: bool = False,
+        incremental_save: bool = False,
         stop_on_natural_end: bool = False,
     ):
         """
@@ -224,6 +226,23 @@ class DialogueGenerator:
                 tradeoff. Only matters at all if a budget cap actually
                 binds mid-run; with no cap, or one generous enough to
                 never trigger, both settings produce identical results.
+            incremental_save: Default False preserves prior behavior
+                exactly (the CSV is written once, after the whole run
+                finishes -- if the process crashes/hangs/is killed before
+                that point, nothing is saved at all). When True, the CSV
+                is rewritten after each completed dialogue (sequential
+                mode) or each completed batch (concurrent mode -- this
+                forces strict_batch_ordering=True, see above, since safe
+                checkpointing needs a guaranteed-complete, gap-free
+                prefix to save), so a crash partway through a run still
+                leaves everything completed up to that point on disk.
+                Each save is atomic (temp file + rename -- see
+                io_utils.atomic_to_csv), so a crash DURING a checkpoint
+                write can't corrupt the previous good checkpoint either.
+                The write itself is cheap relative to an LLM call
+                (measured well under a second even for thousands of
+                rows), so the overhead here is from re-writing the whole
+                growing file each time, not from the write mechanism.
             stop_on_natural_end: Default False reproduces the original
                 behavior exactly -- every dialogue runs the full
                 num_turns regardless of content. When True, appends an
@@ -353,6 +372,28 @@ class DialogueGenerator:
             raise ValueError(f"max_concurrency must be >= 1, got {max_concurrency!r}.")
         self.max_concurrency = max_concurrency
         self.strict_batch_ordering = strict_batch_ordering
+
+        self.incremental_save = incremental_save
+        if self.incremental_save and self.max_concurrency > 1 and not self.strict_batch_ordering:
+            # Incremental saving under concurrency needs chunk boundaries
+            # to know it's safe to write -- continuous dispatch (the
+            # default under concurrency) completes dialogues in whatever
+            # order finishes first, with no guaranteed-complete, gap-free
+            # prefix to checkpoint. strict_batch_ordering guarantees
+            # exactly that (see _generate_dialogues_async's docstring),
+            # so it's auto-enabled here rather than silently either
+            # skipping incremental saves under concurrency or building
+            # separate locking infrastructure for the continuous-dispatch
+            # case. Printed, not silent, since it does trade some
+            # throughput for this.
+            print(
+                "incremental_save=True with max_concurrency > 1 requires "
+                "strict_batch_ordering for safe checkpointing -- enabling "
+                "it automatically. This trades some throughput for "
+                "guaranteed-safe incremental saves; see "
+                "_generate_dialogues_async()'s docstring for the cost."
+            )
+            self.strict_batch_ordering = True
 
         self.dialogues = []
         self.prompts = self._load_prompts()
@@ -640,6 +681,13 @@ class DialogueGenerator:
             dialogue = self._generate_single_dialogue(prompt_data, i)
             self.dialogues.append(dialogue)
 
+            if self.incremental_save:
+                # Overwrites the same output path each time -- see
+                # save_dialogues_to_csv/atomic_to_csv for why this is
+                # safe to interrupt at any point (never a truncated
+                # file) and incremental_save's docstring for the cost.
+                self.save_dialogues_to_csv()
+
             if dialogue["metadata"]["status"] not in _SUCCESSFUL_STATUSES:
                 failed_count += 1
                 progress_bar.set_postfix(failed=failed_count)
@@ -746,6 +794,13 @@ class DialogueGenerator:
                         *(_run_one(i) for i in range(chunk_start, chunk_end))
                     )
                     self.dialogues.extend(chunk_results)
+                    if self.incremental_save:
+                        # Safe specifically because strict_batch_ordering
+                        # guarantees self.dialogues is a complete,
+                        # gap-free prefix at this exact point -- every
+                        # dialogue in it is fully resolved (success or
+                        # recorded failure), none partially in flight.
+                        self.save_dialogues_to_csv()
                     if any(d["metadata"].get("budget_exceeded") for d in chunk_results):
                         stopped_at_chunk_start = chunk_start
                         break
@@ -1208,7 +1263,24 @@ class DialogueGenerator:
                     df[col] = None if col not in ["dialogue_error", "assistant_reasoning"] else ""
 
             df = df[columns_order]
-            df.to_csv(output_path, index=False)
+            # utf-8-sig (adds a UTF-8 BOM), not plain utf-8: without a BOM,
+            # Excel guesses a legacy codepage (commonly cp1252) for CSVs
+            # instead of UTF-8, misrendering any non-ASCII character
+            # (curly quotes, em dashes, accented letters, etc.) as
+            # mojibake -- e.g. a correct right single quote turns into
+            # "\xe2\x80\x99s"->"'s" when Excel misreads it as cp1252
+            # instead of UTF-8. The BOM fixes that detection. Verified
+            # this doesn't break anything downstream: pandas' own
+            # read_csv() (used elsewhere in this codebase to read this
+            # exact file back in) auto-strips a UTF-8 BOM even without
+            # encoding='utf-8-sig' specified on the read side, so column
+            # names come back clean either way.
+            #
+            # atomic_to_csv, not df.to_csv directly: this method can now
+            # be called many times over a run (see incremental_save) --
+            # a direct write that gets killed mid-write would corrupt the
+            # checkpoint it was trying to protect. See io_utils.py.
+            atomic_to_csv(df, output_path, index=False, encoding="utf-8-sig")
             print(f"Dialogues saved to {output_path}")
         except Exception as e:
             print(f"Error writing dialogues to CSV {output_path}: {e}")

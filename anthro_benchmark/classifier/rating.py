@@ -38,6 +38,7 @@ from anthro_benchmark.classifier.cue_grouping import (
     resolve_call_units,
 )
 from anthro_benchmark.core.llm_client import BudgetGuard, BudgetExceededError, RateLimiter
+from anthro_benchmark.core.io_utils import atomic_to_csv
 
 
 def get_majority_vote(scores: list[int]) -> int:
@@ -114,6 +115,70 @@ def _rate_rows_concurrently(row_items, row_fn, max_concurrency, desc):
     )
 
 
+async def _rate_rows_chunked_async(
+    row_fn, rows, max_concurrency, desc, on_chunk_complete=None
+):
+    """
+    Like _rate_rows_concurrently_async, but dispatches in chunks of
+    max_concurrency, fully awaiting each chunk (asyncio.gather) before
+    the next chunk starts -- trading some throughput (a straggler in one
+    chunk blocks the next chunk from starting even if other concurrency
+    slots are free, same tradeoff as generator.py's strict_batch_ordering)
+    for a guaranteed-complete, gap-free prefix of results at every chunk
+    boundary.
+
+    That boundary is what makes safe incremental checkpointing possible.
+    Continuous dispatch (_rate_rows_concurrently_async, via
+    asyncio.gather over ALL rows at once) has no such boundary: every
+    row is in flight simultaneously and results only become available
+    all together when the whole batch finishes, so there's no
+    well-defined "everything so far" to checkpoint mid-batch.
+
+    on_chunk_complete(results_so_far), if given, is called synchronously
+    after each chunk resolves and BEFORE the next chunk is dispatched,
+    with the full growing list of results accumulated so far (in row
+    order) -- callers use this to checkpoint-save.
+    """
+    progress_bar = tqdm(total=len(rows), desc=desc, unit="turn")
+    results = []
+    try:
+        for chunk_start in range(0, len(rows), max_concurrency):
+            chunk = rows[chunk_start : chunk_start + max_concurrency]
+
+            async def _run_one(row):
+                try:
+                    result = await asyncio.to_thread(row_fn, row)
+                except BudgetExceededError as e:
+                    # Same rationale as _rate_rows_concurrently_async:
+                    # converted to a value so the rest of this chunk
+                    # still finishes and gets recorded.
+                    result = e
+                progress_bar.update(1)
+                return result
+
+            chunk_results = await asyncio.gather(*(_run_one(row) for row in chunk))
+            results.extend(chunk_results)
+            if on_chunk_complete is not None:
+                on_chunk_complete(results)
+    finally:
+        progress_bar.close()
+    return results
+
+
+def _rate_rows_chunked(
+    row_items, row_fn, max_concurrency, desc, on_chunk_complete=None
+):
+    """Strict-batch-ordering counterpart to _rate_rows_concurrently --
+    see _rate_rows_chunked_async's docstring. Same (index, row) input
+    shape and same "results in row_items order" output guarantee."""
+    rows = [row for _, row in row_items]
+    return asyncio.run(
+        _rate_rows_chunked_async(
+            row_fn, rows, max_concurrency, desc, on_chunk_complete
+        )
+    )
+
+
 def rate_dialogues(
     dialogues_csv_path: str,
     cues_to_rate: list[str],
@@ -136,6 +201,8 @@ def rate_dialogues(
     rate_limiter: Union[RateLimiter, Dict[str, RateLimiter], None] = None,
     budget_guard: BudgetGuard | None = None,
     max_concurrency: int = 1,
+    strict_batch_ordering: bool = False,
+    incremental_save: bool = False,
     # --------------
     verbose: bool = False,
 ) -> str:
@@ -241,6 +308,44 @@ def rate_dialogues(
             max_concurrency -- see BudgetGuard's docstring in
             llm_client.py for the overshoot caveat when combined with a
             budget cap.
+        strict_batch_ordering: Only relevant when max_concurrency > 1.
+            Default False dispatches all rows in a (cue unit, model)
+            combination continuously (a new row starts the instant a
+            concurrency slot frees) for maximum throughput. True
+            dispatches in chunks of max_concurrency, one chunk fully
+            finished before the next starts -- at a measured throughput
+            cost (same order of magnitude as generator.py's
+            strict_batch_ordering: roughly 1-15% under ordinary latency
+            variance, more when a straggler is in a chunk), but this is
+            what incremental_save needs to checkpoint safely under
+            concurrency -- see _rate_rows_chunked_async's docstring for
+            why continuous dispatch can't. Automatically enabled if
+            incremental_save is set together with max_concurrency > 1.
+        incremental_save: Default False preserves prior behavior exactly
+            (the CSV is written once, after the entire run finishes -- a
+            crash/hang/kill before that point saves nothing at all, so a
+            run that dies partway through a long cue-unit/multi-model
+            session loses everything). When True, the CSV is rewritten:
+              - after each row completes, in sequential mode
+                (max_concurrency <= 1);
+              - after each completed chunk of rows within a (cue unit,
+                model)'s row loop, under concurrency (forces
+                strict_batch_ordering=True -- see above);
+              - after each cue unit's columns are fully written (this
+                already happened at this point regardless of
+                incremental_save; it's just also checkpointed here).
+            The finer, within-a-model checkpoints write that model's
+            PARTIAL per-row results into its own
+            "{cue}_{model}_final_present" column as they resolve -- the
+            cross-model aggregate "{cue}_present" column is only
+            computed once ALL models finish for that cue (unchanged from
+            before), so an interrupted run's checkpoint shows real
+            progress per-model even for a cue unit that didn't finish,
+            while the "official" verdict for that cue remains whatever
+            it was before this unit started (-1/absent if never rated).
+            Each save is atomic (temp file + rename -- see
+            io_utils.atomic_to_csv), so an interruption during the save
+            itself can't corrupt the previous good checkpoint either.
         verbose: Whether to print progress information
 
     Returns:
@@ -299,6 +404,43 @@ def rate_dialogues(
     call_units = resolve_call_units(cues_to_rate, cue_group_config)
     if verbose and cue_group_config:
         print(f"Cue group config '{cue_group_config}': {len(cues_to_rate)} cues -> {len(call_units)} call unit(s): {call_units}")
+
+    # Resolved here (not at the very end, as before this refactor)
+    # because incremental_save needs a stable path to checkpoint to
+    # throughout the run, not just after it finishes.
+    DEFAULT_RATED_DIR = "rated_dialogues"
+    output_filename = output_rated_csv
+    if not output_filename:
+        input_basename = os.path.basename(dialogues_csv_path)
+        base, ext = os.path.splitext(input_basename)
+        classifier_models_str = "_".join(
+            sorted([sanitize_model_name(m) for m in classifier_models])
+        )
+        generated_filename = f"{base}_rated_by_{classifier_models_str}{ext}"
+        output_filename = os.path.join(DEFAULT_RATED_DIR, generated_filename)
+        if verbose:
+            print(f"Generated output path: {output_filename}")
+
+    if incremental_save and max_concurrency > 1 and not strict_batch_ordering:
+        # Same rationale as generator.py's DialogueGenerator.__init__ --
+        # see its comment for the full explanation. Continuous dispatch
+        # has no point during a batch where "everything so far" is a
+        # well-defined, safely-checkpointable set; strict_batch_ordering
+        # (chunk-by-chunk, each fully awaited) does.
+        print(
+            "incremental_save=True with max_concurrency > 1 requires "
+            "strict_batch_ordering for safe checkpointing -- enabling "
+            "it automatically. This trades some throughput for "
+            "guaranteed-safe incremental saves; see "
+            "_rate_rows_chunked_async()'s docstring for the cost."
+        )
+        strict_batch_ordering = True
+
+    def _checkpoint_save() -> None:
+        if not incremental_save:
+            return
+        # utf-8-sig + atomic_to_csv: see the final save below for why.
+        atomic_to_csv(dialogues_df, output_filename, index=False, encoding="utf-8-sig")
 
     # rating loop
     #
@@ -576,6 +718,40 @@ def rate_dialogues(
 
                 row_items = list(dialogues_df.iterrows())
 
+                # Ensure this model's per-cue "final" columns exist
+                # before the row loop starts, so incremental
+                # checkpointing can write into them as rows resolve.
+                # pd.NA ("not yet attempted this run") is kept distinct
+                # from a genuinely-computed -1 ("attempted, skipped/
+                # invalid") -- only meaningful once incremental_save is
+                # actually writing into these columns mid-loop; the
+                # normal end-of-unit assignment below overwrites this
+                # column for every row regardless, whether or not
+                # incremental_save is on.
+                if incremental_save:
+                    for c in cue_unit:
+                        col = f"{c}_{sanitized_model_name}_final_present"
+                        if col not in dialogues_df.columns:
+                            dialogues_df[col] = pd.NA
+
+                def _write_partial_results(indexed_results, _cue_unit=cue_unit, _col_suffix=sanitized_model_name):
+                    """indexed_results: list of (df_index, result) pairs.
+                    Writes only this model's per-cue FINAL score for each
+                    -- not the per-sample/raw-explanation columns, which
+                    are still only written at this cue unit's normal
+                    completion point below (see incremental_save's
+                    docstring). Idempotent: rewriting an already-written
+                    cell with the same value is harmless, but callers
+                    should still only pass the newly-resolved slice each
+                    time to avoid pointless repeated writes."""
+                    for idx, result in indexed_results:
+                        if isinstance(result, BudgetExceededError):
+                            row_final = {c: -1 for c in _cue_unit}
+                        else:
+                            _row_raw, _row_processed, row_final = result
+                        for c in _cue_unit:
+                            dialogues_df.at[idx, f"{c}_{_col_suffix}_final_present"] = row_final[c]
+
                 if max_concurrency <= 1:
                     # Sequential path: behaviorally identical to before
                     # this refactor, except a BudgetExceededError now
@@ -584,15 +760,42 @@ def rate_dialogues(
                     # whole `rate` command.
                     row_results = []
                     row_budget_exceeded_error = None
-                    for _, row in tqdm(row_items, desc=progress_desc, unit="turn"):
+                    for idx, row in tqdm(row_items, desc=progress_desc, unit="turn"):
                         if row_budget_exceeded_error is not None:
-                            row_results.append(row_budget_exceeded_error)
-                            continue
-                        try:
-                            row_results.append(_rate_one_row(row))
-                        except BudgetExceededError as e:
-                            row_budget_exceeded_error = e
-                            row_results.append(e)
+                            result = row_budget_exceeded_error
+                        else:
+                            try:
+                                result = _rate_one_row(row)
+                            except BudgetExceededError as e:
+                                row_budget_exceeded_error = e
+                                result = e
+                        row_results.append(result)
+                        if incremental_save:
+                            _write_partial_results([(idx, result)])
+                            _checkpoint_save()
+                elif strict_batch_ordering:
+                    _last_written = [0]
+
+                    def _on_chunk_complete(results_so_far):
+                        if not incremental_save:
+                            return
+                        new_slice = list(
+                            zip(
+                                [idx for idx, _ in row_items[_last_written[0] : len(results_so_far)]],
+                                results_so_far[_last_written[0]:],
+                            )
+                        )
+                        _write_partial_results(new_slice)
+                        _last_written[0] = len(results_so_far)
+                        _checkpoint_save()
+
+                    row_results = _rate_rows_chunked(
+                        row_items,
+                        _rate_one_row,
+                        max_concurrency,
+                        progress_desc,
+                        on_chunk_complete=_on_chunk_complete,
+                    )
                 else:
                     row_results = _rate_rows_concurrently(
                         row_items, _rate_one_row, max_concurrency, progress_desc
@@ -699,6 +902,14 @@ def rate_dialogues(
             if verbose:
                 print(f"Finished processing cue: '{cue_to_rate}'. Added all columns.")
 
+        if incremental_save:
+            # This cue unit's columns are now fully written regardless
+            # of incremental_save (see above) -- this just also
+            # checkpoints that state to disk, on top of the finer
+            # within-model checkpoints already taken during the row
+            # loop(s) above.
+            _checkpoint_save()
+
         if session_budget_exceeded:
             print(
                 f"\nStopping after cue unit {unit_idx + 1}/{len(call_units)} "
@@ -709,22 +920,16 @@ def rate_dialogues(
             break
     # end cue-unit loop
 
-    DEFAULT_RATED_DIR = "rated_dialogues"
-    output_filename = output_rated_csv
-
-    if not output_filename:
-        input_basename = os.path.basename(dialogues_csv_path)
-        base, ext = os.path.splitext(input_basename)
-        classifier_models_str = "_".join(
-            sorted([sanitize_model_name(m) for m in classifier_models])
-        )
-        generated_filename = f"{base}_rated_by_{classifier_models_str}{ext}"
-        output_filename = os.path.join(DEFAULT_RATED_DIR, generated_filename)
-        if verbose:
-            print(f"Generated output path: {output_filename}")
-
     try:
-        dialogues_df.to_csv(output_filename, index=False)
+        # utf-8-sig, not plain utf-8 -- see generator.py's save_dialogues_to_csv
+        # for why (Excel mojibake without a BOM; verified safe for this
+        # codebase's own downstream reads either way). atomic_to_csv, not
+        # dialogues_df.to_csv directly -- see io_utils.py; matters here
+        # too since this same path may already have interim
+        # incremental-save checkpoints written to it during the loop
+        # above, which a direct write dying partway through would
+        # corrupt.
+        atomic_to_csv(dialogues_df, output_filename, index=False, encoding="utf-8-sig")
         if verbose:
             print(
                 f"Successfully saved rated dialogues to: {output_filename}"
@@ -758,6 +963,8 @@ def run_rating_process(
     rate_limiter: Union[RateLimiter, Dict[str, RateLimiter], None] = None,
     budget_guard: BudgetGuard | None = None,
     max_concurrency: int = 1,
+    strict_batch_ordering: bool = False,
+    incremental_save: bool = False,
     # --------------
     verbose: bool = True,
 ) -> str:
@@ -779,8 +986,8 @@ def run_rating_process(
         classifier_timeout, classifier_max_retries,
             classifier_max_timeout_retries, classifier_initial_backoff,
             classifier_max_backoff, rate_limiter, budget_guard,
-            max_concurrency: See rate_dialogues()'s docstring -- passed
-            straight through.
+            max_concurrency, strict_batch_ordering, incremental_save: See
+            rate_dialogues()'s docstring -- passed straight through.
         verbose: Whether to print progress information
 
     Returns:
@@ -808,6 +1015,8 @@ def run_rating_process(
         rate_limiter=rate_limiter,
         budget_guard=budget_guard,
         max_concurrency=max_concurrency,
+        strict_batch_ordering=strict_batch_ordering,
+        incremental_save=incremental_save,
         # --------------
         verbose=verbose,
     )

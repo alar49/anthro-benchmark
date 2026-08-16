@@ -342,6 +342,7 @@ def generate_dialogues_command(args):
             default_csv_filename=dynamic_csv_filename,
             max_concurrency=getattr(args, "max_concurrency", 1),
             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+            incremental_save=getattr(args, "incremental_save", False),
             stop_on_natural_end=getattr(args, "stop_on_natural_end", False),
         )
 
@@ -444,6 +445,8 @@ def rate_dialogues_command(args):
             rate_limiter=classifier_rate_limiter,
             budget_guard=budget_guard,
             max_concurrency=getattr(args, "max_concurrency", 1),
+            strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+            incremental_save=getattr(args, "incremental_save", False),
             verbose=True,
         )
         if not output_path:
@@ -795,7 +798,26 @@ def _parse_flags(_):
             "throughput cost (roughly 1-15%% under ordinary latency "
             "variance, 2x+ if a straggler shows up in a batch). Only "
             "matters if a budget cap actually binds mid-run; irrelevant "
-            "with no cap or a generous one."
+            "with no cap or a generous one. Automatically enabled if "
+            "--incremental-save is set together with --max-concurrency > 1 "
+            "(see --incremental-save)."
+        ),
+    )
+    concurrency_group.add_argument(
+        "--incremental-save",
+        action="store_true",
+        help=(
+            "Default off: the CSV is written once, after the whole run "
+            "finishes -- a crash/hang/kill before that point saves "
+            "nothing at all. Set this to rewrite the CSV after each "
+            "completed dialogue (sequential) or each completed batch "
+            "(concurrent -- this forces --strict-batch-ordering on "
+            "automatically, since safe checkpointing under concurrency "
+            "needs a guaranteed-complete, gap-free prefix to save), so a "
+            "crash partway through leaves everything completed so far on "
+            "disk. Each save is atomic (temp file + rename), so an "
+            "interruption during the save itself can't corrupt the "
+            "previous good checkpoint either."
         ),
     )
 
@@ -1250,6 +1272,41 @@ def _parse_flags(_):
             "typically where concurrency helps most. Runs via "
             "asyncio.to_thread; same overshoot caveat as generate's "
             "--max-concurrency applies if a budget cap is also set."
+        ),
+    )
+    rate_concurrency_group.add_argument(
+        "--strict-batch-ordering",
+        action="store_true",
+        help=(
+            "Only relevant with --max-concurrency > 1. Default off: "
+            "dispatch all rows in a (cue unit, model) combination "
+            "continuously for maximum throughput. Set this to dispatch "
+            "in chunks of --max-concurrency instead, one chunk fully "
+            "finished before the next starts, at a measured throughput "
+            "cost (same order of magnitude as generate's "
+            "--strict-batch-ordering). This is what --incremental-save "
+            "needs to checkpoint safely under concurrency -- "
+            "automatically enabled if --incremental-save is set together "
+            "with --max-concurrency > 1."
+        ),
+    )
+    rate_concurrency_group.add_argument(
+        "--incremental-save",
+        action="store_true",
+        help=(
+            "Default off: the rated CSV is written once, after the "
+            "entire run finishes -- a crash/hang/kill before that point "
+            "(e.g. a stuck call during --cue-group-config rating) saves "
+            "nothing at all. Set this to rewrite the CSV after each "
+            "completed row (sequential) or each completed chunk of rows "
+            "(concurrent -- forces --strict-batch-ordering on "
+            "automatically) within a (cue unit, model)'s rating, as well "
+            "as after each cue unit's columns are fully written. Each "
+            "save is atomic (temp file + rename), so an interruption "
+            "during the save itself can't corrupt the previous good "
+            "checkpoint either. See rate_dialogues()'s docstring in "
+            "rating.py for exactly which columns get partial values "
+            "written progressively vs. only at full completion."
         ),
     )
 

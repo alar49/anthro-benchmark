@@ -711,7 +711,7 @@ def run_analysis(
 
             pbar.set_description(stages[12])
             enhanced_csv_path = os.path.join(output_dir, "analysis_with_categories.csv")
-            df_final.to_csv(enhanced_csv_path, index=False)
+            df_final.to_csv(enhanced_csv_path, index=False, encoding="utf-8-sig")
             tqdm.write(f"Saved enhanced dataframe (final) to: {enhanced_csv_path}")
             pbar.update(1)
 
@@ -719,13 +719,13 @@ def run_analysis(
             per_dialogue_final_path = os.path.join(
                 output_dir, "per_dialogue_stats.csv"
             )
-            per_dialogue_final.to_csv(per_dialogue_final_path, index=False)
+            per_dialogue_final.to_csv(per_dialogue_final_path, index=False, encoding="utf-8-sig")
             tqdm.write(f"Saved per-dialogue stats (final) to: {per_dialogue_final_path}")
 
             per_dialogue_window_path = os.path.join(
                 output_dir, f"per_dialogue_stats_{window_label}.csv"
             )
-            per_dialogue_window.to_csv(per_dialogue_window_path, index=False)
+            per_dialogue_window.to_csv(per_dialogue_window_path, index=False, encoding="utf-8-sig")
             tqdm.write(
                 f"Saved per-dialogue stats ({window_label}) to: {per_dialogue_window_path}"
             )
