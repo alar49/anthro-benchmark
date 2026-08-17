@@ -1,0 +1,66 @@
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index 8b6f1f3..ecfcd65 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -301,22 +301,26 @@ def generate_dialogues_command(args):
+             )
+ 
+     # construct dynamic CSV filename
+-    sanitized_target_model = sanitize_model_name(args.target_llm_model)
++    if getattr(args, "output_csv_filename", None):
++        dynamic_csv_filename = args.output_csv_filename
++        print(f"Using explicit CSV filename: {dynamic_csv_filename}")
++    else:
++        sanitized_target_model = sanitize_model_name(args.target_llm_model)
+ 
+-    categories_str_part = "all_prompts"  # default if no specific categories or path
+-    if args.prompt_category_name:
+-        categories_str_part = "_".join(sorted(args.prompt_category_name))
+-        categories_str_part = categories_str_part.replace(" ", "_")
++        categories_str_part = "all_prompts"  # default if no specific categories or path
++        if args.prompt_category_name:
++            categories_str_part = "_".join(sorted(args.prompt_category_name))
++            categories_str_part = categories_str_part.replace(" ", "_")
+ 
+-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
++        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+ 
+-    dpc_arg = getattr(args, "dialogues_per_condition", None)
+-    dpc_str_part = f"_dpc{dpc_arg}" if dpc_arg is not None else ""
++        dpc_arg = getattr(args, "dialogues_per_condition", None)
++        dpc_str_part = f"_dpc{dpc_arg}" if dpc_arg is not None else ""
+ 
+-    dynamic_csv_filename = (
+-        f"dialogues_{sanitized_target_model}_{categories_str_part}{dpc_str_part}_{timestamp}.csv"
+-    )
+-    print(f"Generated CSV filename: {dynamic_csv_filename}")
++        dynamic_csv_filename = (
++            f"dialogues_{sanitized_target_model}_{categories_str_part}{dpc_str_part}_{timestamp}.csv"
++        )
++        print(f"Generated CSV filename: {dynamic_csv_filename}")
+ 
+     try:
+         cues_arg = (
+@@ -1015,6 +1019,22 @@ def _parse_flags(_):
+         default="generated_dialogues",
+         help="Directory to save generated dialogues.",
+     )
++    output_group.add_argument(
++        "--output-csv-filename",
++        type=str,
++        default=None,
++        help=(
++            "Exact filename to use instead of the auto-generated "
++            "'dialogues_<model>_<categories>_<timestamp>.csv' -- the "
++            "timestamp in that default means every invocation produces a "
++            "different filename, so --resume (see --incremental-save) "
++            "has nothing to find unless you pin the filename explicitly "
++            "here to match a prior/partial run's output. Also needed if "
++            "you've downloaded a partial CSV to resume: place it at "
++            "--output-dir/--output-csv-filename before running with "
++            "--resume."
++        ),
++    )
+ 
+     gen_parser.set_defaults(func=generate_dialogues_command)
+ 

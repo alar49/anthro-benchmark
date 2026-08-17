@@ -203,6 +203,7 @@ def rate_dialogues(
     max_concurrency: int = 1,
     strict_batch_ordering: bool = False,
     incremental_save: bool = False,
+    resume: bool = False,
     # --------------
     verbose: bool = False,
 ) -> str:
@@ -346,6 +347,27 @@ def rate_dialogues(
             Each save is atomic (temp file + rename -- see
             io_utils.atomic_to_csv), so an interruption during the save
             itself can't corrupt the previous good checkpoint either.
+        resume: Default False. Requires incremental_save=True (raises
+            ValueError otherwise). If output_rated_csv (or the generated
+            default path) already exists, merges in its per-model
+            "{cue}_{model}_final_present" columns -- matched by
+            (dialogue_id, turn_pair_index), which are stable here since
+            rating.py doesn't sample its own row set, unlike generate.py
+            -- and skips re-rating any (row, cue, model) combination
+            that's already populated there, reusing the existing value
+            instead. A cue+model's prior result is reused regardless of
+            which --cue-group-config unit it was originally rated under;
+            "{cue}_{model}_final_present" means the same thing either
+            way. Reused rows' raw-explanation/per-sample columns are
+            replaced with a placeholder noting they were reused (only
+            the final per-model score is checkpointed incrementally,
+            not the per-sample detail behind it) -- the final score
+            itself is exactly the original value, never approximated.
+            If the output path doesn't exist yet, resume has no effect
+            (a normal fresh run). Raises ValueError if the existing file
+            has no per-model "*_final_present" columns (predates resume
+            support, wasn't produced with incremental_save, or wasn't
+            produced by this pipeline).
         verbose: Whether to print progress information
 
     Returns:
@@ -441,6 +463,64 @@ def rate_dialogues(
             return
         # utf-8-sig + atomic_to_csv: see the final save below for why.
         atomic_to_csv(dialogues_df, output_filename, index=False, encoding="utf-8-sig")
+
+    # --- resume ---
+    if resume:
+        if not incremental_save:
+            raise ValueError(
+                "resume=True requires incremental_save=True -- there's no "
+                "reliable partial output to resume FROM otherwise (without "
+                "it, the output file is only ever written once, at the "
+                "very end of a fully successful run)."
+            )
+        if not os.path.exists(output_filename):
+            print(
+                f"resume=True but no existing file at {output_filename} -- "
+                "starting fresh (nothing to resume from)."
+            )
+        else:
+            prior_df = pd.read_csv(output_filename)
+            final_present_cols = [
+                c for c in prior_df.columns if c.endswith("_final_present")
+            ]
+            if not final_present_cols or "dialogue_id" not in prior_df.columns or "turn_pair_index" not in prior_df.columns:
+                raise ValueError(
+                    f"Cannot resume from {output_filename}: it has no "
+                    "per-model '*_final_present' columns (and/or is "
+                    "missing dialogue_id/turn_pair_index), so it wasn't "
+                    "produced with incremental_save, isn't a rated-dialogues "
+                    "CSV from this pipeline, or predates resume support. "
+                    "Move/rename it if you want to start a fresh run at "
+                    "this same output path."
+                )
+            # Merge in only the per-model final-score columns (the ones
+            # incremental_save actually checkpoints progressively, see
+            # its docstring) -- matched by (dialogue_id, turn_pair_index),
+            # which are stable/deterministic here (unlike generate.py,
+            # rating.py doesn't sample anything itself; the row set comes
+            # straight from dialogues_csv_path). A cue+model's column is
+            # reused regardless of which --cue-group-config grouped it
+            # under originally -- "{cue}_{model}_final_present" is the
+            # same semantic quantity either way.
+            merge_cols = ["dialogue_id", "turn_pair_index"] + final_present_cols
+            dialogues_df = dialogues_df.merge(
+                prior_df[merge_cols], on=["dialogue_id", "turn_pair_index"], how="left"
+            )
+            n_resumable_cells = int(
+                dialogues_df[final_present_cols].notna().sum().sum()
+            )
+            print(
+                f"Resuming from {output_filename}: merged in "
+                f"{len(final_present_cols)} previously-rated model/cue "
+                f"column(s) covering {n_resumable_cells} already-rated "
+                "(row, cue, model) combination(s) -- these will be reused "
+                "rather than re-rated. Note: a resumed row's raw-"
+                "explanation/per-sample detail columns are replaced with "
+                "a placeholder noting they were reused (only the final "
+                "per-model score is checkpointed incrementally, not the "
+                "per-sample detail behind it) -- the final score itself "
+                "is exactly the original value, not approximated."
+            )
 
     # rating loop
     #
@@ -711,6 +791,37 @@ def rate_dialogues(
 
                     return row_raw, row_processed, row_final
 
+                def _rate_one_row_resumable(row):
+                    """Wraps _rate_one_row: if resume=True and every cue
+                    in this unit already has a value for this model on
+                    this row (from a merged-in prior checkpoint), reuses
+                    that value instead of re-rating -- see resume's
+                    docstring in this function for exactly what "reuse"
+                    means for the raw-explanation/per-sample columns
+                    (short version: the final score is exact, the detail
+                    columns are a clearly-labeled placeholder)."""
+                    if resume:
+                        col_names = [
+                            f"{c}_{sanitized_model_name}_final_present" for c in cue_unit
+                        ]
+                        if all(
+                            col in row.index and pd.notna(row[col]) for col in col_names
+                        ):
+                            row_final = {
+                                c: int(row[f"{c}_{sanitized_model_name}_final_present"])
+                                for c in cue_unit
+                            }
+                            placeholder = (
+                                "[reused from a resumed checkpoint -- original "
+                                "per-sample detail not preserved]"
+                            )
+                            row_raw = {c: [placeholder] * num_samples for c in cue_unit}
+                            row_processed = {
+                                c: [row_final[c]] * num_samples for c in cue_unit
+                            }
+                            return row_raw, row_processed, row_final
+                    return _rate_one_row(row)
+
                 progress_desc = (
                     f"[unit {unit_idx + 1}/{len(call_units)}] {cue_unit} "
                     f"| model {model_idx + 1}/{len(classifier_models)} '{model_name}'"
@@ -765,7 +876,7 @@ def rate_dialogues(
                             result = row_budget_exceeded_error
                         else:
                             try:
-                                result = _rate_one_row(row)
+                                result = _rate_one_row_resumable(row)
                             except BudgetExceededError as e:
                                 row_budget_exceeded_error = e
                                 result = e
@@ -791,14 +902,14 @@ def rate_dialogues(
 
                     row_results = _rate_rows_chunked(
                         row_items,
-                        _rate_one_row,
+                        _rate_one_row_resumable,
                         max_concurrency,
                         progress_desc,
                         on_chunk_complete=_on_chunk_complete,
                     )
                 else:
                     row_results = _rate_rows_concurrently(
-                        row_items, _rate_one_row, max_concurrency, progress_desc
+                        row_items, _rate_one_row_resumable, max_concurrency, progress_desc
                     )
 
                 current_model_raw = {c: [] for c in cue_unit}
@@ -965,6 +1076,7 @@ def run_rating_process(
     max_concurrency: int = 1,
     strict_batch_ordering: bool = False,
     incremental_save: bool = False,
+    resume: bool = False,
     # --------------
     verbose: bool = True,
 ) -> str:
@@ -986,7 +1098,8 @@ def run_rating_process(
         classifier_timeout, classifier_max_retries,
             classifier_max_timeout_retries, classifier_initial_backoff,
             classifier_max_backoff, rate_limiter, budget_guard,
-            max_concurrency, strict_batch_ordering, incremental_save: See
+            max_concurrency, strict_batch_ordering, incremental_save,
+            resume: See
             rate_dialogues()'s docstring -- passed straight through.
         verbose: Whether to print progress information
 
@@ -1017,6 +1130,7 @@ def run_rating_process(
         max_concurrency=max_concurrency,
         strict_batch_ordering=strict_batch_ordering,
         incremental_save=incremental_save,
+        resume=resume,
         # --------------
         verbose=verbose,
     )

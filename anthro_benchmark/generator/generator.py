@@ -123,6 +123,7 @@ class DialogueGenerator:
         max_concurrency: int = 1,
         strict_batch_ordering: bool = False,
         incremental_save: bool = False,
+        resume: bool = False,
         stop_on_natural_end: bool = False,
     ):
         """
@@ -243,6 +244,27 @@ class DialogueGenerator:
                 (measured well under a second even for thousands of
                 rows), so the overhead here is from re-writing the whole
                 growing file each time, not from the write mechanism.
+            resume: Default False. Requires incremental_save=True (raises
+                ValueError otherwise -- there's no reliable partial
+                output to resume FROM without it). If the output path
+                (output_dir/default_csv_filename) already exists, loads
+                it and skips regenerating any dialogue_index whose
+                dialogue_status is in _SUCCESSFUL_STATUSES ("completed"
+                or "completed_early_natural_end") -- those rows are
+                carried over into the final output verbatim, not
+                regenerated. Any dialogue_index present but NOT
+                successfully completed (failed/budget-capped), or absent
+                entirely, is (re)generated normally. This works because
+                _select_prompt(dialogue_index) is a pure function of the
+                index -- the same index always selects the same prompt
+                given the same input prompt CSV, so dialogue_index (NOT
+                the random dialogue_id UUID) is what identifies "the same
+                dialogue" across separate runs/invocations. If the
+                output path doesn't exist yet, resume has no effect
+                (nothing to resume from -- a normal fresh run). Raises
+                ValueError if the existing file has no 'dialogue_index'
+                column (predates resume support, or wasn't produced by
+                this pipeline).
             stop_on_natural_end: Default False reproduces the original
                 behavior exactly -- every dialogue runs the full
                 num_turns regardless of content. When True, appends an
@@ -480,6 +502,66 @@ class DialogueGenerator:
         self.user_llm = LLMClient(**self.user_llm_config)
         self.target_llm = LLMClient(**self.target_llm_config)
 
+        # --- resume ---
+        self._resumed_carryover_df: Optional[pd.DataFrame] = None
+        self._skip_dialogue_indices: set = set()
+        self.resume = resume
+        if self.resume:
+            if not self.incremental_save:
+                raise ValueError(
+                    "resume=True requires incremental_save=True -- there's "
+                    "no reliable partial output to resume FROM otherwise "
+                    "(without it, the output file is only ever written "
+                    "once, at the very end of a fully successful run)."
+                )
+            output_path = os.path.join(self.output_dir, self.default_csv_filename)
+            if not os.path.exists(output_path):
+                print(
+                    f"resume=True but no existing file at {output_path} -- "
+                    "starting fresh (nothing to resume from)."
+                )
+            else:
+                existing_df = pd.read_csv(output_path)
+                if "dialogue_index" not in existing_df.columns:
+                    raise ValueError(
+                        f"Cannot resume from {output_path}: it has no "
+                        "'dialogue_index' column, so it was either not "
+                        "produced by this pipeline or predates resume "
+                        "support. Move/rename it if you want to start a "
+                        "fresh run at this same output path."
+                    )
+                done_indices = set(
+                    existing_df.loc[
+                        existing_df["dialogue_status"].isin(_SUCCESSFUL_STATUSES),
+                        "dialogue_index",
+                    ]
+                    .dropna()
+                    .astype(int)
+                    .unique()
+                    .tolist()
+                )
+                # Only dialogue_index values that are actually part of
+                # THIS run's plan (0..num_dialogues-1) -- guards against
+                # resuming into a file from a differently-sized prior run
+                # (e.g. num_dialogues changed) silently carrying over
+                # indices that no longer mean the same thing.
+                done_indices = {i for i in done_indices if 0 <= i < self.num_dialogues}
+                if done_indices:
+                    self._resumed_carryover_df = existing_df[
+                        existing_df["dialogue_index"].isin(done_indices)
+                    ].copy()
+                self._skip_dialogue_indices = done_indices
+                print(
+                    f"Resuming from {output_path}: {len(done_indices)} of "
+                    f"{self.num_dialogues} dialogues already successfully "
+                    "completed (status in "
+                    f"{sorted(_SUCCESSFUL_STATUSES)}) -- skipping those, "
+                    f"generating the remaining {self.num_dialogues - len(done_indices)}. "
+                    "Dialogues present in that file but NOT successfully "
+                    "completed (failed/budget-capped/never attempted) will "
+                    "be (re)attempted."
+                )
+
     def _load_prompts(self) -> List[Dict[str, Any]]:
         """
         Load prompts from first_turns.csv, filtering by behavior_category if specified,
@@ -670,12 +752,16 @@ class DialogueGenerator:
         self.dialogues = []
         failed_count = 0
 
+        indices_to_generate = [
+            i for i in range(self.num_dialogues) if i not in self._skip_dialogue_indices
+        ]
+
         progress_bar = tqdm(
-            range(self.num_dialogues),
+            indices_to_generate,
             desc="Generating dialogues",
             unit="dialogue",
         )
-        for i in progress_bar:
+        for pos, i in enumerate(progress_bar):
             prompt_data = self._select_prompt(i)
 
             dialogue = self._generate_single_dialogue(prompt_data, i)
@@ -699,14 +785,14 @@ class DialogueGenerator:
                 # recorded as failed too, for no benefit -- this dialogue
                 # (whatever partial turns it has) is already appended
                 # above, so nothing generated so far is lost.
-                remaining = self.num_dialogues - (i + 1)
+                remaining = len(indices_to_generate) - (pos + 1)
                 progress_bar.close()
                 print(
-                    f"\nBudget/iteration cap reached after dialogue {i + 1}/"
-                    f"{self.num_dialogues} ({dialogue['metadata']['error']}). "
-                    f"Stopping early instead of attempting the remaining "
-                    f"{remaining} dialogue(s); what's completed so far will "
-                    "still be saved."
+                    f"\nBudget/iteration cap reached after dialogue_index {i} "
+                    f"({dialogue['metadata']['error']}). Stopping early "
+                    f"instead of attempting the remaining {remaining} "
+                    "dialogue(s) in this run; what's completed so far "
+                    "will still be saved."
                 )
                 break
 
@@ -771,8 +857,12 @@ class DialogueGenerator:
         trigger, both strategies produce the exact same set of fully
         completed dialogues (only their wall-clock time differs).
         """
+        indices_to_generate = [
+            i for i in range(self.num_dialogues) if i not in self._skip_dialogue_indices
+        ]
+
         progress_bar = tqdm(
-            total=self.num_dialogues, desc="Generating dialogues", unit="dialogue"
+            total=len(indices_to_generate), desc="Generating dialogues", unit="dialogue"
         )
 
         async def _run_one(dialogue_index: int) -> Dict[str, Any]:
@@ -786,12 +876,12 @@ class DialogueGenerator:
         self.dialogues = []
         try:
             if self.strict_batch_ordering:
-                stopped_at_chunk_start = None
+                stopped_at_pos = None
                 chunk_size = self.max_concurrency
-                for chunk_start in range(0, self.num_dialogues, chunk_size):
-                    chunk_end = min(chunk_start + chunk_size, self.num_dialogues)
+                for chunk_start in range(0, len(indices_to_generate), chunk_size):
+                    chunk_indices = indices_to_generate[chunk_start : chunk_start + chunk_size]
                     chunk_results = await asyncio.gather(
-                        *(_run_one(i) for i in range(chunk_start, chunk_end))
+                        *(_run_one(i) for i in chunk_indices)
                     )
                     self.dialogues.extend(chunk_results)
                     if self.incremental_save:
@@ -802,7 +892,7 @@ class DialogueGenerator:
                         # recorded failure), none partially in flight.
                         self.save_dialogues_to_csv()
                     if any(d["metadata"].get("budget_exceeded") for d in chunk_results):
-                        stopped_at_chunk_start = chunk_start
+                        stopped_at_pos = chunk_start
                         break
             else:
                 semaphore = asyncio.Semaphore(self.max_concurrency)
@@ -813,7 +903,7 @@ class DialogueGenerator:
 
                 self.dialogues = list(
                     await asyncio.gather(
-                        *(_run_one_gated(i) for i in range(self.num_dialogues))
+                        *(_run_one_gated(i) for i in indices_to_generate)
                     )
                 )
         finally:
@@ -826,25 +916,30 @@ class DialogueGenerator:
             1 for d in self.dialogues if d["metadata"].get("budget_exceeded")
         )
         if budget_exceeded_count and self.strict_batch_ordering:
-            never_started = self.num_dialogues - len(self.dialogues)
+            never_started = len(indices_to_generate) - len(self.dialogues)
+            completed_indices = indices_to_generate[:stopped_at_pos]
+            affected_indices = indices_to_generate[stopped_at_pos : len(self.dialogues)]
             print(
-                f"\nBudget/iteration cap reached in the dialogue-{stopped_at_chunk_start}"
-                f"..{len(self.dialogues) - 1} batch (batch size {self.max_concurrency}). "
-                f"Dialogues 0..{stopped_at_chunk_start - 1} are guaranteed fully "
-                f"complete ({stopped_at_chunk_start} of them). Within the "
-                f"affected batch, {budget_exceeded_count} of {len(self.dialogues) - stopped_at_chunk_start} "
-                "hit the cap -- which ones is not meaningful to report in "
+                f"\nBudget/iteration cap reached in the batch covering "
+                f"dialogue_index {affected_indices} (batch size "
+                f"{self.max_concurrency}). {len(completed_indices)} "
+                "dialogue(s) earlier in this run's plan are guaranteed "
+                f"fully complete. Within the affected batch, "
+                f"{budget_exceeded_count} of {len(affected_indices)} hit "
+                "the cap -- which ones is not meaningful to report in "
                 "index order within a single concurrent batch (see this "
                 f"method's docstring). The remaining {never_started} "
-                "dialogue(s) after this batch were never started at all. "
-                "Everything actually produced is kept; nothing is discarded."
+                "dialogue(s) in this run's plan were never started at "
+                "all. Everything actually produced is kept; nothing is "
+                "discarded."
             )
         elif budget_exceeded_count:
             print(
-                f"\n{budget_exceeded_count} of {self.num_dialogues} dialogue(s) hit "
-                "the budget/iteration cap partway through. Order isn't "
-                "meaningful under continuous-dispatch concurrency (see this "
-                "method's docstring; pass strict_batch_ordering=True / "
+                f"\n{budget_exceeded_count} of {len(indices_to_generate)} "
+                "dialogue(s) in this run's plan hit the budget/iteration "
+                "cap partway through. Order isn't meaningful under "
+                "continuous-dispatch concurrency (see this method's "
+                "docstring; pass strict_batch_ordering=True / "
                 "--strict-batch-ordering for a tighter, index-bounded "
                 f"guarantee at some throughput cost) -- but all "
                 f"{len(self.dialogues) - budget_exceeded_count} dialogue(s) "
@@ -853,8 +948,9 @@ class DialogueGenerator:
             )
         elif failed_count:
             print(
-                f"\n{failed_count} of {self.num_dialogues} dialogue(s) failed "
-                "for reasons other than the budget/iteration cap."
+                f"\n{failed_count} of {len(indices_to_generate)} dialogue(s) "
+                "in this run's plan failed for reasons other than the "
+                "budget/iteration cap."
             )
 
         self.save_dialogues_to_csv()
@@ -1140,10 +1236,16 @@ class DialogueGenerator:
         Save all generated dialogues to a CSV file.
         Each row represents a user-assistant turn pair.
 
+        If this session was started with resume=True and found prior
+        completed work (see __init__), that carried-over data (loaded
+        verbatim from the previous run's output, not regenerated) is
+        included in the saved file alongside whatever this session
+        generated -- see self._resumed_carryover_df.
+
         Args:
             filename: Name of the CSV file. If None, uses self.default_csv_filename.
         """
-        if not self.dialogues:
+        if not self.dialogues and self._resumed_carryover_df is None:
             print("No dialogues to save.")
             return
 
@@ -1185,6 +1287,12 @@ class DialogueGenerator:
 
                 row = {
                     "dialogue_id": dialogue_id,
+                    # Stable across separate runs, unlike dialogue_id
+                    # (random UUID) -- _select_prompt(dialogue_index) is
+                    # a pure function, so the same index always selects
+                    # the same prompt given the same input prompt CSV.
+                    # This is what --resume matches on.
+                    "dialogue_index": meta.get("dialogue_index"),
                     "dialogue_timestamp": meta.get("timestamp"),
                     "prompt_category": meta.get("category"),
                     "prompt_cue": meta.get("cue"),
@@ -1235,6 +1343,7 @@ class DialogueGenerator:
             df = pd.DataFrame(rows)
             columns_order = [
                 "dialogue_id",
+                "dialogue_index",
                 "dialogue_timestamp",
                 "turn_pair_index",
                 "prompt_category",
@@ -1263,6 +1372,18 @@ class DialogueGenerator:
                     df[col] = None if col not in ["dialogue_error", "assistant_reasoning"] else ""
 
             df = df[columns_order]
+
+            if self._resumed_carryover_df is not None:
+                carryover = self._resumed_carryover_df.copy()
+                for col in columns_order:
+                    if col not in carryover.columns:
+                        carryover[col] = None
+                carryover = carryover[columns_order]
+                # Carried-over rows first, then this session's new rows --
+                # keeps dialogue_index roughly ascending in the output,
+                # though nothing downstream depends on row order.
+                df = pd.concat([carryover, df], ignore_index=True)
+
             # utf-8-sig (adds a UTF-8 BOM), not plain utf-8: without a BOM,
             # Excel guesses a legacy codepage (commonly cp1252) for CSVs
             # instead of UTF-8, misrendering any non-ASCII character

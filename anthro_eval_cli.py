@@ -301,22 +301,26 @@ def generate_dialogues_command(args):
             )
 
     # construct dynamic CSV filename
-    sanitized_target_model = sanitize_model_name(args.target_llm_model)
+    if getattr(args, "output_csv_filename", None):
+        dynamic_csv_filename = args.output_csv_filename
+        print(f"Using explicit CSV filename: {dynamic_csv_filename}")
+    else:
+        sanitized_target_model = sanitize_model_name(args.target_llm_model)
 
-    categories_str_part = "all_prompts"  # default if no specific categories or path
-    if args.prompt_category_name:
-        categories_str_part = "_".join(sorted(args.prompt_category_name))
-        categories_str_part = categories_str_part.replace(" ", "_")
+        categories_str_part = "all_prompts"  # default if no specific categories or path
+        if args.prompt_category_name:
+            categories_str_part = "_".join(sorted(args.prompt_category_name))
+            categories_str_part = categories_str_part.replace(" ", "_")
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    dpc_arg = getattr(args, "dialogues_per_condition", None)
-    dpc_str_part = f"_dpc{dpc_arg}" if dpc_arg is not None else ""
+        dpc_arg = getattr(args, "dialogues_per_condition", None)
+        dpc_str_part = f"_dpc{dpc_arg}" if dpc_arg is not None else ""
 
-    dynamic_csv_filename = (
-        f"dialogues_{sanitized_target_model}_{categories_str_part}{dpc_str_part}_{timestamp}.csv"
-    )
-    print(f"Generated CSV filename: {dynamic_csv_filename}")
+        dynamic_csv_filename = (
+            f"dialogues_{sanitized_target_model}_{categories_str_part}{dpc_str_part}_{timestamp}.csv"
+        )
+        print(f"Generated CSV filename: {dynamic_csv_filename}")
 
     try:
         cues_arg = (
@@ -343,6 +347,7 @@ def generate_dialogues_command(args):
             max_concurrency=getattr(args, "max_concurrency", 1),
             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
             incremental_save=getattr(args, "incremental_save", False),
+            resume=getattr(args, "resume", False),
             stop_on_natural_end=getattr(args, "stop_on_natural_end", False),
         )
 
@@ -447,6 +452,7 @@ def rate_dialogues_command(args):
             max_concurrency=getattr(args, "max_concurrency", 1),
             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
             incremental_save=getattr(args, "incremental_save", False),
+            resume=getattr(args, "resume", False),
             verbose=True,
         )
         if not output_path:
@@ -820,6 +826,22 @@ def _parse_flags(_):
             "previous good checkpoint either."
         ),
     )
+    concurrency_group.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Requires --incremental-save. If --output-dir/--default-"
+            "csv-filename already exists (e.g. from a crashed prior run), "
+            "skips regenerating any dialogue that already completed "
+            "successfully there and only generates what's missing or "
+            "didn't complete -- matched by dialogue_index, which "
+            "deterministically identifies 'the same dialogue' across "
+            "separate invocations given the same input prompts (unlike "
+            "dialogue_id, a random UUID that differs every run). If the "
+            "output path doesn't exist yet, this has no effect -- a "
+            "normal fresh run."
+        ),
+    )
 
     early_stop_group = gen_parser.add_argument_group("Early-stopping options")
     early_stop_group.add_argument(
@@ -996,6 +1018,22 @@ def _parse_flags(_):
         type=str,
         default="generated_dialogues",
         help="Directory to save generated dialogues.",
+    )
+    output_group.add_argument(
+        "--output-csv-filename",
+        type=str,
+        default=None,
+        help=(
+            "Exact filename to use instead of the auto-generated "
+            "'dialogues_<model>_<categories>_<timestamp>.csv' -- the "
+            "timestamp in that default means every invocation produces a "
+            "different filename, so --resume (see --incremental-save) "
+            "has nothing to find unless you pin the filename explicitly "
+            "here to match a prior/partial run's output. Also needed if "
+            "you've downloaded a partial CSV to resume: place it at "
+            "--output-dir/--output-csv-filename before running with "
+            "--resume."
+        ),
     )
 
     gen_parser.set_defaults(func=generate_dialogues_command)
@@ -1307,6 +1345,26 @@ def _parse_flags(_):
             "checkpoint either. See rate_dialogues()'s docstring in "
             "rating.py for exactly which columns get partial values "
             "written progressively vs. only at full completion."
+        ),
+    )
+    rate_concurrency_group.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Requires --incremental-save. If --output-rated-csv (or the "
+            "generated default path) already exists, merges in its "
+            "per-model '{cue}_{model}_final_present' columns -- matched "
+            "by (dialogue_id, turn_pair_index) -- and skips re-rating any "
+            "(row, cue, model) combination that's already there, reusing "
+            "the existing value. Works across a --cue-group-config "
+            "change between runs (a cue+model's result means the same "
+            "thing regardless of which unit grouped it). Reused rows' "
+            "raw-explanation/per-sample columns become a clearly-labeled "
+            "placeholder (only the final score is checkpointed "
+            "incrementally, not the per-sample detail) -- the final "
+            "score itself is exact, never approximated. If the output "
+            "path doesn't exist yet, this has no effect -- a normal "
+            "fresh run."
         ),
     )
 

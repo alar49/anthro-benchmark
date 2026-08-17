@@ -1,0 +1,575 @@
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index 65d045b..dd5c5ee 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -203,6 +203,7 @@ def rate_dialogues(
+     max_concurrency: int = 1,
+     strict_batch_ordering: bool = False,
+     incremental_save: bool = False,
++    resume: bool = False,
+     # --------------
+     verbose: bool = False,
+ ) -> str:
+@@ -346,6 +347,27 @@ def rate_dialogues(
+             Each save is atomic (temp file + rename -- see
+             io_utils.atomic_to_csv), so an interruption during the save
+             itself can't corrupt the previous good checkpoint either.
++        resume: Default False. Requires incremental_save=True (raises
++            ValueError otherwise). If output_rated_csv (or the generated
++            default path) already exists, merges in its per-model
++            "{cue}_{model}_final_present" columns -- matched by
++            (dialogue_id, turn_pair_index), which are stable here since
++            rating.py doesn't sample its own row set, unlike generate.py
++            -- and skips re-rating any (row, cue, model) combination
++            that's already populated there, reusing the existing value
++            instead. A cue+model's prior result is reused regardless of
++            which --cue-group-config unit it was originally rated under;
++            "{cue}_{model}_final_present" means the same thing either
++            way. Reused rows' raw-explanation/per-sample columns are
++            replaced with a placeholder noting they were reused (only
++            the final per-model score is checkpointed incrementally,
++            not the per-sample detail behind it) -- the final score
++            itself is exactly the original value, never approximated.
++            If the output path doesn't exist yet, resume has no effect
++            (a normal fresh run). Raises ValueError if the existing file
++            has no per-model "*_final_present" columns (predates resume
++            support, wasn't produced with incremental_save, or wasn't
++            produced by this pipeline).
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -442,6 +464,64 @@ def rate_dialogues(
+         # utf-8-sig + atomic_to_csv: see the final save below for why.
+         atomic_to_csv(dialogues_df, output_filename, index=False, encoding="utf-8-sig")
+ 
++    # --- resume ---
++    if resume:
++        if not incremental_save:
++            raise ValueError(
++                "resume=True requires incremental_save=True -- there's no "
++                "reliable partial output to resume FROM otherwise (without "
++                "it, the output file is only ever written once, at the "
++                "very end of a fully successful run)."
++            )
++        if not os.path.exists(output_filename):
++            print(
++                f"resume=True but no existing file at {output_filename} -- "
++                "starting fresh (nothing to resume from)."
++            )
++        else:
++            prior_df = pd.read_csv(output_filename)
++            final_present_cols = [
++                c for c in prior_df.columns if c.endswith("_final_present")
++            ]
++            if not final_present_cols or "dialogue_id" not in prior_df.columns or "turn_pair_index" not in prior_df.columns:
++                raise ValueError(
++                    f"Cannot resume from {output_filename}: it has no "
++                    "per-model '*_final_present' columns (and/or is "
++                    "missing dialogue_id/turn_pair_index), so it wasn't "
++                    "produced with incremental_save, isn't a rated-dialogues "
++                    "CSV from this pipeline, or predates resume support. "
++                    "Move/rename it if you want to start a fresh run at "
++                    "this same output path."
++                )
++            # Merge in only the per-model final-score columns (the ones
++            # incremental_save actually checkpoints progressively, see
++            # its docstring) -- matched by (dialogue_id, turn_pair_index),
++            # which are stable/deterministic here (unlike generate.py,
++            # rating.py doesn't sample anything itself; the row set comes
++            # straight from dialogues_csv_path). A cue+model's column is
++            # reused regardless of which --cue-group-config grouped it
++            # under originally -- "{cue}_{model}_final_present" is the
++            # same semantic quantity either way.
++            merge_cols = ["dialogue_id", "turn_pair_index"] + final_present_cols
++            dialogues_df = dialogues_df.merge(
++                prior_df[merge_cols], on=["dialogue_id", "turn_pair_index"], how="left"
++            )
++            n_resumable_cells = int(
++                dialogues_df[final_present_cols].notna().sum().sum()
++            )
++            print(
++                f"Resuming from {output_filename}: merged in "
++                f"{len(final_present_cols)} previously-rated model/cue "
++                f"column(s) covering {n_resumable_cells} already-rated "
++                "(row, cue, model) combination(s) -- these will be reused "
++                "rather than re-rated. Note: a resumed row's raw-"
++                "explanation/per-sample detail columns are replaced with "
++                "a placeholder noting they were reused (only the final "
++                "per-model score is checkpointed incrementally, not the "
++                "per-sample detail behind it) -- the final score itself "
++                "is exactly the original value, not approximated."
++            )
++
+     # rating loop
+     #
+     # session_budget_exceeded / session_budget_exceeded_message: set when
+@@ -711,6 +791,37 @@ def rate_dialogues(
+ 
+                     return row_raw, row_processed, row_final
+ 
++                def _rate_one_row_resumable(row):
++                    """Wraps _rate_one_row: if resume=True and every cue
++                    in this unit already has a value for this model on
++                    this row (from a merged-in prior checkpoint), reuses
++                    that value instead of re-rating -- see resume's
++                    docstring in this function for exactly what "reuse"
++                    means for the raw-explanation/per-sample columns
++                    (short version: the final score is exact, the detail
++                    columns are a clearly-labeled placeholder)."""
++                    if resume:
++                        col_names = [
++                            f"{c}_{sanitized_model_name}_final_present" for c in cue_unit
++                        ]
++                        if all(
++                            col in row.index and pd.notna(row[col]) for col in col_names
++                        ):
++                            row_final = {
++                                c: int(row[f"{c}_{sanitized_model_name}_final_present"])
++                                for c in cue_unit
++                            }
++                            placeholder = (
++                                "[reused from a resumed checkpoint -- original "
++                                "per-sample detail not preserved]"
++                            )
++                            row_raw = {c: [placeholder] * num_samples for c in cue_unit}
++                            row_processed = {
++                                c: [row_final[c]] * num_samples for c in cue_unit
++                            }
++                            return row_raw, row_processed, row_final
++                    return _rate_one_row(row)
++
+                 progress_desc = (
+                     f"[unit {unit_idx + 1}/{len(call_units)}] {cue_unit} "
+                     f"| model {model_idx + 1}/{len(classifier_models)} '{model_name}'"
+@@ -765,7 +876,7 @@ def rate_dialogues(
+                             result = row_budget_exceeded_error
+                         else:
+                             try:
+-                                result = _rate_one_row(row)
++                                result = _rate_one_row_resumable(row)
+                             except BudgetExceededError as e:
+                                 row_budget_exceeded_error = e
+                                 result = e
+@@ -791,14 +902,14 @@ def rate_dialogues(
+ 
+                     row_results = _rate_rows_chunked(
+                         row_items,
+-                        _rate_one_row,
++                        _rate_one_row_resumable,
+                         max_concurrency,
+                         progress_desc,
+                         on_chunk_complete=_on_chunk_complete,
+                     )
+                 else:
+                     row_results = _rate_rows_concurrently(
+-                        row_items, _rate_one_row, max_concurrency, progress_desc
++                        row_items, _rate_one_row_resumable, max_concurrency, progress_desc
+                     )
+ 
+                 current_model_raw = {c: [] for c in cue_unit}
+@@ -965,6 +1076,7 @@ def run_rating_process(
+     max_concurrency: int = 1,
+     strict_batch_ordering: bool = False,
+     incremental_save: bool = False,
++    resume: bool = False,
+     # --------------
+     verbose: bool = True,
+ ) -> str:
+@@ -986,7 +1098,8 @@ def run_rating_process(
+         classifier_timeout, classifier_max_retries,
+             classifier_max_timeout_retries, classifier_initial_backoff,
+             classifier_max_backoff, rate_limiter, budget_guard,
+-            max_concurrency, strict_batch_ordering, incremental_save: See
++            max_concurrency, strict_batch_ordering, incremental_save,
++            resume: See
+             rate_dialogues()'s docstring -- passed straight through.
+         verbose: Whether to print progress information
+ 
+@@ -1017,6 +1130,7 @@ def run_rating_process(
+         max_concurrency=max_concurrency,
+         strict_batch_ordering=strict_batch_ordering,
+         incremental_save=incremental_save,
++        resume=resume,
+         # --------------
+         verbose=verbose,
+     )
+diff --git a/anthro_benchmark/generator/generator.py b/anthro_benchmark/generator/generator.py
+index 87f34f3..c3ee049 100644
+--- a/anthro_benchmark/generator/generator.py
++++ b/anthro_benchmark/generator/generator.py
+@@ -123,6 +123,7 @@ class DialogueGenerator:
+         max_concurrency: int = 1,
+         strict_batch_ordering: bool = False,
+         incremental_save: bool = False,
++        resume: bool = False,
+         stop_on_natural_end: bool = False,
+     ):
+         """
+@@ -243,6 +244,27 @@ class DialogueGenerator:
+                 (measured well under a second even for thousands of
+                 rows), so the overhead here is from re-writing the whole
+                 growing file each time, not from the write mechanism.
++            resume: Default False. Requires incremental_save=True (raises
++                ValueError otherwise -- there's no reliable partial
++                output to resume FROM without it). If the output path
++                (output_dir/default_csv_filename) already exists, loads
++                it and skips regenerating any dialogue_index whose
++                dialogue_status is in _SUCCESSFUL_STATUSES ("completed"
++                or "completed_early_natural_end") -- those rows are
++                carried over into the final output verbatim, not
++                regenerated. Any dialogue_index present but NOT
++                successfully completed (failed/budget-capped), or absent
++                entirely, is (re)generated normally. This works because
++                _select_prompt(dialogue_index) is a pure function of the
++                index -- the same index always selects the same prompt
++                given the same input prompt CSV, so dialogue_index (NOT
++                the random dialogue_id UUID) is what identifies "the same
++                dialogue" across separate runs/invocations. If the
++                output path doesn't exist yet, resume has no effect
++                (nothing to resume from -- a normal fresh run). Raises
++                ValueError if the existing file has no 'dialogue_index'
++                column (predates resume support, or wasn't produced by
++                this pipeline).
+             stop_on_natural_end: Default False reproduces the original
+                 behavior exactly -- every dialogue runs the full
+                 num_turns regardless of content. When True, appends an
+@@ -480,6 +502,66 @@ class DialogueGenerator:
+         self.user_llm = LLMClient(**self.user_llm_config)
+         self.target_llm = LLMClient(**self.target_llm_config)
+ 
++        # --- resume ---
++        self._resumed_carryover_df: Optional[pd.DataFrame] = None
++        self._skip_dialogue_indices: set = set()
++        self.resume = resume
++        if self.resume:
++            if not self.incremental_save:
++                raise ValueError(
++                    "resume=True requires incremental_save=True -- there's "
++                    "no reliable partial output to resume FROM otherwise "
++                    "(without it, the output file is only ever written "
++                    "once, at the very end of a fully successful run)."
++                )
++            output_path = os.path.join(self.output_dir, self.default_csv_filename)
++            if not os.path.exists(output_path):
++                print(
++                    f"resume=True but no existing file at {output_path} -- "
++                    "starting fresh (nothing to resume from)."
++                )
++            else:
++                existing_df = pd.read_csv(output_path)
++                if "dialogue_index" not in existing_df.columns:
++                    raise ValueError(
++                        f"Cannot resume from {output_path}: it has no "
++                        "'dialogue_index' column, so it was either not "
++                        "produced by this pipeline or predates resume "
++                        "support. Move/rename it if you want to start a "
++                        "fresh run at this same output path."
++                    )
++                done_indices = set(
++                    existing_df.loc[
++                        existing_df["dialogue_status"].isin(_SUCCESSFUL_STATUSES),
++                        "dialogue_index",
++                    ]
++                    .dropna()
++                    .astype(int)
++                    .unique()
++                    .tolist()
++                )
++                # Only dialogue_index values that are actually part of
++                # THIS run's plan (0..num_dialogues-1) -- guards against
++                # resuming into a file from a differently-sized prior run
++                # (e.g. num_dialogues changed) silently carrying over
++                # indices that no longer mean the same thing.
++                done_indices = {i for i in done_indices if 0 <= i < self.num_dialogues}
++                if done_indices:
++                    self._resumed_carryover_df = existing_df[
++                        existing_df["dialogue_index"].isin(done_indices)
++                    ].copy()
++                self._skip_dialogue_indices = done_indices
++                print(
++                    f"Resuming from {output_path}: {len(done_indices)} of "
++                    f"{self.num_dialogues} dialogues already successfully "
++                    "completed (status in "
++                    f"{sorted(_SUCCESSFUL_STATUSES)}) -- skipping those, "
++                    f"generating the remaining {self.num_dialogues - len(done_indices)}. "
++                    "Dialogues present in that file but NOT successfully "
++                    "completed (failed/budget-capped/never attempted) will "
++                    "be (re)attempted."
++                )
++
+     def _load_prompts(self) -> List[Dict[str, Any]]:
+         """
+         Load prompts from first_turns.csv, filtering by behavior_category if specified,
+@@ -670,12 +752,16 @@ class DialogueGenerator:
+         self.dialogues = []
+         failed_count = 0
+ 
++        indices_to_generate = [
++            i for i in range(self.num_dialogues) if i not in self._skip_dialogue_indices
++        ]
++
+         progress_bar = tqdm(
+-            range(self.num_dialogues),
++            indices_to_generate,
+             desc="Generating dialogues",
+             unit="dialogue",
+         )
+-        for i in progress_bar:
++        for pos, i in enumerate(progress_bar):
+             prompt_data = self._select_prompt(i)
+ 
+             dialogue = self._generate_single_dialogue(prompt_data, i)
+@@ -699,14 +785,14 @@ class DialogueGenerator:
+                 # recorded as failed too, for no benefit -- this dialogue
+                 # (whatever partial turns it has) is already appended
+                 # above, so nothing generated so far is lost.
+-                remaining = self.num_dialogues - (i + 1)
++                remaining = len(indices_to_generate) - (pos + 1)
+                 progress_bar.close()
+                 print(
+-                    f"\nBudget/iteration cap reached after dialogue {i + 1}/"
+-                    f"{self.num_dialogues} ({dialogue['metadata']['error']}). "
+-                    f"Stopping early instead of attempting the remaining "
+-                    f"{remaining} dialogue(s); what's completed so far will "
+-                    "still be saved."
++                    f"\nBudget/iteration cap reached after dialogue_index {i} "
++                    f"({dialogue['metadata']['error']}). Stopping early "
++                    f"instead of attempting the remaining {remaining} "
++                    "dialogue(s) in this run; what's completed so far "
++                    "will still be saved."
+                 )
+                 break
+ 
+@@ -771,8 +857,12 @@ class DialogueGenerator:
+         trigger, both strategies produce the exact same set of fully
+         completed dialogues (only their wall-clock time differs).
+         """
++        indices_to_generate = [
++            i for i in range(self.num_dialogues) if i not in self._skip_dialogue_indices
++        ]
++
+         progress_bar = tqdm(
+-            total=self.num_dialogues, desc="Generating dialogues", unit="dialogue"
++            total=len(indices_to_generate), desc="Generating dialogues", unit="dialogue"
+         )
+ 
+         async def _run_one(dialogue_index: int) -> Dict[str, Any]:
+@@ -786,12 +876,12 @@ class DialogueGenerator:
+         self.dialogues = []
+         try:
+             if self.strict_batch_ordering:
+-                stopped_at_chunk_start = None
++                stopped_at_pos = None
+                 chunk_size = self.max_concurrency
+-                for chunk_start in range(0, self.num_dialogues, chunk_size):
+-                    chunk_end = min(chunk_start + chunk_size, self.num_dialogues)
++                for chunk_start in range(0, len(indices_to_generate), chunk_size):
++                    chunk_indices = indices_to_generate[chunk_start : chunk_start + chunk_size]
+                     chunk_results = await asyncio.gather(
+-                        *(_run_one(i) for i in range(chunk_start, chunk_end))
++                        *(_run_one(i) for i in chunk_indices)
+                     )
+                     self.dialogues.extend(chunk_results)
+                     if self.incremental_save:
+@@ -802,7 +892,7 @@ class DialogueGenerator:
+                         # recorded failure), none partially in flight.
+                         self.save_dialogues_to_csv()
+                     if any(d["metadata"].get("budget_exceeded") for d in chunk_results):
+-                        stopped_at_chunk_start = chunk_start
++                        stopped_at_pos = chunk_start
+                         break
+             else:
+                 semaphore = asyncio.Semaphore(self.max_concurrency)
+@@ -813,7 +903,7 @@ class DialogueGenerator:
+ 
+                 self.dialogues = list(
+                     await asyncio.gather(
+-                        *(_run_one_gated(i) for i in range(self.num_dialogues))
++                        *(_run_one_gated(i) for i in indices_to_generate)
+                     )
+                 )
+         finally:
+@@ -826,25 +916,30 @@ class DialogueGenerator:
+             1 for d in self.dialogues if d["metadata"].get("budget_exceeded")
+         )
+         if budget_exceeded_count and self.strict_batch_ordering:
+-            never_started = self.num_dialogues - len(self.dialogues)
++            never_started = len(indices_to_generate) - len(self.dialogues)
++            completed_indices = indices_to_generate[:stopped_at_pos]
++            affected_indices = indices_to_generate[stopped_at_pos : len(self.dialogues)]
+             print(
+-                f"\nBudget/iteration cap reached in the dialogue-{stopped_at_chunk_start}"
+-                f"..{len(self.dialogues) - 1} batch (batch size {self.max_concurrency}). "
+-                f"Dialogues 0..{stopped_at_chunk_start - 1} are guaranteed fully "
+-                f"complete ({stopped_at_chunk_start} of them). Within the "
+-                f"affected batch, {budget_exceeded_count} of {len(self.dialogues) - stopped_at_chunk_start} "
+-                "hit the cap -- which ones is not meaningful to report in "
++                f"\nBudget/iteration cap reached in the batch covering "
++                f"dialogue_index {affected_indices} (batch size "
++                f"{self.max_concurrency}). {len(completed_indices)} "
++                "dialogue(s) earlier in this run's plan are guaranteed "
++                f"fully complete. Within the affected batch, "
++                f"{budget_exceeded_count} of {len(affected_indices)} hit "
++                "the cap -- which ones is not meaningful to report in "
+                 "index order within a single concurrent batch (see this "
+                 f"method's docstring). The remaining {never_started} "
+-                "dialogue(s) after this batch were never started at all. "
+-                "Everything actually produced is kept; nothing is discarded."
++                "dialogue(s) in this run's plan were never started at "
++                "all. Everything actually produced is kept; nothing is "
++                "discarded."
+             )
+         elif budget_exceeded_count:
+             print(
+-                f"\n{budget_exceeded_count} of {self.num_dialogues} dialogue(s) hit "
+-                "the budget/iteration cap partway through. Order isn't "
+-                "meaningful under continuous-dispatch concurrency (see this "
+-                "method's docstring; pass strict_batch_ordering=True / "
++                f"\n{budget_exceeded_count} of {len(indices_to_generate)} "
++                "dialogue(s) in this run's plan hit the budget/iteration "
++                "cap partway through. Order isn't meaningful under "
++                "continuous-dispatch concurrency (see this method's "
++                "docstring; pass strict_batch_ordering=True / "
+                 "--strict-batch-ordering for a tighter, index-bounded "
+                 f"guarantee at some throughput cost) -- but all "
+                 f"{len(self.dialogues) - budget_exceeded_count} dialogue(s) "
+@@ -853,8 +948,9 @@ class DialogueGenerator:
+             )
+         elif failed_count:
+             print(
+-                f"\n{failed_count} of {self.num_dialogues} dialogue(s) failed "
+-                "for reasons other than the budget/iteration cap."
++                f"\n{failed_count} of {len(indices_to_generate)} dialogue(s) "
++                "in this run's plan failed for reasons other than the "
++                "budget/iteration cap."
+             )
+ 
+         self.save_dialogues_to_csv()
+@@ -1140,10 +1236,16 @@ class DialogueGenerator:
+         Save all generated dialogues to a CSV file.
+         Each row represents a user-assistant turn pair.
+ 
++        If this session was started with resume=True and found prior
++        completed work (see __init__), that carried-over data (loaded
++        verbatim from the previous run's output, not regenerated) is
++        included in the saved file alongside whatever this session
++        generated -- see self._resumed_carryover_df.
++
+         Args:
+             filename: Name of the CSV file. If None, uses self.default_csv_filename.
+         """
+-        if not self.dialogues:
++        if not self.dialogues and self._resumed_carryover_df is None:
+             print("No dialogues to save.")
+             return
+ 
+@@ -1185,6 +1287,12 @@ class DialogueGenerator:
+ 
+                 row = {
+                     "dialogue_id": dialogue_id,
++                    # Stable across separate runs, unlike dialogue_id
++                    # (random UUID) -- _select_prompt(dialogue_index) is
++                    # a pure function, so the same index always selects
++                    # the same prompt given the same input prompt CSV.
++                    # This is what --resume matches on.
++                    "dialogue_index": meta.get("dialogue_index"),
+                     "dialogue_timestamp": meta.get("timestamp"),
+                     "prompt_category": meta.get("category"),
+                     "prompt_cue": meta.get("cue"),
+@@ -1235,6 +1343,7 @@ class DialogueGenerator:
+             df = pd.DataFrame(rows)
+             columns_order = [
+                 "dialogue_id",
++                "dialogue_index",
+                 "dialogue_timestamp",
+                 "turn_pair_index",
+                 "prompt_category",
+@@ -1263,6 +1372,18 @@ class DialogueGenerator:
+                     df[col] = None if col not in ["dialogue_error", "assistant_reasoning"] else ""
+ 
+             df = df[columns_order]
++
++            if self._resumed_carryover_df is not None:
++                carryover = self._resumed_carryover_df.copy()
++                for col in columns_order:
++                    if col not in carryover.columns:
++                        carryover[col] = None
++                carryover = carryover[columns_order]
++                # Carried-over rows first, then this session's new rows --
++                # keeps dialogue_index roughly ascending in the output,
++                # though nothing downstream depends on row order.
++                df = pd.concat([carryover, df], ignore_index=True)
++
+             # utf-8-sig (adds a UTF-8 BOM), not plain utf-8: without a BOM,
+             # Excel guesses a legacy codepage (commonly cp1252) for CSVs
+             # instead of UTF-8, misrendering any non-ASCII character
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index 7fb53d0..8b6f1f3 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -343,6 +343,7 @@ def generate_dialogues_command(args):
+             max_concurrency=getattr(args, "max_concurrency", 1),
+             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+             incremental_save=getattr(args, "incremental_save", False),
++            resume=getattr(args, "resume", False),
+             stop_on_natural_end=getattr(args, "stop_on_natural_end", False),
+         )
+ 
+@@ -447,6 +448,7 @@ def rate_dialogues_command(args):
+             max_concurrency=getattr(args, "max_concurrency", 1),
+             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+             incremental_save=getattr(args, "incremental_save", False),
++            resume=getattr(args, "resume", False),
+             verbose=True,
+         )
+         if not output_path:
+@@ -820,6 +822,22 @@ def _parse_flags(_):
+             "previous good checkpoint either."
+         ),
+     )
++    concurrency_group.add_argument(
++        "--resume",
++        action="store_true",
++        help=(
++            "Requires --incremental-save. If --output-dir/--default-"
++            "csv-filename already exists (e.g. from a crashed prior run), "
++            "skips regenerating any dialogue that already completed "
++            "successfully there and only generates what's missing or "
++            "didn't complete -- matched by dialogue_index, which "
++            "deterministically identifies 'the same dialogue' across "
++            "separate invocations given the same input prompts (unlike "
++            "dialogue_id, a random UUID that differs every run). If the "
++            "output path doesn't exist yet, this has no effect -- a "
++            "normal fresh run."
++        ),
++    )
+ 
+     early_stop_group = gen_parser.add_argument_group("Early-stopping options")
+     early_stop_group.add_argument(
+@@ -1309,6 +1327,26 @@ def _parse_flags(_):
+             "written progressively vs. only at full completion."
+         ),
+     )
++    rate_concurrency_group.add_argument(
++        "--resume",
++        action="store_true",
++        help=(
++            "Requires --incremental-save. If --output-rated-csv (or the "
++            "generated default path) already exists, merges in its "
++            "per-model '{cue}_{model}_final_present' columns -- matched "
++            "by (dialogue_id, turn_pair_index) -- and skips re-rating any "
++            "(row, cue, model) combination that's already there, reusing "
++            "the existing value. Works across a --cue-group-config "
++            "change between runs (a cue+model's result means the same "
++            "thing regardless of which unit grouped it). Reused rows' "
++            "raw-explanation/per-sample columns become a clearly-labeled "
++            "placeholder (only the final score is checkpointed "
++            "incrementally, not the per-sample detail) -- the final "
++            "score itself is exact, never approximated. If the output "
++            "path doesn't exist yet, this has no effect -- a normal "
++            "fresh run."
++        ),
++    )
+ 
+     rate_rate_limit_group = rate_parser.add_argument_group("Rate limiting options")
+     rate_rate_limit_group.add_argument(
