@@ -143,6 +143,26 @@ except ImportError:
     )
     from openai import APITimeoutError
 
+# litellm.APIError (litellm.exceptions.APIError) is, despite the name,
+# NOT the real common ancestor of litellm's own raised exceptions --
+# RateLimitError/InternalServerError/APIConnectionError/
+# ServiceUnavailableError/Timeout etc. all actually derive from
+# openai.APIError (via openai.APIStatusError) instead, a separate class
+# object litellm.APIError has no relationship to. Verified directly:
+# `issubclass(litellm.ServiceUnavailableError, litellm.APIError)` is
+# False, while `issubclass(litellm.ServiceUnavailableError,
+# openai.APIError)` is True -- true for every litellm exception class
+# checked, not just this one. So litellm.APIError as a catch-all in the
+# retry tuple below catches nothing beyond what RateLimitError/
+# InternalServerError/APIConnectionError already catch by name -- any
+# OTHER transient litellm exception not explicitly listed (e.g.
+# ServiceUnavailableError itself) silently falls through to the
+# `except Exception` catch-all much further down, which allows only one
+# limited retry regardless of --max-retries. Importing and additionally
+# catching openai.APIError closes this gap for every such class at once,
+# without needing to enumerate every one of litellm's exception names.
+from openai import APIError as OpenAIAPIError
+
 logger = logging.getLogger(__name__)
 
 ALLOWED_REASONING_EFFORTS = {
@@ -995,6 +1015,34 @@ class LLMClient:
                 content = getattr(message, "content", None) or ""
                 reasoning_text = _extract_reasoning_content(message)
 
+                if not content:
+                    # Empty content with NO exception raised -- a
+                    # "successful" call by litellm's own accounting, but
+                    # nothing usable came back. finish_reason is the
+                    # actual diagnostic signal for why: "length" means
+                    # max_tokens was hit before any visible content was
+                    # produced (the classic reasoning-mode-ate-the-whole-
+                    # budget case -- see max_tokens' docstring above);
+                    # "stop"/"content_filter"/anything else means the
+                    # model deliberately produced nothing, which
+                    # increasing max_tokens will NOT fix. Logged instead
+                    # of silently discarded so an empty-content pattern
+                    # (e.g. a downstream parser reporting "ambiguous
+                    # content: ''") can be diagnosed from this instead of
+                    # guessed at.
+                    finish_reason = getattr(choice, "finish_reason", None)
+                    logger.warning(
+                        "Empty content with no exception raised | model=%s "
+                        "finish_reason=%s reasoning_text_present=%s -- "
+                        "finish_reason='length' means max_tokens was hit "
+                        "before any visible content was produced (raise "
+                        "max_tokens); anything else means the model itself "
+                        "produced nothing (max_tokens won't help).",
+                        self.model,
+                        finish_reason,
+                        bool(reasoning_text),
+                    )
+
                 # See the extra_headers block above: when present, this is
                 # OpenRouter's own account of which provider served the
                 # call, whether it fell back, etc. -- not something we
@@ -1107,6 +1155,7 @@ class LLMClient:
                 InternalServerError,
                 APIConnectionError,
                 APIError,
+                OpenAIAPIError,
             ) as e:
                 status_code = getattr(e, "status_code", None)
 
