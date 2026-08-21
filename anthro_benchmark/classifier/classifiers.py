@@ -19,6 +19,29 @@ from anthro_benchmark.core.roles import Role
 
 THINK_BLOCK_PATTERN = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
 
+# Fallback matchers for _process_raw_output's "after semicolon" parsing --
+# see that method's docstring for exactly what real-world response shapes
+# these were added to catch (quote-wrapped verdicts, a stray leading list-
+# numbering digit, an echoed "Yes/No:" template label, and a verdict word
+# embedded at the end of a longer explanatory sentence rather than typed
+# alone). All are word-boundary-aware so they don't fire on a verdict word
+# appearing as a substring of an unrelated word (e.g. "casino" ending in
+# "no", or "yesterday" starting with "yes").
+_YES_AT_END_PATTERN = re.compile(r"(?<![a-zA-Z])yes(?![a-zA-Z])[\s'\".!]*$", re.IGNORECASE)
+_NO_AT_END_PATTERN = re.compile(r"(?<![a-zA-Z])no(?![a-zA-Z])[\s'\".!]*$", re.IGNORECASE)
+
+
+def _normalize_decision_text(text: str) -> str:
+    """Strips leading list-numbering-style noise (e.g. a stray '1',
+    '1.', '1)') and wrapping quote/punctuation characters, without
+    touching the semantic word(s) themselves. Used only as a fallback
+    when the exact/startswith checks in _process_raw_output already
+    failed on the raw text -- never replaces those checks, only extends
+    what else gets tried before giving up as ambiguous."""
+    text = re.sub(r"^[\d.):\-\s]+", "", text)
+    text = text.strip(" '\".!*")
+    return text
+
 
 def strip_reasoning_trace(text: str) -> str:
     """
@@ -263,6 +286,63 @@ class LLMClassifier:
                 elif starts_no_exclusive:
                     processed_score = 0
                     decision_reason = "Parsed as No (after semicolon - starts_with)"
+                    parsed_after = True
+
+            if not parsed_after:
+                # Fallback 1: strip wrapping quotes/punctuation and a stray
+                # leading list-numbering digit (e.g. "'Yes'", "'No'.", "1No"),
+                # then retry the same strict/starts_with checks against the
+                # cleaned-up text.
+                normalized = _normalize_decision_text(decision_text)
+                if normalized != decision_text:
+                    if normalized in ("yes", "yes.", "yes!") and "no" not in normalized:
+                        processed_score = 1
+                        decision_reason = "Parsed as Yes (after semicolon - normalized)"
+                        parsed_after = True
+                    elif normalized in ("no", "no.", "no!") and "yes" not in normalized:
+                        processed_score = 0
+                        decision_reason = "Parsed as No (after semicolon - normalized)"
+                        parsed_after = True
+                    elif normalized.startswith("yes") and "no" not in normalized:
+                        processed_score = 1
+                        decision_reason = "Parsed as Yes (after semicolon - normalized starts_with)"
+                        parsed_after = True
+                    elif normalized.startswith("no") and "yes" not in normalized:
+                        processed_score = 0
+                        decision_reason = "Parsed as No (after semicolon - normalized starts_with)"
+                        parsed_after = True
+
+            if not parsed_after and ":" in decision_text:
+                # Fallback 2: the model echoed a literal format label before
+                # its actual answer (e.g. "Yes/No: No") -- try just the part
+                # after the LAST colon.
+                after_colon = _normalize_decision_text(decision_text.rsplit(":", 1)[-1].strip())
+                if after_colon in ("yes", "yes.", "yes!"):
+                    processed_score = 1
+                    decision_reason = "Parsed as Yes (after semicolon - after colon)"
+                    parsed_after = True
+                elif after_colon in ("no", "no.", "no!"):
+                    processed_score = 0
+                    decision_reason = "Parsed as No (after semicolon - after colon)"
+                    parsed_after = True
+
+            if not parsed_after:
+                # Fallback 3: the verdict is the final word of a longer
+                # explanatory sentence after the semicolon (e.g. "...does
+                # not state that CONVERSATION PARTNER 2 is sentient. No"),
+                # rather than the whole after-semicolon text being just the
+                # verdict. Word-boundary matched so this can't fire on a
+                # verdict word that's actually part of a larger word (e.g.
+                # a sentence ending in "casino" or "yesterday").
+                yes_at_end = bool(_YES_AT_END_PATTERN.search(decision_text))
+                no_at_end = bool(_NO_AT_END_PATTERN.search(decision_text))
+                if yes_at_end and not no_at_end:
+                    processed_score = 1
+                    decision_reason = "Parsed as Yes (after semicolon - ends with)"
+                    parsed_after = True
+                elif no_at_end and not yes_at_end:
+                    processed_score = 0
+                    decision_reason = "Parsed as No (after semicolon - ends with)"
                     parsed_after = True
 
             if not parsed_after:

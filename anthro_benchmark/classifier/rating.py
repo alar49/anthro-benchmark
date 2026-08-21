@@ -354,20 +354,26 @@ def rate_dialogues(
             (dialogue_id, turn_pair_index), which are stable here since
             rating.py doesn't sample its own row set, unlike generate.py
             -- and skips re-rating any (row, cue, model) combination
-            that's already populated there, reusing the existing value
-            instead. A cue+model's prior result is reused regardless of
-            which --cue-group-config unit it was originally rated under;
-            "{cue}_{model}_final_present" means the same thing either
-            way. Reused rows' raw-explanation/per-sample columns are
-            replaced with a placeholder noting they were reused (only
-            the final per-model score is checkpointed incrementally,
-            not the per-sample detail behind it) -- the final score
-            itself is exactly the original value, never approximated.
-            If the output path doesn't exist yet, resume has no effect
-            (a normal fresh run). Raises ValueError if the existing file
-            has no per-model "*_final_present" columns (predates resume
-            support, wasn't produced with incremental_save, or wasn't
-            produced by this pipeline).
+            that already has a VALID (0 or 1) value there, reusing the
+            existing value instead. A combination whose prior value is
+            -1 (couldn't parse a valid rating from the response -- see
+            calculate_summary_stats' handling of this same sentinel in
+            analysis.py) is deliberately NOT treated as done: it's
+            RE-ATTEMPTED, since -1 means the previous attempt failed to
+            produce a usable verdict, not that it succeeded with a
+            negative-looking answer. A cue+model's prior result is
+            reused regardless of which --cue-group-config unit it was
+            originally rated under; "{cue}_{model}_final_present" means
+            the same thing either way. Reused rows' raw-explanation/
+            per-sample columns are replaced with a placeholder noting
+            they were reused (only the final per-model score is
+            checkpointed incrementally, not the per-sample detail behind
+            it) -- the final score itself is exactly the original value,
+            never approximated. If the output path doesn't exist yet,
+            resume has no effect (a normal fresh run). Raises ValueError
+            if the existing file has no per-model "*_final_present"
+            columns (predates resume support, wasn't produced with
+            incremental_save, or wasn't produced by this pipeline).
         verbose: Whether to print progress information
 
     Returns:
@@ -506,20 +512,31 @@ def rate_dialogues(
             dialogues_df = dialogues_df.merge(
                 prior_df[merge_cols], on=["dialogue_id", "turn_pair_index"], how="left"
             )
-            n_resumable_cells = int(
-                dialogues_df[final_present_cols].notna().sum().sum()
+            valid_mask = dialogues_df[final_present_cols].isin([0, 1])
+            n_resumable_cells = int(valid_mask.sum().sum())
+            n_retry_cells = int(
+                dialogues_df[final_present_cols].notna().sum().sum() - n_resumable_cells
             )
             print(
                 f"Resuming from {output_filename}: merged in "
                 f"{len(final_present_cols)} previously-rated model/cue "
-                f"column(s) covering {n_resumable_cells} already-rated "
+                f"column(s) covering {n_resumable_cells} already-VALIDLY-rated "
                 "(row, cue, model) combination(s) -- these will be reused "
-                "rather than re-rated. Note: a resumed row's raw-"
-                "explanation/per-sample detail columns are replaced with "
-                "a placeholder noting they were reused (only the final "
-                "per-model score is checkpointed incrementally, not the "
-                "per-sample detail behind it) -- the final score itself "
-                "is exactly the original value, not approximated."
+                "rather than re-rated. "
+                + (
+                    f"{n_retry_cells} combination(s) previously came back -1 "
+                    "(couldn't parse a valid rating -- see the 'Format not "
+                    "followed' warnings) and will be RE-ATTEMPTED, not reused, "
+                    "since -1 isn't a valid result to lock in. "
+                    if n_retry_cells
+                    else ""
+                )
+                + "Note: a resumed row's raw-explanation/per-sample detail "
+                "columns are replaced with a placeholder noting they were "
+                "reused (only the final per-model score is checkpointed "
+                "incrementally, not the per-sample detail behind it) -- the "
+                "final score itself is exactly the original value, not "
+                "approximated."
             )
 
     # rating loop
@@ -793,19 +810,28 @@ def rate_dialogues(
 
                 def _rate_one_row_resumable(row):
                     """Wraps _rate_one_row: if resume=True and every cue
-                    in this unit already has a value for this model on
-                    this row (from a merged-in prior checkpoint), reuses
-                    that value instead of re-rating -- see resume's
-                    docstring in this function for exactly what "reuse"
-                    means for the raw-explanation/per-sample columns
-                    (short version: the final score is exact, the detail
-                    columns are a clearly-labeled placeholder)."""
+                    in this unit already has a VALID (0 or 1) value for
+                    this model on this row (from a merged-in prior
+                    checkpoint), reuses that value instead of re-rating --
+                    see resume's docstring in this function for exactly
+                    what "reuse" means for the raw-explanation/per-sample
+                    columns (short version: the final score is exact, the
+                    detail columns are a clearly-labeled placeholder).
+                    -1 (couldn't parse a valid rating from the response --
+                    see calculate_summary_stats' handling of this same
+                    sentinel in analysis.py) is deliberately NOT treated
+                    as already-done: it means the prior attempt failed to
+                    produce a usable verdict, which is exactly the kind
+                    of row resume should retry, not lock in as final."""
                     if resume:
                         col_names = [
                             f"{c}_{sanitized_model_name}_final_present" for c in cue_unit
                         ]
                         if all(
-                            col in row.index and pd.notna(row[col]) for col in col_names
+                            col in row.index
+                            and pd.notna(row[col])
+                            and int(row[col]) in (0, 1)
+                            for col in col_names
                         ):
                             row_final = {
                                 c: int(row[f"{c}_{sanitized_model_name}_final_present"])

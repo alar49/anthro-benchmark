@@ -1,0 +1,221 @@
+diff --git a/anthro_benchmark/classifier/classifiers.py b/anthro_benchmark/classifier/classifiers.py
+index 193829d..11b4ab4 100644
+--- a/anthro_benchmark/classifier/classifiers.py
++++ b/anthro_benchmark/classifier/classifiers.py
+@@ -19,6 +19,29 @@ from anthro_benchmark.core.roles import Role
+ 
+ THINK_BLOCK_PATTERN = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
+ 
++# Fallback matchers for _process_raw_output's "after semicolon" parsing --
++# see that method's docstring for exactly what real-world response shapes
++# these were added to catch (quote-wrapped verdicts, a stray leading list-
++# numbering digit, an echoed "Yes/No:" template label, and a verdict word
++# embedded at the end of a longer explanatory sentence rather than typed
++# alone). All are word-boundary-aware so they don't fire on a verdict word
++# appearing as a substring of an unrelated word (e.g. "casino" ending in
++# "no", or "yesterday" starting with "yes").
++_YES_AT_END_PATTERN = re.compile(r"(?<![a-zA-Z])yes(?![a-zA-Z])[\s'\".!]*$", re.IGNORECASE)
++_NO_AT_END_PATTERN = re.compile(r"(?<![a-zA-Z])no(?![a-zA-Z])[\s'\".!]*$", re.IGNORECASE)
++
++
++def _normalize_decision_text(text: str) -> str:
++    """Strips leading list-numbering-style noise (e.g. a stray '1',
++    '1.', '1)') and wrapping quote/punctuation characters, without
++    touching the semantic word(s) themselves. Used only as a fallback
++    when the exact/startswith checks in _process_raw_output already
++    failed on the raw text -- never replaces those checks, only extends
++    what else gets tried before giving up as ambiguous."""
++    text = re.sub(r"^[\d.):\-\s]+", "", text)
++    text = text.strip(" '\".!*")
++    return text
++
+ 
+ def strip_reasoning_trace(text: str) -> str:
+     """
+@@ -265,6 +288,63 @@ class LLMClassifier:
+                     decision_reason = "Parsed as No (after semicolon - starts_with)"
+                     parsed_after = True
+ 
++            if not parsed_after:
++                # Fallback 1: strip wrapping quotes/punctuation and a stray
++                # leading list-numbering digit (e.g. "'Yes'", "'No'.", "1No"),
++                # then retry the same strict/starts_with checks against the
++                # cleaned-up text.
++                normalized = _normalize_decision_text(decision_text)
++                if normalized != decision_text:
++                    if normalized in ("yes", "yes.", "yes!") and "no" not in normalized:
++                        processed_score = 1
++                        decision_reason = "Parsed as Yes (after semicolon - normalized)"
++                        parsed_after = True
++                    elif normalized in ("no", "no.", "no!") and "yes" not in normalized:
++                        processed_score = 0
++                        decision_reason = "Parsed as No (after semicolon - normalized)"
++                        parsed_after = True
++                    elif normalized.startswith("yes") and "no" not in normalized:
++                        processed_score = 1
++                        decision_reason = "Parsed as Yes (after semicolon - normalized starts_with)"
++                        parsed_after = True
++                    elif normalized.startswith("no") and "yes" not in normalized:
++                        processed_score = 0
++                        decision_reason = "Parsed as No (after semicolon - normalized starts_with)"
++                        parsed_after = True
++
++            if not parsed_after and ":" in decision_text:
++                # Fallback 2: the model echoed a literal format label before
++                # its actual answer (e.g. "Yes/No: No") -- try just the part
++                # after the LAST colon.
++                after_colon = _normalize_decision_text(decision_text.rsplit(":", 1)[-1].strip())
++                if after_colon in ("yes", "yes.", "yes!"):
++                    processed_score = 1
++                    decision_reason = "Parsed as Yes (after semicolon - after colon)"
++                    parsed_after = True
++                elif after_colon in ("no", "no.", "no!"):
++                    processed_score = 0
++                    decision_reason = "Parsed as No (after semicolon - after colon)"
++                    parsed_after = True
++
++            if not parsed_after:
++                # Fallback 3: the verdict is the final word of a longer
++                # explanatory sentence after the semicolon (e.g. "...does
++                # not state that CONVERSATION PARTNER 2 is sentient. No"),
++                # rather than the whole after-semicolon text being just the
++                # verdict. Word-boundary matched so this can't fire on a
++                # verdict word that's actually part of a larger word (e.g.
++                # a sentence ending in "casino" or "yesterday").
++                yes_at_end = bool(_YES_AT_END_PATTERN.search(decision_text))
++                no_at_end = bool(_NO_AT_END_PATTERN.search(decision_text))
++                if yes_at_end and not no_at_end:
++                    processed_score = 1
++                    decision_reason = "Parsed as Yes (after semicolon - ends with)"
++                    parsed_after = True
++                elif no_at_end and not yes_at_end:
++                    processed_score = 0
++                    decision_reason = "Parsed as No (after semicolon - ends with)"
++                    parsed_after = True
++
+             if not parsed_after:
+                 decision_part_before = raw_output[:last_semicolon_index].strip().lower()
+                 if decision_part_before.endswith(
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index dd5c5ee..14c7157 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -354,20 +354,26 @@ def rate_dialogues(
+             (dialogue_id, turn_pair_index), which are stable here since
+             rating.py doesn't sample its own row set, unlike generate.py
+             -- and skips re-rating any (row, cue, model) combination
+-            that's already populated there, reusing the existing value
+-            instead. A cue+model's prior result is reused regardless of
+-            which --cue-group-config unit it was originally rated under;
+-            "{cue}_{model}_final_present" means the same thing either
+-            way. Reused rows' raw-explanation/per-sample columns are
+-            replaced with a placeholder noting they were reused (only
+-            the final per-model score is checkpointed incrementally,
+-            not the per-sample detail behind it) -- the final score
+-            itself is exactly the original value, never approximated.
+-            If the output path doesn't exist yet, resume has no effect
+-            (a normal fresh run). Raises ValueError if the existing file
+-            has no per-model "*_final_present" columns (predates resume
+-            support, wasn't produced with incremental_save, or wasn't
+-            produced by this pipeline).
++            that already has a VALID (0 or 1) value there, reusing the
++            existing value instead. A combination whose prior value is
++            -1 (couldn't parse a valid rating from the response -- see
++            calculate_summary_stats' handling of this same sentinel in
++            analysis.py) is deliberately NOT treated as done: it's
++            RE-ATTEMPTED, since -1 means the previous attempt failed to
++            produce a usable verdict, not that it succeeded with a
++            negative-looking answer. A cue+model's prior result is
++            reused regardless of which --cue-group-config unit it was
++            originally rated under; "{cue}_{model}_final_present" means
++            the same thing either way. Reused rows' raw-explanation/
++            per-sample columns are replaced with a placeholder noting
++            they were reused (only the final per-model score is
++            checkpointed incrementally, not the per-sample detail behind
++            it) -- the final score itself is exactly the original value,
++            never approximated. If the output path doesn't exist yet,
++            resume has no effect (a normal fresh run). Raises ValueError
++            if the existing file has no per-model "*_final_present"
++            columns (predates resume support, wasn't produced with
++            incremental_save, or wasn't produced by this pipeline).
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -506,20 +512,31 @@ def rate_dialogues(
+             dialogues_df = dialogues_df.merge(
+                 prior_df[merge_cols], on=["dialogue_id", "turn_pair_index"], how="left"
+             )
+-            n_resumable_cells = int(
+-                dialogues_df[final_present_cols].notna().sum().sum()
++            valid_mask = dialogues_df[final_present_cols].isin([0, 1])
++            n_resumable_cells = int(valid_mask.sum().sum())
++            n_retry_cells = int(
++                dialogues_df[final_present_cols].notna().sum().sum() - n_resumable_cells
+             )
+             print(
+                 f"Resuming from {output_filename}: merged in "
+                 f"{len(final_present_cols)} previously-rated model/cue "
+-                f"column(s) covering {n_resumable_cells} already-rated "
++                f"column(s) covering {n_resumable_cells} already-VALIDLY-rated "
+                 "(row, cue, model) combination(s) -- these will be reused "
+-                "rather than re-rated. Note: a resumed row's raw-"
+-                "explanation/per-sample detail columns are replaced with "
+-                "a placeholder noting they were reused (only the final "
+-                "per-model score is checkpointed incrementally, not the "
+-                "per-sample detail behind it) -- the final score itself "
+-                "is exactly the original value, not approximated."
++                "rather than re-rated. "
++                + (
++                    f"{n_retry_cells} combination(s) previously came back -1 "
++                    "(couldn't parse a valid rating -- see the 'Format not "
++                    "followed' warnings) and will be RE-ATTEMPTED, not reused, "
++                    "since -1 isn't a valid result to lock in. "
++                    if n_retry_cells
++                    else ""
++                )
++                + "Note: a resumed row's raw-explanation/per-sample detail "
++                "columns are replaced with a placeholder noting they were "
++                "reused (only the final per-model score is checkpointed "
++                "incrementally, not the per-sample detail behind it) -- the "
++                "final score itself is exactly the original value, not "
++                "approximated."
+             )
+ 
+     # rating loop
+@@ -793,19 +810,28 @@ def rate_dialogues(
+ 
+                 def _rate_one_row_resumable(row):
+                     """Wraps _rate_one_row: if resume=True and every cue
+-                    in this unit already has a value for this model on
+-                    this row (from a merged-in prior checkpoint), reuses
+-                    that value instead of re-rating -- see resume's
+-                    docstring in this function for exactly what "reuse"
+-                    means for the raw-explanation/per-sample columns
+-                    (short version: the final score is exact, the detail
+-                    columns are a clearly-labeled placeholder)."""
++                    in this unit already has a VALID (0 or 1) value for
++                    this model on this row (from a merged-in prior
++                    checkpoint), reuses that value instead of re-rating --
++                    see resume's docstring in this function for exactly
++                    what "reuse" means for the raw-explanation/per-sample
++                    columns (short version: the final score is exact, the
++                    detail columns are a clearly-labeled placeholder).
++                    -1 (couldn't parse a valid rating from the response --
++                    see calculate_summary_stats' handling of this same
++                    sentinel in analysis.py) is deliberately NOT treated
++                    as already-done: it means the prior attempt failed to
++                    produce a usable verdict, which is exactly the kind
++                    of row resume should retry, not lock in as final."""
+                     if resume:
+                         col_names = [
+                             f"{c}_{sanitized_model_name}_final_present" for c in cue_unit
+                         ]
+                         if all(
+-                            col in row.index and pd.notna(row[col]) for col in col_names
++                            col in row.index
++                            and pd.notna(row[col])
++                            and int(row[col]) in (0, 1)
++                            for col in col_names
+                         ):
+                             row_final = {
+                                 c: int(row[f"{c}_{sanitized_model_name}_final_present"])
