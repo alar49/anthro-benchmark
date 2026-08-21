@@ -1,0 +1,40 @@
+--- orig/rating.py	2026-08-21 01:34:06.975673839 +0000
++++ anthro-benchmark-alar49-patch-tracking1/anthro_benchmark/classifier/rating.py	2026-08-21 01:33:25.633043260 +0000
+@@ -508,6 +508,37 @@
+             # reused regardless of which --cue-group-config grouped it
+             # under originally -- "{cue}_{model}_final_present" is the
+             # same semantic quantity either way.
++            #
++            # dialogues_df (freshly loaded from dialogues_csv_path) can
++            # ALREADY contain columns with these exact names -- e.g. when
++            # dialogues_csv_path itself points at an already-rated CSV
++            # (the same file resume is meant to pick up from, or an
++            # unrelated previously-rated file). If left in place, .merge()
++            # silently renames BOTH copies with _x/_y suffixes instead of
++            # raising, since they fall outside the join keys -- so
++            # `dialogues_df[final_present_cols]` below would find none of
++            # the original names and crash with a confusing KeyError, and
++            # (worse, if it didn't crash) every downstream resume-skip
++            # check keys off these exact same names and would silently
++            # treat every row as un-rated. The checkpoint file
++            # (output_filename / prior_df) is the authoritative source
++            # for resume, so any pre-existing copies in dialogues_df are
++            # dropped first -- prior_df's values win.
++            preexisting_final_present_cols = [
++                c for c in final_present_cols if c in dialogues_df.columns
++            ]
++            if preexisting_final_present_cols:
++                if verbose:
++                    print(
++                        f"Note: the input CSV ({dialogues_csv_path}) already "
++                        f"contains {len(preexisting_final_present_cols)} "
++                        "'_final_present' column(s) that also exist in the "
++                        f"resume checkpoint ({output_filename}). The "
++                        "checkpoint's values take precedence -- dropping the "
++                        "input CSV's copies before merging so they aren't "
++                        "silently renamed with pandas' _x/_y suffixes."
++                    )
++                dialogues_df = dialogues_df.drop(columns=preexisting_final_present_cols)
+             merge_cols = ["dialogue_id", "turn_pair_index"] + final_present_cols
+             dialogues_df = dialogues_df.merge(
+                 prior_df[merge_cols], on=["dialogue_id", "turn_pair_index"], how="left"
