@@ -173,6 +173,69 @@ def calculate_summary_stats(
     return summary
 
 
+def calculate_missing_ratings_report(
+    df: pd.DataFrame,
+    cue_present_columns: List[str],
+) -> Dict[str, Any]:
+    """
+    Counts "-1" cells (no valid rating produced -- see get_majority_vote
+    in rating.py, and calculate_summary_stats' "Filter out -1
+    (errors/skipped)" above) across the per-cue "*_present" aggregate
+    columns identified by load_data(). A -1 here means the classifier
+    never landed on a parseable 0/1 verdict for that (row, cue) pair --
+    NOT that the cue was rated absent (that's a 0). Handy for eyeballing
+    the effect of a --resume run: how many (row, cue) cells still need
+    another pass, broken down by cue, and whether any turns are entirely
+    unratable (most commonly an empty assistant_message -- e.g. a
+    --stop-on-natural-end dialogue that ends on the user's turn; see
+    rate_dialogues()'s "Skipped - Empty or invalid assistant message"
+    case in rating.py, which is what drives every cue to -1 on such a
+    row, including the regex-based "personal pronoun use" cue).
+
+    Returns a dict with:
+      - "n_rows": row count of df.
+      - "n_cue_columns": how many cue columns were checked.
+      - "all_cues_minus_one_rows": rows where EVERY cue column is -1.
+      - "total_minus_one_cells": total -1 count, summed across every
+        cue column and every row (i.e. over the whole cue x row matrix).
+      - "total_cells": n_rows * n_cue_columns, for context/denominators.
+      - "minus_one_per_cue": {cue_name: count}, one entry per cue,
+        in the same order as cue_present_columns.
+    """
+    tqdm.write("Calculating missing-ratings (-1) report...")
+    cue_name_by_col = {col: col.replace("_present", "") for col in cue_present_columns}
+
+    is_minus_one = df[cue_present_columns] == -1
+
+    all_cues_minus_one_rows = int(is_minus_one.all(axis=1).sum())
+    total_minus_one_cells = int(is_minus_one.sum().sum())
+    total_cells = int(len(df) * len(cue_present_columns))
+    minus_one_per_cue = {
+        cue_name_by_col[col]: int(is_minus_one[col].sum()) for col in cue_present_columns
+    }
+
+    report = {
+        "n_rows": int(len(df)),
+        "n_cue_columns": len(cue_present_columns),
+        "all_cues_minus_one_rows": all_cues_minus_one_rows,
+        "total_minus_one_cells": total_minus_one_cells,
+        "total_cells": total_cells,
+        "minus_one_per_cue": minus_one_per_cue,
+    }
+
+    tqdm.write(
+        f"  Rows where EVERY cue is -1: {all_cues_minus_one_rows} / {len(df)}"
+    )
+    tqdm.write(
+        f"  Total -1 cells across all cues: {total_minus_one_cells} / {total_cells}"
+    )
+    tqdm.write("  -1 count per cue:")
+    for cue_name, count in minus_one_per_cue.items():
+        tqdm.write(f"    '{cue_name}': {count} / {len(df)} rows")
+
+    return report
+
+
 def filter_to_first_n_turns(
     df: pd.DataFrame,
     n: int,
@@ -616,6 +679,7 @@ def run_analysis(
         "Loading rated data",
         "Adding category counts (final)",
         "Calculating summary statistics (final)",
+        "Calculating missing-ratings (-1) report",
         "Calculating per-dialogue statistics (final)",
         "Writing dialogue length report",
         f"Filtering to {window_label}",
@@ -650,17 +714,27 @@ def run_analysis(
             pbar.update(1)
 
             pbar.set_description(stages[3])
+            # Computed on the FULL (final, unwindowed) data -- the
+            # windowed "first_n_turns" view is a different, orthogonal
+            # slicing concept and isn't what you want when checking a
+            # --resume run's coverage over the whole rated CSV.
+            missing_ratings_report = calculate_missing_ratings_report(
+                df_final, cue_present_columns
+            )
+            pbar.update(1)
+
+            pbar.set_description(stages[4])
             per_dialogue_final = calculate_per_dialogue_stats(
                 df_final, category_mapping, cue_present_columns
             )
             pbar.update(1)
 
-            pbar.set_description(stages[4])
+            pbar.set_description(stages[5])
             length_report_path = os.path.join(output_dir, "dialogue_length_report.txt")
             write_dialogue_length_report(df_final, length_report_path)
             pbar.update(1)
 
-            pbar.set_description(stages[5])
+            pbar.set_description(stages[6])
             df_window = filter_to_first_n_turns(
                 df_final, first_n_turns, require_min_turns=require_min_turns
             )
@@ -671,27 +745,27 @@ def run_analysis(
             )
             pbar.update(1)
 
-            pbar.set_description(stages[6])
+            pbar.set_description(stages[7])
             summary_stats_window = calculate_summary_stats(
                 df_window, category_mapping, cue_present_columns
             )
             pbar.update(1)
 
-            pbar.set_description(stages[7])
+            pbar.set_description(stages[8])
             per_dialogue_window = calculate_per_dialogue_stats(
                 df_window, category_mapping, cue_present_columns
             )
             pbar.update(1)
 
-            pbar.set_description(stages[8])
+            pbar.set_description(stages[9])
             plot_cue_percentages(summary_stats_final["cue_percentages"], output_dir)
             pbar.update(1)
 
-            pbar.set_description(stages[9])
+            pbar.set_description(stages[10])
             plot_category_radar(summary_stats_final["category_totals"], output_dir)
             pbar.update(1)
 
-            pbar.set_description(stages[10])
+            pbar.set_description(stages[11])
             plot_cue_percentages(
                 summary_stats_window["cue_percentages"],
                 output_dir,
@@ -700,7 +774,7 @@ def run_analysis(
             )
             pbar.update(1)
 
-            pbar.set_description(stages[11])
+            pbar.set_description(stages[12])
             plot_category_radar(
                 summary_stats_window["category_totals"],
                 output_dir,
@@ -709,13 +783,13 @@ def run_analysis(
             )
             pbar.update(1)
 
-            pbar.set_description(stages[12])
+            pbar.set_description(stages[13])
             enhanced_csv_path = os.path.join(output_dir, "analysis_with_categories.csv")
             df_final.to_csv(enhanced_csv_path, index=False, encoding="utf-8-sig")
             tqdm.write(f"Saved enhanced dataframe (final) to: {enhanced_csv_path}")
             pbar.update(1)
 
-            pbar.set_description(stages[13])
+            pbar.set_description(stages[14])
             per_dialogue_final_path = os.path.join(
                 output_dir, "per_dialogue_stats.csv"
             )
@@ -731,7 +805,7 @@ def run_analysis(
             )
             pbar.update(1)
 
-            pbar.set_description(stages[14])
+            pbar.set_description(stages[15])
             summary_json_path = os.path.join(output_dir, "summary_stats.json")
             with open(summary_json_path, "w", encoding="utf-8") as f:
                 json.dump(summary_stats_final, f, indent=2)
@@ -744,6 +818,15 @@ def run_analysis(
                 json.dump(summary_stats_window, f, indent=2)
             tqdm.write(
                 f"Saved summary statistics ({window_label}) to: {summary_json_window_path}"
+            )
+
+            missing_ratings_json_path = os.path.join(
+                output_dir, "missing_ratings_report.json"
+            )
+            with open(missing_ratings_json_path, "w", encoding="utf-8") as f:
+                json.dump(missing_ratings_report, f, indent=2)
+            tqdm.write(
+                f"Saved missing-ratings (-1) report to: {missing_ratings_json_path}"
             )
             pbar.update(1)
 
