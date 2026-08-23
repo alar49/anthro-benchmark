@@ -1,0 +1,800 @@
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index 8c93f2a..1056f0a 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -187,7 +187,7 @@ def rate_dialogues(
+     num_samples: int = 1,
+     output_rated_csv: str = None,
+     # --- EDITED ---
+-    classifier_reasoning_mode: bool = False, 
++    classifier_reasoning_mode: bool | None = None,
+     classifier_reasoning_effort: str | None = None,
+     classifier_openrouter_provider: dict[str, Any] | None = None,
+     cue_group_config: str | None = None,
+@@ -1117,7 +1117,7 @@ def run_rating_process(
+     num_samples: int = 1,
+     output_rated_csv: str = None,
+     # --- EDITED ---
+-    classifier_reasoning_mode: bool = False, 
++    classifier_reasoning_mode: bool | None = None,
+     classifier_reasoning_effort: str | None = None,
+     classifier_openrouter_provider: dict[str, Any] | None = None,
+     cue_group_config: str | None = None,
+diff --git a/anthro_benchmark/core/llm_client.py b/anthro_benchmark/core/llm_client.py
+index 502bb13..74f3959 100644
+--- a/anthro_benchmark/core/llm_client.py
++++ b/anthro_benchmark/core/llm_client.py
+@@ -689,7 +689,7 @@ class LLMClient:
+         self,
+         model: str,
+         temperature: float = 0.7,
+-        reasoning_mode: bool = False,
++        reasoning_mode: Optional[bool] = None,
+         reasoning_effort: Optional[str] = None,
+         openrouter_provider: Optional[Dict[str, Any]] = None,
+         openrouter_router_metadata: bool = True,
+@@ -697,6 +697,7 @@ class LLMClient:
+         base_url: Optional[str] = None,
+         max_retries: int = 5,
+         max_timeout_retries: Optional[int] = None,
++        max_message_order_retries: int = 2,
+         initial_backoff: float = 2.0,
+         max_backoff: float = 60.0,
+         timeout: Optional[float] = None,
+@@ -722,6 +723,7 @@ class LLMClient:
+         self.max_timeout_retries = (
+             max_timeout_retries if max_timeout_retries is not None else max_retries
+         )
++        self.max_message_order_retries = max_message_order_retries
+         self.initial_backoff = initial_backoff
+         self.max_backoff = max_backoff
+         self.timeout = timeout
+@@ -733,6 +735,12 @@ class LLMClient:
+             raise ValueError("max_retries must be >= 1")
+         if self.max_timeout_retries < 1:
+             raise ValueError("max_timeout_retries must be >= 1")
++        if self.max_message_order_retries < 0:
++            raise ValueError(
++                "max_message_order_retries must be >= 0 (0 disables the "
++                "retry -- Mistral code-3230 errors then raise immediately, "
++                "same as any other BadRequestError)"
++            )
+         if self.initial_backoff <= 0:
+             raise ValueError("initial_backoff must be > 0")
+         if self.max_backoff < self.initial_backoff:
+@@ -842,6 +850,28 @@ class LLMClient:
+         both flags returns (content, reasoning_text, usage) rather than
+         changing where reasoning_text sits. return_reasoning=False,
+         return_usage=False (the default) is unaffected: still a plain str.
++
++        reasoning_mode (constructor arg or kwarg here) is TRI-STATE, not a
++        plain bool -- this matters:
++          - True: request reasoning explicitly (sends
++            reasoning={"enabled": True, ...}).
++          - False: request NO reasoning explicitly (sends
++            reasoning={"enabled": False}). NOT the same as leaving this
++            unset -- see below.
++          - None (the default): don't send a `reasoning` key at all,
++            leaving the provider's own default in place for this model.
++        This distinction exists because omitting the key is NOT a
++        reliable way to turn reasoning off: several reasoning-capable
++        models served via OpenRouter (observed for DeepSeek and gpt-oss
++        variants) reason BY DEFAULT when no `reasoning` object is present
++        in the request at all. If you want reasoning off, pass
++        reasoning_mode=False explicitly; don't rely on just not setting
++        reasoning_mode/reasoning_effort. Even with an explicit False, a
++        few OpenRouter-routed models have been reported to ignore the
++        disable request outright and reason anyway (a provider-side
++        limitation, not something this client can force around) --
++        pin --*-openrouter-provider-order to a backend confirmed to
++        honor it if that happens.
+         """
+ 
+         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
+@@ -939,7 +969,7 @@ class LLMClient:
+ 
+         if runtime_reasoning is not None:
+             payload["reasoning"] = runtime_reasoning
+-        elif reasoning_mode or reasoning_effort:
++        elif reasoning_mode is True or reasoning_effort:
+             reasoning: Dict[str, Any] = {
+                 "enabled": True,
+                 "exclude": False,  # keep reasoning tokens in the response for exploration
+@@ -957,12 +987,30 @@ class LLMClient:
+             # reasoning["max_tokens"] = 1024
+ 
+             payload["reasoning"] = reasoning
++        elif reasoning_mode is False:
++            # Explicit "off", NOT the same as omitting the key. Many
++            # reasoning-capable models (observed via OpenRouter for e.g.
++            # DeepSeek and gpt-oss variants) reason BY DEFAULT when no
++            # `reasoning` object is sent at all -- omitting the key does
++            # NOT mean "no reasoning", it means "provider's own default",
++            # which for these models often IS reasoning-on. The only
++            # reliable way to turn it off is to say so explicitly. See
++            # https://openrouter.ai/docs/use-cases/reasoning-tokens
++            # ("enabled": false). reasoning_mode is None (not False) is
++            # the actual "say nothing, let the provider decide" state --
++            # see this method's tri-state note on reasoning_mode above.
++            payload["reasoning"] = {"enabled": False}
++        # else: reasoning_mode is None and no reasoning_effort -- don't
++        # touch the `reasoning` key at all; whatever the provider does by
++        # default for this model is left in place.
+ 
+         attempt = 0  # non-timeout transient errors (429/5xx/connection): bounded by self.max_retries
+         timeout_attempt = 0  # APITimeoutError specifically: bounded by self.max_timeout_retries, independently
++        message_order_attempt = 0  # Mistral code 3230 specifically: bounded by self.max_message_order_retries, independently
+         unknown_exception_attempts = 0
+         current_backoff = self.initial_backoff
+         timeout_current_backoff = self.initial_backoff
++        message_order_current_backoff = self.initial_backoff
+ 
+         while True:
+             if budget_guard is not None:
+@@ -1085,6 +1133,73 @@ class LLMClient:
+                 return _build_return(content, reasoning_text)
+ 
+             except BadRequestError as e:
++                error_text = str(e)
++                # Mistral's "Expected last role User or Tool (or Assistant
++                # with prefix True) for serving but got assistant" /
++                # type="invalid_request_message_order" / code="3230".
++                # Narrowly special-cased (NOT all BadRequestErrors --
++                # those stay permanent below) because this specific one
++                # has been reported as an intermittent litellm/Mistral
++                # routing quirk rather than a locally-malformed request:
++                # https://github.com/anomalyco/opencode/issues/6346 notes
++                # the same request succeeds via Mistral's native litellm
++                # provider path but fails through the OpenAI-compatible
++                # pass-through -- consistent with which OpenRouter backend
++                # a call happens to land on, not with anything in the
++                # message list itself. Logging the actual role sequence
++                # every time this fires (not just retrying blind) means
++                # if it turns out to be a real local bug in some edge
++                # case after all, that'll show up here as a genuine
++                # non-alternating sequence instead of staying a mystery.
++                if "invalid_request_message_order" in error_text:
++                    try:
++                        role_sequence = [
++                            (m.get("role") if isinstance(m, dict) else getattr(m, "role", "?"))
++                            for m in payload.get("messages", [])
++                        ]
++                    except Exception:
++                        role_sequence = "<could not introspect payload['messages']>"
++
++                    message_order_attempt += 1
++                    if message_order_attempt > self.max_message_order_retries:
++                        logger.error(
++                            "Mistral message-order error (code 3230) persisted past "
++                            "max_message_order_retries=%s | model=%s role_sequence=%s. "
++                            "Giving up -- if role_sequence above is NOT a clean "
++                            "system?/user/assistant/user/... alternation ending in "
++                            "user/tool, this is a real local bug in how the caller "
++                            "built `messages`, not the routing quirk this retry "
++                            "was written for. Last error: %s",
++                            self.max_message_order_retries,
++                            self.model,
++                            role_sequence,
++                            e,
++                        )
++                        raise
++
++                    sleep_time = min(
++                        message_order_current_backoff * random.uniform(0.75, 1.25),
++                        self.max_backoff,
++                    )
++                    message_order_current_backoff *= 2.0
++
++                    logger.warning(
++                        "Mistral message-order error (code 3230, attempt %s/%s of "
++                        "max_message_order_retries=%s) | model=%s role_sequence=%s. "
++                        "Retrying in %.2f seconds -- see this except branch's "
++                        "comment for why this specific BadRequestError is retried "
++                        "instead of raised immediately. %s",
++                        message_order_attempt,
++                        self.max_message_order_retries,
++                        self.max_message_order_retries,
++                        self.model,
++                        role_sequence,
++                        sleep_time,
++                        e,
++                    )
++                    time.sleep(sleep_time)
++                    continue
++
+                 logger.error(
+                     "Permanent BadRequestError (Attempt %s/%s): %s",
+                     attempt,
+diff --git a/anthro_benchmark/generator/generator.py b/anthro_benchmark/generator/generator.py
+index c3ee049..5c9c971 100644
+--- a/anthro_benchmark/generator/generator.py
++++ b/anthro_benchmark/generator/generator.py
+@@ -113,7 +113,7 @@ class DialogueGenerator:
+         target_timeout: Optional[float] = None,
+         rate_limiter: Optional[RateLimiter] = None,
+         budget_guard: Optional[BudgetGuard] = None,
+-        reasoning_mode: bool = False, # EDITED
++        reasoning_mode: Optional[bool] = None, # EDITED -- tri-state: True=on, False=explicitly off, None=let the provider decide (unset)
+         reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
+         prompt_category_names: Optional[List[str]] = None,
+         custom_prompt_csv: str = None,
+@@ -363,10 +363,25 @@ class DialogueGenerator:
+         # is ever used -- see LLMClient.generate() docstring.
+         self.reasoning_mode = reasoning_mode
+         self.reasoning_effort = reasoning_effort
+-        
+-        if self.reasoning_mode:
++
++        if self.reasoning_mode is True:
+             self.target_llm_config["reasoning_mode"] = True
+             self.target_llm_config["reasoning_effort"] = self.reasoning_effort
++        elif self.reasoning_mode is False:
++            # Explicit "off" has to be forwarded too, not just "on" --
++            # LLMClient distinguishes False (send an explicit disable) from
++            # None/unset (say nothing, let the provider's own default
++            # stand). Omitting this branch and only ever forwarding the
++            # True case (as before) meant --reasoning-mode off silently
++            # had NO effect on the actual API call for any model that
++            # reasons by default when the `reasoning` key is absent --
++            # see LLMClient.generate()'s docstring for why that's not
++            # hypothetical (observed for DeepSeek and gpt-oss variants
++            # via OpenRouter).
++            self.target_llm_config["reasoning_mode"] = False
++        # else: self.reasoning_mode is None -- leave target_llm_config
++        # untouched, so LLMClient's own default (None, i.e. don't send a
++        # `reasoning` key at all) applies.
+         # ------------------------------------------------------
+ 
+         
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index ecfcd65..d9e8a17 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -40,14 +40,55 @@ def sanitize_model_name(model_name: str) -> str:
+ ### EDIT FROM HERE ###
+ 
+ # replace the helper block
+-def _reasoning_effort_from_args(args):
++def _reasoning_mode_and_effort_from_args(args):
++    """
++    Resolve --reasoning-mode/--reasoning-effort into the (reasoning_mode,
++    reasoning_effort) pair LLMClient actually needs, WITHOUT collapsing
++    "off" and "default" into the same value.
++
++    reasoning_mode is tri-state (see LLMClient.generate()'s docstring):
++      - True:  --reasoning-mode on (or an explicit --reasoning-effort with
++               --reasoning-mode left at its default) -- reasoning
++               explicitly requested.
++      - False: --reasoning-mode off -- reasoning explicitly turned off
++               (LLMClient sends reasoning={"enabled": False} for this,
++               not just a bare omission -- several reasoning-capable
++               models default to reasoning ON when the `reasoning` key is
++               absent entirely, so "say nothing" and "say off" are NOT
++               the same request).
++      - None:  --reasoning-mode default with no --reasoning-effort --
++               nothing is sent; the provider's own default for that model
++               applies untouched.
++
++    Raises ValueError for the contradictory --reasoning-mode off combined
++    with an explicit --reasoning-effort, rather than silently letting one
++    win -- that combination almost certainly means the flags don't say
++    what the caller intended.
++    """
+     if args.reasoning_mode == "off":
+-        return None
++        if args.reasoning_effort:
++            raise ValueError(
++                "Both --reasoning-mode off and --reasoning-effort "
++                f"{args.reasoning_effort!r} were set -- these contradict "
++                "each other (an effort level only makes sense when "
++                "reasoning is on). Drop one."
++            )
++        return False, None
++
+     if args.reasoning_effort:
+-        return args.reasoning_effort
++        return True, args.reasoning_effort
++
+     if args.reasoning_mode == "on":
+-        return "medium"  # OpenRouter default when reasoning is enabled
+-    return None
++        return True, "medium"  # OpenRouter default when reasoning is enabled
++
++    return None, None  # "default": don't touch the `reasoning` key at all
++
++
++def _reasoning_effort_from_args(args):
++    """Back-compat shim: reasoning_effort half of
++    _reasoning_mode_and_effort_from_args, for any caller that only needs
++    that part."""
++    return _reasoning_mode_and_effort_from_args(args)[1]
+ 
+ 
+ def _openrouter_provider_from_args(args, prefix: str) -> Optional[Dict[str, Any]]:
+@@ -166,9 +207,8 @@ def generate_dialogues_command(args):
+     print("-" * 30)
+ 
+     ### EDIT START ###
+-    
+-    reasoning_effort = _reasoning_effort_from_args(args)
+-    reasoning_mode = reasoning_effort is not None
++
++    reasoning_mode, reasoning_effort = _reasoning_mode_and_effort_from_args(args)
+ 
+     shared_temperature = getattr(args, "temperature", None)
+     user_temperature = (
+@@ -206,23 +246,65 @@ def generate_dialogues_command(args):
+         else getattr(args, "target_llm_timeout", None)
+     )
+ 
+-    # Rate limiting: build 1 instance (--rate-limit-scope=shared, the
+-    # default) or 2 independent ones (per-model) from the SAME configured
+-    # thresholds -- see _build_rate_limiter's and RateLimiter's docstrings
+-    # for why "shared" vs "per-model" isn't just a convenience choice.
+-    _rl_min_gap = getattr(args, "min_seconds_between_calls", None)
+-    _rl_rpm = getattr(args, "max_requests_per_minute", None)
+-    _rl_rps = getattr(args, "max_requests_per_second", None)
+-    _rl_tpm = getattr(args, "max_tokens_per_minute", None)
++    # Rate limiting: resolve each threshold per-role first (shared flag,
++    # if set, overrides the --user-llm-*/--target-llm-* one -- same
++    # override pattern as --timeout/--max-tokens above), THEN build either
++    # 1 shared instance or 2 independent ones from those resolved values.
++    # See _build_rate_limiter's and RateLimiter's docstrings for why
++    # "shared" vs "per-model" isn't just a convenience choice.
++    def _resolve_rl(shared_attr, user_attr, target_attr):
++        shared_value = getattr(args, shared_attr, None)
++        user_value = (
++            shared_value if shared_value is not None else getattr(args, user_attr, None)
++        )
++        target_value = (
++            shared_value if shared_value is not None else getattr(args, target_attr, None)
++        )
++        return user_value, target_value
++
++    user_rl_min_gap, target_rl_min_gap = _resolve_rl(
++        "min_seconds_between_calls",
++        "user_llm_min_seconds_between_calls",
++        "target_llm_min_seconds_between_calls",
++    )
++    user_rl_rpm, target_rl_rpm = _resolve_rl(
++        "max_requests_per_minute",
++        "user_llm_max_requests_per_minute",
++        "target_llm_max_requests_per_minute",
++    )
++    user_rl_rps, target_rl_rps = _resolve_rl(
++        "max_requests_per_second",
++        "user_llm_max_requests_per_second",
++        "target_llm_max_requests_per_second",
++    )
++    user_rl_tpm, target_rl_tpm = _resolve_rl(
++        "max_tokens_per_minute",
++        "user_llm_max_tokens_per_minute",
++        "target_llm_max_tokens_per_minute",
++    )
+     _rl_scope = getattr(args, "rate_limit_scope", "shared")
+ 
+-    user_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+-    if user_rate_limiter is None:
++    _user_rl_thresholds = (user_rl_min_gap, user_rl_rpm, user_rl_rps, user_rl_tpm)
++    _target_rl_thresholds = (target_rl_min_gap, target_rl_rpm, target_rl_rps, target_rl_tpm)
++
++    user_rate_limiter = _build_rate_limiter(*_user_rl_thresholds)
++    if user_rate_limiter is None and _build_rate_limiter(*_target_rl_thresholds) is None:
+         target_rate_limiter = None
+     elif _rl_scope == "shared":
++        if _user_rl_thresholds != _target_rl_thresholds:
++            raise ValueError(
++                "--rate-limit-scope=shared (the default) requires the "
++                "User and Target LLMs to end up with the SAME rate-limit "
++                f"thresholds -- got user={_user_rl_thresholds} vs "
++                f"target={_target_rl_thresholds}. A single shared clock "
++                "can't enforce two different caps. Either drop the "
++                "--user-llm-*/--target-llm-* overrides that make these "
++                "differ, or pass --rate-limit-scope per-model to give "
++                "each role its own independent budget."
++            )
+         target_rate_limiter = user_rate_limiter
+     else:
+-        target_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
++        target_rate_limiter = _build_rate_limiter(*_target_rl_thresholds)
+ 
+     budget_session_id = (
+         getattr(args, "budget_session_id", None)
+@@ -249,6 +331,9 @@ def generate_dialogues_command(args):
+     if getattr(args, "max_timeout_retries", None) is not None:
+         user_llm_config["max_timeout_retries"] = args.max_timeout_retries
+         target_llm_config["max_timeout_retries"] = args.max_timeout_retries
++    if getattr(args, "max_message_order_retries", None) is not None:
++        user_llm_config["max_message_order_retries"] = args.max_message_order_retries
++        target_llm_config["max_message_order_retries"] = args.max_message_order_retries
+     if user_max_tokens is not None:
+         user_llm_config["max_tokens"] = user_max_tokens
+     if target_max_tokens is not None:
+@@ -390,7 +475,7 @@ def rate_dialogues_command(args):
+     Maps CLI args to library function parameters.
+     """
+ 
+-    reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
++    reasoning_mode, reasoning_effort = _reasoning_mode_and_effort_from_args(args) ### EDITED
+     classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
+ 
+     # Rate limiting: build either one shared instance or a {model:
+@@ -437,6 +522,7 @@ def rate_dialogues_command(args):
+             classifier_temperature=args.classifier_temperature,
+             num_samples=args.num_samples,
+             output_rated_csv=getattr(args, "output_rated_csv", None),
++            classifier_reasoning_mode=reasoning_mode, ### EDITED
+             classifier_reasoning_effort=reasoning_effort, ### EDITED
+             classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
+             cue_group_config=getattr(args, "cue_group_config", None),
+@@ -661,6 +747,26 @@ def _parse_flags(_):
+             "behavior."
+         ),
+     )
++    llm_group.add_argument(
++        "--max-message-order-retries",
++        type=int,
++        default=None,
++        help=(
++            "Maximum retry attempts specifically for Mistral's code-3230 "
++            "'invalid_request_message_order' error (\"Expected last role "
++            "User or Tool ... but got assistant\"), kept independent of "
++            "--max-retries. This has been observed as an intermittent "
++            "litellm/OpenRouter routing quirk rather than a locally-"
++            "malformed request -- see "
++            "https://github.com/anomalyco/opencode/issues/6346 -- so a "
++            "retry is worth attempting before giving up. Each retry also "
++            "logs the exact message role sequence that triggered it, so "
++            "a genuine local bug (as opposed to the routing quirk this "
++            "exists for) would show up in the logs rather than being "
++            "silently retried away. Default: unset -- uses LLMClient's "
++            "own default of 2."
++        ),
++    )
+     llm_group.add_argument(
+         "--initial-backoff",
+         type=float,
+@@ -713,47 +819,104 @@ def _parse_flags(_):
+         type=float,
+         default=None,
+         help=(
+-            "Minimum wait, in seconds, enforced between the START of "
+-            "consecutive LLM calls -- a flat pacing throttle (your "
+-            "'waiting time'), independent of the caps below. Under "
++            "Shared minimum wait, in seconds, enforced between the START "
++            "of consecutive LLM calls for BOTH the User and Target LLMs "
++            "-- a flat pacing throttle (your 'waiting time'), independent "
++            "of the caps below. If set, overrides "
++            "--user-llm-min-seconds-between-calls/"
++            "--target-llm-min-seconds-between-calls. Under "
+             "--rate-limit-scope=shared (the default), User and Target "
+             "calls are paced against ONE shared cadence; under "
+             "per-model, each gets its own. Default: unset (no pacing)."
+         ),
+     )
++    rate_limit_group.add_argument(
++        "--user-llm-min-seconds-between-calls",
++        type=float,
++        default=None,
++        help="Minimum wait, in seconds, between User LLM calls only. Ignored if --min-seconds-between-calls is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value (a shared cadence can't honor two different paces).",
++    )
++    rate_limit_group.add_argument(
++        "--target-llm-min-seconds-between-calls",
++        type=float,
++        default=None,
++        help="Minimum wait, in seconds, between Target LLM calls only. Ignored if --min-seconds-between-calls is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
++    )
+     rate_limit_group.add_argument(
+         "--max-requests-per-minute",
+         type=float,
+         default=None,
+         help=(
+-            "Cap on LLM calls in any rolling 60-second window. Mutually "
+-            "exclusive with --max-requests-per-second (same underlying "
+-            "cap, different unit)."
++            "Shared cap on LLM calls in any rolling 60-second window, for "
++            "BOTH the User and Target LLMs. If set, overrides "
++            "--user-llm-max-requests-per-minute/"
++            "--target-llm-max-requests-per-minute. Mutually exclusive "
++            "with --max-requests-per-second (same underlying cap, "
++            "different unit)."
+         ),
+     )
++    rate_limit_group.add_argument(
++        "--user-llm-max-requests-per-minute",
++        type=float,
++        default=None,
++        help="Requests-per-minute cap for the User LLM only. Ignored if --max-requests-per-minute is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value.",
++    )
++    rate_limit_group.add_argument(
++        "--target-llm-max-requests-per-minute",
++        type=float,
++        default=None,
++        help="Requests-per-minute cap for the Target LLM only. Ignored if --max-requests-per-minute is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
++    )
+     rate_limit_group.add_argument(
+         "--max-requests-per-second",
+         type=float,
+         default=None,
+         help=(
+             "Same cap as --max-requests-per-minute, expressed per second "
+-            "(converted internally as value * 60). Mutually exclusive "
+-            "with --max-requests-per-minute."
++            "(converted internally as value * 60), for BOTH the User and "
++            "Target LLMs. Mutually exclusive with --max-requests-per-minute."
+         ),
+     )
++    rate_limit_group.add_argument(
++        "--user-llm-max-requests-per-second",
++        type=float,
++        default=None,
++        help="Requests-per-second cap for the User LLM only. Ignored if --max-requests-per-second/--max-requests-per-minute is set.",
++    )
++    rate_limit_group.add_argument(
++        "--target-llm-max-requests-per-second",
++        type=float,
++        default=None,
++        help="Requests-per-second cap for the Target LLM only. Ignored if --max-requests-per-second/--max-requests-per-minute is set.",
++    )
+     rate_limit_group.add_argument(
+         "--max-tokens-per-minute",
+         type=float,
+         default=None,
+         help=(
+-            "Cap on total tokens (input+output combined) in any rolling "
+-            "60-second window, enforced using each call's ACTUAL usage "
+-            "once it's known -- a single large call can still push the "
+-            "window over the cap; later calls are then held back to "
+-            "compensate. Reactive, not a hard preemptive guarantee -- see "
+-            "RateLimiter's docstring in llm_client.py."
++            "Shared cap on total tokens (input+output combined) in any "
++            "rolling 60-second window, for BOTH the User and Target LLMs, "
++            "enforced using each call's ACTUAL usage once it's known -- a "
++            "single large call can still push the window over the cap; "
++            "later calls are then held back to compensate. Reactive, not "
++            "a hard preemptive guarantee -- see RateLimiter's docstring "
++            "in llm_client.py. If set, overrides "
++            "--user-llm-max-tokens-per-minute/"
++            "--target-llm-max-tokens-per-minute."
+         ),
+     )
++    rate_limit_group.add_argument(
++        "--user-llm-max-tokens-per-minute",
++        type=float,
++        default=None,
++        help="Tokens-per-minute cap for the User LLM only. Ignored if --max-tokens-per-minute is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value.",
++    )
++    rate_limit_group.add_argument(
++        "--target-llm-max-tokens-per-minute",
++        type=float,
++        default=None,
++        help="Tokens-per-minute cap for the Target LLM only. Ignored if --max-tokens-per-minute is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
++    )
+     rate_limit_group.add_argument(
+         "--rate-limit-scope",
+         choices=["shared", "per-model"],
+@@ -762,12 +925,16 @@ def _parse_flags(_):
+             "Only matters if at least one cap above is set. 'shared' "
+             "(default): User and Target LLM calls are throttled TOGETHER "
+             "against one combined budget -- correct when both use the "
+-            "same provider account/key, which is the common case. "
+-            "'per-model': each gets its OWN independent budget at the "
+-            "same configured limits -- use this if they're on different "
+-            "providers/keys with genuinely separate quotas, since "
+-            "'shared' would otherwise split one real limit between two "
+-            "roles that don't actually share it, under-using each."
++            "same provider account/key, which is the common case. Requires "
++            "the User and Target LLMs to end up with IDENTICAL thresholds "
++            "(a single shared clock can't enforce two different caps at "
++            "once) -- set per-role values that differ and this will raise "
++            "a clear error telling you to switch to per-model instead of "
++            "silently picking one. 'per-model': each gets its OWN "
++            "independent budget -- use this if they're on different "
++            "providers/keys with genuinely separate quotas, OR if you set "
++            "different --user-llm-*/--target-llm-* rate-limit values on "
++            "purpose."
+         ),
+     )
+ 
+diff --git a/diagnose_csv_encoding.py b/diagnose_csv_encoding.py
+new file mode 100644
+index 0000000..2944b16
+--- /dev/null
++++ b/diagnose_csv_encoding.py
+@@ -0,0 +1,196 @@
++# Copyright 2025 The Anthropomorphism Benchmark Project Authors
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     https://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++"""
++Diagnose whether a generated dialogues CSV has mojibake ("â€"-style
++corruption) baked into it, or whether it's clean and any corruption you've
++seen came from how it was opened afterward (e.g. editing in Notepad before
++opening in Excel, which can silently strip the UTF-8 BOM that
++generator.py's atomic_to_csv(..., encoding="utf-8-sig") writes).
++
++Usage:
++    python diagnose_csv_encoding.py path/to/dialogues.csv
++
++What it does, in order:
++  1. Checks whether the file starts with a UTF-8 BOM (EF BB BF) -- this is
++     what generator.py writes; its ABSENCE means either an older run, or
++     something downstream (e.g. Notepad's "save") stripped it.
++  2. Reads the file with pandas (encoding='utf-8-sig', matching what
++     generator.py itself uses to read this exact file back in for
++     --resume) and scans every string cell for common mojibake signatures
++     -- not just "â€", but the broader family of UTF-8-decoded-as-
++     cp1252/latin-1 patterns.
++  3. Reports which columns and how many cells are affected, with a few
++     concrete examples, so you can see the actual damage rather than a
++     bare count.
++
++If step 2 finds mojibake in a CSV you have NOT touched since it was
++written by generate (no Notepad edit, no Excel resave), that means the
++corruption is upstream of the write -- in the API response content
++itself, before it ever reaches this script -- and the fix path is
++different (see the write-up in chat, not this script) from if the file
++comes back clean here and only breaks after your usual open-and-edit
++workflow.
++"""
++
++import argparse
++import re
++import sys
++from collections import Counter
++
++import pandas as pd
++
++# Cheap, well-known signatures of "UTF-8 bytes decoded as cp1252/latin-1".
++# Not exhaustive -- there's no way to be, since any byte sequence CAN
++# coincidentally look like real text -- but these cover the overwhelming
++# majority of real-world English-text mojibake, including exactly the
++# "â€"-family patterns from curly quotes/em dashes/accented letters.
++#
++# cp1252 remaps bytes 0x80-0x9F to a scattered set of punctuation/symbol
++# codepoints (NOT their raw Unicode C1-control equivalents -- 0x99 becomes
++# U+2122 "TM", not U+0099 -- that's the one mistake worth flagging if
++# you're ever hand-editing this list yourself), which is exactly the
++# range UTF-8's own continuation bytes for common punctuation (curly
++# quotes, dashes, ellipsis, bullet -- all in the U+2000 block, encoded as
++# 0xE2 0x80/0x81 0xXX) fall into. Built from the real cp1252 table rather
++# than hand-typed so it can't silently drift from what Python actually
++# does.
++def _cp1252_c1_remap_chars() -> str:
++    chars = []
++    for byte_value in range(0x80, 0xA0):
++        try:
++            chars.append(bytes([byte_value]).decode("cp1252"))
++        except UnicodeDecodeError:
++            pass  # a handful of 0x80-0x9F bytes are simply undefined in cp1252
++    return "".join(chars)
++
++
++_CP1252_C1_REMAP = re.escape(_cp1252_c1_remap_chars())
++_CONTINUATION_BYTE_CHARS = _CP1252_C1_REMAP + r"\u00a0-\u00bf"
++
++MOJIBAKE_PATTERNS = [
++    rf"\u00e2[{_CONTINUATION_BYTE_CHARS}][{_CONTINUATION_BYTE_CHARS}]",  # â + 2 more decoded continuation bytes, e.g. â€™ â€” â€œ
++    r"\u00c3[\u0080-\u00bf]",  # Ã© Ã¨ Ã¼ Ã¶ Ã± etc (accented Latin-1 letters)
++    r"\u00c2[\u00a0-\u00bf]",  # Â  Â£ Â© etc (Latin-1 Supplement control/symbol block)
++    r"\ufffd",  # literal replacement character -- unrecoverable loss, not just mojibake
++]
++MOJIBAKE_RE = re.compile("|".join(MOJIBAKE_PATTERNS))
++
++
++def check_bom(path: str) -> bool:
++    with open(path, "rb") as f:
++        head = f.read(3)
++    return head == b"\xef\xbb\xbf"
++
++
++def scan_dataframe(df: "pd.DataFrame"):
++    """Returns (total_flagged_cells, {column: count}, [(column, row, snippet), ...])"""
++    per_column: Counter = Counter()
++    examples = []
++    total = 0
++    for col in df.columns:
++        # NOTE: don't compare dtype == object directly -- pandas 3.0's
++        # read_csv returns a native 'str' dtype for text columns, not the
++        # legacy 'object' dtype older pandas used, so a bare "!= object"
++        # check silently skips every text column on pandas 3.0+ (caught
++        # this by actually running the script against a synthetic
++        # corrupted file, not just reading the code -- it reported 0
++        # matches on a file with a dozen deliberately-planted ones).
++        if not (pd.api.types.is_object_dtype(df[col]) or pd.api.types.is_string_dtype(df[col])):
++            continue
++        for row_idx, value in df[col].items():
++            if not isinstance(value, str):
++                continue
++            match = MOJIBAKE_RE.search(value)
++            if match:
++                total += 1
++                per_column[col] += 1
++                if len(examples) < 20:
++                    start = max(match.start() - 20, 0)
++                    end = min(match.end() + 20, len(value))
++                    snippet = value[start:end]
++                    examples.append((col, row_idx, snippet))
++    return total, per_column, examples
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("csv_path", help="Path to the dialogues CSV to check")
++    args = parser.parse_args()
++
++    print(f"Checking {args.csv_path} ...\n")
++
++    has_bom = check_bom(args.csv_path)
++    print(f"UTF-8 BOM present at file start: {has_bom}")
++    if not has_bom:
++        print(
++            "  -> No BOM. If this file came straight from generate (never "
++            "opened/saved in Notepad or Excel), that means either it "
++            "predates the utf-8-sig fix in generator.py, or something "
++            "wrote/rewrote it without one. If it HAS been through "
++            "Notepad, this is consistent with Notepad's save step "
++            "stripping the BOM -- re-check on a copy you haven't edited."
++        )
++    print()
++
++    try:
++        df = pd.read_csv(args.csv_path, encoding="utf-8-sig")
++    except UnicodeDecodeError as e:
++        print(f"FAILED to read as UTF-8 at all: {e}")
++        print(
++            "This is a stronger signal than mojibake -- the file isn't "
++            "valid UTF-8 as-is, meaning some byte-level corruption (not "
++            "just a wrong-codepage re-interpretation) happened somewhere "
++            "in the write/edit chain."
++        )
++        sys.exit(1)
++
++    total, per_column, examples = scan_dataframe(df)
++
++    print(f"Cells matching a known mojibake pattern: {total}")
++    if total:
++        print("By column:")
++        for col, count in per_column.most_common():
++            print(f"  {col}: {count}")
++        print("\nExample snippets (column, row, ~40 chars around the match):")
++        for col, row_idx, snippet in examples:
++            print(f"  [{col}, row {row_idx}] ...{snippet!r}...")
++        print(
++            "\nThis file (as read here, via the same encoding="
++            "'utf-8-sig' generator.py itself uses) already contains "
++            "mojibake -- the corruption is IN THE DATA, not just how a "
++            "later viewer (Excel/Notepad) rendered it. That points "
++            "upstream of the CSV write: worth capturing one raw API "
++            "response for an affected row (log payload['messages']/"
++            "response content before it's written to the DataFrame) to "
++            "see whether the mojibake is already present in what the "
++            "provider returned."
++        )
++    else:
++        print(
++            "\nNo mojibake found when read directly with pandas. If "
++            "you've seen 'â€'-style corruption when opening this exact "
++            "file, it's most likely being introduced AFTER this script's "
++            "read -- e.g. by editing it in Notepad (which can save "
++            "without preserving the UTF-8 BOM) before opening in Excel. "
++            "Try opening the file directly in Excel via Data > Get Data > "
++            "From Text/CSV with 'File Origin' explicitly set to "
++            "'65001: Unicode (UTF-8)', or just double-click the CSV "
++            "(the BOM should make Excel auto-detect UTF-8 without needing "
++            "the 'sep=,' trick) instead of editing it in Notepad first."
++        )
++
++
++if __name__ == "__main__":
++    main()

@@ -113,7 +113,7 @@ class DialogueGenerator:
         target_timeout: Optional[float] = None,
         rate_limiter: Optional[RateLimiter] = None,
         budget_guard: Optional[BudgetGuard] = None,
-        reasoning_mode: bool = False, # EDITED
+        reasoning_mode: Optional[bool] = None, # EDITED -- tri-state: True=on, False=explicitly off, None=let the provider decide (unset)
         reasoning_effort: str = "medium", # EDITED --> Options: 'low', 'medium', 'high'
         prompt_category_names: Optional[List[str]] = None,
         custom_prompt_csv: str = None,
@@ -363,10 +363,25 @@ class DialogueGenerator:
         # is ever used -- see LLMClient.generate() docstring.
         self.reasoning_mode = reasoning_mode
         self.reasoning_effort = reasoning_effort
-        
-        if self.reasoning_mode:
+
+        if self.reasoning_mode is True:
             self.target_llm_config["reasoning_mode"] = True
             self.target_llm_config["reasoning_effort"] = self.reasoning_effort
+        elif self.reasoning_mode is False:
+            # Explicit "off" has to be forwarded too, not just "on" --
+            # LLMClient distinguishes False (send an explicit disable) from
+            # None/unset (say nothing, let the provider's own default
+            # stand). Omitting this branch and only ever forwarding the
+            # True case (as before) meant --reasoning-mode off silently
+            # had NO effect on the actual API call for any model that
+            # reasons by default when the `reasoning` key is absent --
+            # see LLMClient.generate()'s docstring for why that's not
+            # hypothetical (observed for DeepSeek and gpt-oss variants
+            # via OpenRouter).
+            self.target_llm_config["reasoning_mode"] = False
+        # else: self.reasoning_mode is None -- leave target_llm_config
+        # untouched, so LLMClient's own default (None, i.e. don't send a
+        # `reasoning` key at all) applies.
         # ------------------------------------------------------
 
         

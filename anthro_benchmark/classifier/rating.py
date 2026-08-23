@@ -187,7 +187,7 @@ def rate_dialogues(
     num_samples: int = 1,
     output_rated_csv: str = None,
     # --- EDITED ---
-    classifier_reasoning_mode: bool = False, 
+    classifier_reasoning_mode: bool | None = None,
     classifier_reasoning_effort: str | None = None,
     classifier_openrouter_provider: dict[str, Any] | None = None,
     cue_group_config: str | None = None,
@@ -1117,7 +1117,7 @@ def run_rating_process(
     num_samples: int = 1,
     output_rated_csv: str = None,
     # --- EDITED ---
-    classifier_reasoning_mode: bool = False, 
+    classifier_reasoning_mode: bool | None = None,
     classifier_reasoning_effort: str | None = None,
     classifier_openrouter_provider: dict[str, Any] | None = None,
     cue_group_config: str | None = None,

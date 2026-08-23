@@ -689,7 +689,7 @@ class LLMClient:
         self,
         model: str,
         temperature: float = 0.7,
-        reasoning_mode: bool = False,
+        reasoning_mode: Optional[bool] = None,
         reasoning_effort: Optional[str] = None,
         openrouter_provider: Optional[Dict[str, Any]] = None,
         openrouter_router_metadata: bool = True,
@@ -697,6 +697,7 @@ class LLMClient:
         base_url: Optional[str] = None,
         max_retries: int = 5,
         max_timeout_retries: Optional[int] = None,
+        max_message_order_retries: int = 2,
         initial_backoff: float = 2.0,
         max_backoff: float = 60.0,
         timeout: Optional[float] = None,
@@ -722,6 +723,7 @@ class LLMClient:
         self.max_timeout_retries = (
             max_timeout_retries if max_timeout_retries is not None else max_retries
         )
+        self.max_message_order_retries = max_message_order_retries
         self.initial_backoff = initial_backoff
         self.max_backoff = max_backoff
         self.timeout = timeout
@@ -733,6 +735,12 @@ class LLMClient:
             raise ValueError("max_retries must be >= 1")
         if self.max_timeout_retries < 1:
             raise ValueError("max_timeout_retries must be >= 1")
+        if self.max_message_order_retries < 0:
+            raise ValueError(
+                "max_message_order_retries must be >= 0 (0 disables the "
+                "retry -- Mistral code-3230 errors then raise immediately, "
+                "same as any other BadRequestError)"
+            )
         if self.initial_backoff <= 0:
             raise ValueError("initial_backoff must be > 0")
         if self.max_backoff < self.initial_backoff:
@@ -842,6 +850,28 @@ class LLMClient:
         both flags returns (content, reasoning_text, usage) rather than
         changing where reasoning_text sits. return_reasoning=False,
         return_usage=False (the default) is unaffected: still a plain str.
+
+        reasoning_mode (constructor arg or kwarg here) is TRI-STATE, not a
+        plain bool -- this matters:
+          - True: request reasoning explicitly (sends
+            reasoning={"enabled": True, ...}).
+          - False: request NO reasoning explicitly (sends
+            reasoning={"enabled": False}). NOT the same as leaving this
+            unset -- see below.
+          - None (the default): don't send a `reasoning` key at all,
+            leaving the provider's own default in place for this model.
+        This distinction exists because omitting the key is NOT a
+        reliable way to turn reasoning off: several reasoning-capable
+        models served via OpenRouter (observed for DeepSeek and gpt-oss
+        variants) reason BY DEFAULT when no `reasoning` object is present
+        in the request at all. If you want reasoning off, pass
+        reasoning_mode=False explicitly; don't rely on just not setting
+        reasoning_mode/reasoning_effort. Even with an explicit False, a
+        few OpenRouter-routed models have been reported to ignore the
+        disable request outright and reason anyway (a provider-side
+        limitation, not something this client can force around) --
+        pin --*-openrouter-provider-order to a backend confirmed to
+        honor it if that happens.
         """
 
         budget_guard = kwargs.pop("budget_guard", self.budget_guard)
@@ -939,7 +969,7 @@ class LLMClient:
 
         if runtime_reasoning is not None:
             payload["reasoning"] = runtime_reasoning
-        elif reasoning_mode or reasoning_effort:
+        elif reasoning_mode is True or reasoning_effort:
             reasoning: Dict[str, Any] = {
                 "enabled": True,
                 "exclude": False,  # keep reasoning tokens in the response for exploration
@@ -957,12 +987,30 @@ class LLMClient:
             # reasoning["max_tokens"] = 1024
 
             payload["reasoning"] = reasoning
+        elif reasoning_mode is False:
+            # Explicit "off", NOT the same as omitting the key. Many
+            # reasoning-capable models (observed via OpenRouter for e.g.
+            # DeepSeek and gpt-oss variants) reason BY DEFAULT when no
+            # `reasoning` object is sent at all -- omitting the key does
+            # NOT mean "no reasoning", it means "provider's own default",
+            # which for these models often IS reasoning-on. The only
+            # reliable way to turn it off is to say so explicitly. See
+            # https://openrouter.ai/docs/use-cases/reasoning-tokens
+            # ("enabled": false). reasoning_mode is None (not False) is
+            # the actual "say nothing, let the provider decide" state --
+            # see this method's tri-state note on reasoning_mode above.
+            payload["reasoning"] = {"enabled": False}
+        # else: reasoning_mode is None and no reasoning_effort -- don't
+        # touch the `reasoning` key at all; whatever the provider does by
+        # default for this model is left in place.
 
         attempt = 0  # non-timeout transient errors (429/5xx/connection): bounded by self.max_retries
         timeout_attempt = 0  # APITimeoutError specifically: bounded by self.max_timeout_retries, independently
+        message_order_attempt = 0  # Mistral code 3230 specifically: bounded by self.max_message_order_retries, independently
         unknown_exception_attempts = 0
         current_backoff = self.initial_backoff
         timeout_current_backoff = self.initial_backoff
+        message_order_current_backoff = self.initial_backoff
 
         while True:
             if budget_guard is not None:
@@ -1085,6 +1133,73 @@ class LLMClient:
                 return _build_return(content, reasoning_text)
 
             except BadRequestError as e:
+                error_text = str(e)
+                # Mistral's "Expected last role User or Tool (or Assistant
+                # with prefix True) for serving but got assistant" /
+                # type="invalid_request_message_order" / code="3230".
+                # Narrowly special-cased (NOT all BadRequestErrors --
+                # those stay permanent below) because this specific one
+                # has been reported as an intermittent litellm/Mistral
+                # routing quirk rather than a locally-malformed request:
+                # https://github.com/anomalyco/opencode/issues/6346 notes
+                # the same request succeeds via Mistral's native litellm
+                # provider path but fails through the OpenAI-compatible
+                # pass-through -- consistent with which OpenRouter backend
+                # a call happens to land on, not with anything in the
+                # message list itself. Logging the actual role sequence
+                # every time this fires (not just retrying blind) means
+                # if it turns out to be a real local bug in some edge
+                # case after all, that'll show up here as a genuine
+                # non-alternating sequence instead of staying a mystery.
+                if "invalid_request_message_order" in error_text:
+                    try:
+                        role_sequence = [
+                            (m.get("role") if isinstance(m, dict) else getattr(m, "role", "?"))
+                            for m in payload.get("messages", [])
+                        ]
+                    except Exception:
+                        role_sequence = "<could not introspect payload['messages']>"
+
+                    message_order_attempt += 1
+                    if message_order_attempt > self.max_message_order_retries:
+                        logger.error(
+                            "Mistral message-order error (code 3230) persisted past "
+                            "max_message_order_retries=%s | model=%s role_sequence=%s. "
+                            "Giving up -- if role_sequence above is NOT a clean "
+                            "system?/user/assistant/user/... alternation ending in "
+                            "user/tool, this is a real local bug in how the caller "
+                            "built `messages`, not the routing quirk this retry "
+                            "was written for. Last error: %s",
+                            self.max_message_order_retries,
+                            self.model,
+                            role_sequence,
+                            e,
+                        )
+                        raise
+
+                    sleep_time = min(
+                        message_order_current_backoff * random.uniform(0.75, 1.25),
+                        self.max_backoff,
+                    )
+                    message_order_current_backoff *= 2.0
+
+                    logger.warning(
+                        "Mistral message-order error (code 3230, attempt %s/%s of "
+                        "max_message_order_retries=%s) | model=%s role_sequence=%s. "
+                        "Retrying in %.2f seconds -- see this except branch's "
+                        "comment for why this specific BadRequestError is retried "
+                        "instead of raised immediately. %s",
+                        message_order_attempt,
+                        self.max_message_order_retries,
+                        self.max_message_order_retries,
+                        self.model,
+                        role_sequence,
+                        sleep_time,
+                        e,
+                    )
+                    time.sleep(sleep_time)
+                    continue
+
                 logger.error(
                     "Permanent BadRequestError (Attempt %s/%s): %s",
                     attempt,

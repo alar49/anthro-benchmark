@@ -40,14 +40,55 @@ def sanitize_model_name(model_name: str) -> str:
 ### EDIT FROM HERE ###
 
 # replace the helper block
-def _reasoning_effort_from_args(args):
+def _reasoning_mode_and_effort_from_args(args):
+    """
+    Resolve --reasoning-mode/--reasoning-effort into the (reasoning_mode,
+    reasoning_effort) pair LLMClient actually needs, WITHOUT collapsing
+    "off" and "default" into the same value.
+
+    reasoning_mode is tri-state (see LLMClient.generate()'s docstring):
+      - True:  --reasoning-mode on (or an explicit --reasoning-effort with
+               --reasoning-mode left at its default) -- reasoning
+               explicitly requested.
+      - False: --reasoning-mode off -- reasoning explicitly turned off
+               (LLMClient sends reasoning={"enabled": False} for this,
+               not just a bare omission -- several reasoning-capable
+               models default to reasoning ON when the `reasoning` key is
+               absent entirely, so "say nothing" and "say off" are NOT
+               the same request).
+      - None:  --reasoning-mode default with no --reasoning-effort --
+               nothing is sent; the provider's own default for that model
+               applies untouched.
+
+    Raises ValueError for the contradictory --reasoning-mode off combined
+    with an explicit --reasoning-effort, rather than silently letting one
+    win -- that combination almost certainly means the flags don't say
+    what the caller intended.
+    """
     if args.reasoning_mode == "off":
-        return None
+        if args.reasoning_effort:
+            raise ValueError(
+                "Both --reasoning-mode off and --reasoning-effort "
+                f"{args.reasoning_effort!r} were set -- these contradict "
+                "each other (an effort level only makes sense when "
+                "reasoning is on). Drop one."
+            )
+        return False, None
+
     if args.reasoning_effort:
-        return args.reasoning_effort
+        return True, args.reasoning_effort
+
     if args.reasoning_mode == "on":
-        return "medium"  # OpenRouter default when reasoning is enabled
-    return None
+        return True, "medium"  # OpenRouter default when reasoning is enabled
+
+    return None, None  # "default": don't touch the `reasoning` key at all
+
+
+def _reasoning_effort_from_args(args):
+    """Back-compat shim: reasoning_effort half of
+    _reasoning_mode_and_effort_from_args, for any caller that only needs
+    that part."""
+    return _reasoning_mode_and_effort_from_args(args)[1]
 
 
 def _openrouter_provider_from_args(args, prefix: str) -> Optional[Dict[str, Any]]:
@@ -166,9 +207,8 @@ def generate_dialogues_command(args):
     print("-" * 30)
 
     ### EDIT START ###
-    
-    reasoning_effort = _reasoning_effort_from_args(args)
-    reasoning_mode = reasoning_effort is not None
+
+    reasoning_mode, reasoning_effort = _reasoning_mode_and_effort_from_args(args)
 
     shared_temperature = getattr(args, "temperature", None)
     user_temperature = (
@@ -206,23 +246,65 @@ def generate_dialogues_command(args):
         else getattr(args, "target_llm_timeout", None)
     )
 
-    # Rate limiting: build 1 instance (--rate-limit-scope=shared, the
-    # default) or 2 independent ones (per-model) from the SAME configured
-    # thresholds -- see _build_rate_limiter's and RateLimiter's docstrings
-    # for why "shared" vs "per-model" isn't just a convenience choice.
-    _rl_min_gap = getattr(args, "min_seconds_between_calls", None)
-    _rl_rpm = getattr(args, "max_requests_per_minute", None)
-    _rl_rps = getattr(args, "max_requests_per_second", None)
-    _rl_tpm = getattr(args, "max_tokens_per_minute", None)
+    # Rate limiting: resolve each threshold per-role first (shared flag,
+    # if set, overrides the --user-llm-*/--target-llm-* one -- same
+    # override pattern as --timeout/--max-tokens above), THEN build either
+    # 1 shared instance or 2 independent ones from those resolved values.
+    # See _build_rate_limiter's and RateLimiter's docstrings for why
+    # "shared" vs "per-model" isn't just a convenience choice.
+    def _resolve_rl(shared_attr, user_attr, target_attr):
+        shared_value = getattr(args, shared_attr, None)
+        user_value = (
+            shared_value if shared_value is not None else getattr(args, user_attr, None)
+        )
+        target_value = (
+            shared_value if shared_value is not None else getattr(args, target_attr, None)
+        )
+        return user_value, target_value
+
+    user_rl_min_gap, target_rl_min_gap = _resolve_rl(
+        "min_seconds_between_calls",
+        "user_llm_min_seconds_between_calls",
+        "target_llm_min_seconds_between_calls",
+    )
+    user_rl_rpm, target_rl_rpm = _resolve_rl(
+        "max_requests_per_minute",
+        "user_llm_max_requests_per_minute",
+        "target_llm_max_requests_per_minute",
+    )
+    user_rl_rps, target_rl_rps = _resolve_rl(
+        "max_requests_per_second",
+        "user_llm_max_requests_per_second",
+        "target_llm_max_requests_per_second",
+    )
+    user_rl_tpm, target_rl_tpm = _resolve_rl(
+        "max_tokens_per_minute",
+        "user_llm_max_tokens_per_minute",
+        "target_llm_max_tokens_per_minute",
+    )
     _rl_scope = getattr(args, "rate_limit_scope", "shared")
 
-    user_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
-    if user_rate_limiter is None:
+    _user_rl_thresholds = (user_rl_min_gap, user_rl_rpm, user_rl_rps, user_rl_tpm)
+    _target_rl_thresholds = (target_rl_min_gap, target_rl_rpm, target_rl_rps, target_rl_tpm)
+
+    user_rate_limiter = _build_rate_limiter(*_user_rl_thresholds)
+    if user_rate_limiter is None and _build_rate_limiter(*_target_rl_thresholds) is None:
         target_rate_limiter = None
     elif _rl_scope == "shared":
+        if _user_rl_thresholds != _target_rl_thresholds:
+            raise ValueError(
+                "--rate-limit-scope=shared (the default) requires the "
+                "User and Target LLMs to end up with the SAME rate-limit "
+                f"thresholds -- got user={_user_rl_thresholds} vs "
+                f"target={_target_rl_thresholds}. A single shared clock "
+                "can't enforce two different caps. Either drop the "
+                "--user-llm-*/--target-llm-* overrides that make these "
+                "differ, or pass --rate-limit-scope per-model to give "
+                "each role its own independent budget."
+            )
         target_rate_limiter = user_rate_limiter
     else:
-        target_rate_limiter = _build_rate_limiter(_rl_min_gap, _rl_rpm, _rl_rps, _rl_tpm)
+        target_rate_limiter = _build_rate_limiter(*_target_rl_thresholds)
 
     budget_session_id = (
         getattr(args, "budget_session_id", None)
@@ -249,6 +331,9 @@ def generate_dialogues_command(args):
     if getattr(args, "max_timeout_retries", None) is not None:
         user_llm_config["max_timeout_retries"] = args.max_timeout_retries
         target_llm_config["max_timeout_retries"] = args.max_timeout_retries
+    if getattr(args, "max_message_order_retries", None) is not None:
+        user_llm_config["max_message_order_retries"] = args.max_message_order_retries
+        target_llm_config["max_message_order_retries"] = args.max_message_order_retries
     if user_max_tokens is not None:
         user_llm_config["max_tokens"] = user_max_tokens
     if target_max_tokens is not None:
@@ -390,7 +475,7 @@ def rate_dialogues_command(args):
     Maps CLI args to library function parameters.
     """
 
-    reasoning_effort = _reasoning_effort_from_args(args) ### EDITED
+    reasoning_mode, reasoning_effort = _reasoning_mode_and_effort_from_args(args) ### EDITED
     classifier_openrouter_provider = _openrouter_provider_from_args(args, "classifier") ### EDITED
 
     # Rate limiting: build either one shared instance or a {model:
@@ -437,6 +522,7 @@ def rate_dialogues_command(args):
             classifier_temperature=args.classifier_temperature,
             num_samples=args.num_samples,
             output_rated_csv=getattr(args, "output_rated_csv", None),
+            classifier_reasoning_mode=reasoning_mode, ### EDITED
             classifier_reasoning_effort=reasoning_effort, ### EDITED
             classifier_openrouter_provider=classifier_openrouter_provider, ### EDITED
             cue_group_config=getattr(args, "cue_group_config", None),
@@ -662,6 +748,26 @@ def _parse_flags(_):
         ),
     )
     llm_group.add_argument(
+        "--max-message-order-retries",
+        type=int,
+        default=None,
+        help=(
+            "Maximum retry attempts specifically for Mistral's code-3230 "
+            "'invalid_request_message_order' error (\"Expected last role "
+            "User or Tool ... but got assistant\"), kept independent of "
+            "--max-retries. This has been observed as an intermittent "
+            "litellm/OpenRouter routing quirk rather than a locally-"
+            "malformed request -- see "
+            "https://github.com/anomalyco/opencode/issues/6346 -- so a "
+            "retry is worth attempting before giving up. Each retry also "
+            "logs the exact message role sequence that triggered it, so "
+            "a genuine local bug (as opposed to the routing quirk this "
+            "exists for) would show up in the logs rather than being "
+            "silently retried away. Default: unset -- uses LLMClient's "
+            "own default of 2."
+        ),
+    )
+    llm_group.add_argument(
         "--initial-backoff",
         type=float,
         default=2.0,
@@ -713,23 +819,53 @@ def _parse_flags(_):
         type=float,
         default=None,
         help=(
-            "Minimum wait, in seconds, enforced between the START of "
-            "consecutive LLM calls -- a flat pacing throttle (your "
-            "'waiting time'), independent of the caps below. Under "
+            "Shared minimum wait, in seconds, enforced between the START "
+            "of consecutive LLM calls for BOTH the User and Target LLMs "
+            "-- a flat pacing throttle (your 'waiting time'), independent "
+            "of the caps below. If set, overrides "
+            "--user-llm-min-seconds-between-calls/"
+            "--target-llm-min-seconds-between-calls. Under "
             "--rate-limit-scope=shared (the default), User and Target "
             "calls are paced against ONE shared cadence; under "
             "per-model, each gets its own. Default: unset (no pacing)."
         ),
     )
     rate_limit_group.add_argument(
+        "--user-llm-min-seconds-between-calls",
+        type=float,
+        default=None,
+        help="Minimum wait, in seconds, between User LLM calls only. Ignored if --min-seconds-between-calls is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value (a shared cadence can't honor two different paces).",
+    )
+    rate_limit_group.add_argument(
+        "--target-llm-min-seconds-between-calls",
+        type=float,
+        default=None,
+        help="Minimum wait, in seconds, between Target LLM calls only. Ignored if --min-seconds-between-calls is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
+    )
+    rate_limit_group.add_argument(
         "--max-requests-per-minute",
         type=float,
         default=None,
         help=(
-            "Cap on LLM calls in any rolling 60-second window. Mutually "
-            "exclusive with --max-requests-per-second (same underlying "
-            "cap, different unit)."
+            "Shared cap on LLM calls in any rolling 60-second window, for "
+            "BOTH the User and Target LLMs. If set, overrides "
+            "--user-llm-max-requests-per-minute/"
+            "--target-llm-max-requests-per-minute. Mutually exclusive "
+            "with --max-requests-per-second (same underlying cap, "
+            "different unit)."
         ),
+    )
+    rate_limit_group.add_argument(
+        "--user-llm-max-requests-per-minute",
+        type=float,
+        default=None,
+        help="Requests-per-minute cap for the User LLM only. Ignored if --max-requests-per-minute is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value.",
+    )
+    rate_limit_group.add_argument(
+        "--target-llm-max-requests-per-minute",
+        type=float,
+        default=None,
+        help="Requests-per-minute cap for the Target LLM only. Ignored if --max-requests-per-minute is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
     )
     rate_limit_group.add_argument(
         "--max-requests-per-second",
@@ -737,22 +873,49 @@ def _parse_flags(_):
         default=None,
         help=(
             "Same cap as --max-requests-per-minute, expressed per second "
-            "(converted internally as value * 60). Mutually exclusive "
-            "with --max-requests-per-minute."
+            "(converted internally as value * 60), for BOTH the User and "
+            "Target LLMs. Mutually exclusive with --max-requests-per-minute."
         ),
+    )
+    rate_limit_group.add_argument(
+        "--user-llm-max-requests-per-second",
+        type=float,
+        default=None,
+        help="Requests-per-second cap for the User LLM only. Ignored if --max-requests-per-second/--max-requests-per-minute is set.",
+    )
+    rate_limit_group.add_argument(
+        "--target-llm-max-requests-per-second",
+        type=float,
+        default=None,
+        help="Requests-per-second cap for the Target LLM only. Ignored if --max-requests-per-second/--max-requests-per-minute is set.",
     )
     rate_limit_group.add_argument(
         "--max-tokens-per-minute",
         type=float,
         default=None,
         help=(
-            "Cap on total tokens (input+output combined) in any rolling "
-            "60-second window, enforced using each call's ACTUAL usage "
-            "once it's known -- a single large call can still push the "
-            "window over the cap; later calls are then held back to "
-            "compensate. Reactive, not a hard preemptive guarantee -- see "
-            "RateLimiter's docstring in llm_client.py."
+            "Shared cap on total tokens (input+output combined) in any "
+            "rolling 60-second window, for BOTH the User and Target LLMs, "
+            "enforced using each call's ACTUAL usage once it's known -- a "
+            "single large call can still push the window over the cap; "
+            "later calls are then held back to compensate. Reactive, not "
+            "a hard preemptive guarantee -- see RateLimiter's docstring "
+            "in llm_client.py. If set, overrides "
+            "--user-llm-max-tokens-per-minute/"
+            "--target-llm-max-tokens-per-minute."
         ),
+    )
+    rate_limit_group.add_argument(
+        "--user-llm-max-tokens-per-minute",
+        type=float,
+        default=None,
+        help="Tokens-per-minute cap for the User LLM only. Ignored if --max-tokens-per-minute is set. Requires --rate-limit-scope=per-model to differ from the Target LLM's value.",
+    )
+    rate_limit_group.add_argument(
+        "--target-llm-max-tokens-per-minute",
+        type=float,
+        default=None,
+        help="Tokens-per-minute cap for the Target LLM only. Ignored if --max-tokens-per-minute is set. Requires --rate-limit-scope=per-model to differ from the User LLM's value.",
     )
     rate_limit_group.add_argument(
         "--rate-limit-scope",
@@ -762,12 +925,16 @@ def _parse_flags(_):
             "Only matters if at least one cap above is set. 'shared' "
             "(default): User and Target LLM calls are throttled TOGETHER "
             "against one combined budget -- correct when both use the "
-            "same provider account/key, which is the common case. "
-            "'per-model': each gets its OWN independent budget at the "
-            "same configured limits -- use this if they're on different "
-            "providers/keys with genuinely separate quotas, since "
-            "'shared' would otherwise split one real limit between two "
-            "roles that don't actually share it, under-using each."
+            "same provider account/key, which is the common case. Requires "
+            "the User and Target LLMs to end up with IDENTICAL thresholds "
+            "(a single shared clock can't enforce two different caps at "
+            "once) -- set per-role values that differ and this will raise "
+            "a clear error telling you to switch to per-model instead of "
+            "silently picking one. 'per-model': each gets its OWN "
+            "independent budget -- use this if they're on different "
+            "providers/keys with genuinely separate quotas, OR if you set "
+            "different --user-llm-*/--target-llm-* rate-limit values on "
+            "purpose."
         ),
     )
 
