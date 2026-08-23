@@ -14,4 +14,3 @@ venv
 build
 dist
 .DS_Store
-diagnose_csv_encoding.py
