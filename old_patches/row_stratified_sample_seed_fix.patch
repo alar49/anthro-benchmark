@@ -1,0 +1,195 @@
+diff --git a/docs/guide_dialogues_per_condition_and_seed.md b/docs/guide_dialogues_per_condition_and_seed.md
+index 944737d..d71abea 100644
+--- a/docs/guide_dialogues_per_condition_and_seed.md
++++ b/docs/guide_dialogues_per_condition_and_seed.md
+@@ -4,6 +4,11 @@ Both features below were implemented and executed against synthetic data to
+ verify their behavior (not just syntax-checked) — see "What was tested" at
+ the end of each section for exactly what was run.
+ 
++> This guide covers `build_balanced_sample.py` specifically. For how it
++> compares to `stratified_subsample.py`'s two sampling functions (different
++> sampling unit, different trade-offs, and a seed bug found and fixed in
++> `row_stratified_sample`), see `docs/sampling_strategies_guide.md`.
++
+ ---
+ 
+ ## 1. Controlling dialogues per condition
+diff --git a/docs/sampling_strategies_guide.md b/docs/sampling_strategies_guide.md
+new file mode 100644
+index 0000000..a1cb9c3
+--- /dev/null
++++ b/docs/sampling_strategies_guide.md
+@@ -0,0 +1,114 @@
++# Sampling strategies: `build_balanced_sample.py` vs. `stratified_subsample.py`
++
++The repo has two scripts for drawing a subset of `first_turns.csv`. They are
++not two versions of the same tool — they use different sampling units and
++solve different problems. This documents both, compares them head-to-head
++on the real dataset, and records a bug that was found and fixed in
++`row_stratified_sample`.
++
++## Dataset structure (context for everything below)
++
++960 rows = 120 hand-crafted base prompts (`original_prompt`) × 4 `use_domain`
++× 2 `use_scenario`/domain. `empathy`/`professionalism` are fully determined
++by `use_domain`; `behavior_category` is fully determined by `cue` (12 cues,
++3 per category); each of the 120 base prompts appears in all 8
++domain/scenario cells exactly once — a complete, unreplicated factorial. Full
++detail and the structural assertions that verify this are in
++`stratified_subsample.py`'s module docstring and `validate_structure()`.
++
++## The three sampling functions
++
++| | `build_balanced_sample.py` (`main`) | `stratified_subsample.py`<br>`block_stratified_sample` | `stratified_subsample.py`<br>`row_stratified_sample` |
++|---|---|---|---|
++| Sampling unit | row | **`original_prompt`** | row |
++| Stratifies on | all 6 condition columns (→ 96 domain×scenario×cue cells) | `cue` only | domain × scenario × cue |
++| Size control | fixed N rows/condition (default 2) | prompts kept per cue (default 5/10, or a `frac`) | arbitrary target `n` (default 300) via largest-remainder apportionment |
++| Keeps a selected prompt's full 8-way domain/scenario coverage? | No | **Yes, by construction** | No |
++| Default seed | none — draws a fresh random seed each run unless `--seed` is passed; embeds it in the filename and a `sampling_seed` column | `42` (`--seed` to override) | `42` (`--seed` to override) |
++| Validates dataset structure before running | checks the 6 columns exist | asserts the full nesting/crossing design | (shares `validate_structure()`, run once at the top of `__main__`) |
++| Output | 1 CSV | 1 of 2 CSVs written by `__main__` | 1 of 2 CSVs written by `__main__` |
++
++`build_balanced_sample.py` and `row_stratified_sample` are the same *idea*
++(independent stratified sampling at row level) with different size-control
++math. `block_stratified_sample` is a different idea: treat the base prompt,
++not the row, as what you're sampling, and keep every context replicate of
++whatever you select.
++
++## Why the sampling unit matters: fragmentation
++
++Because `original_prompt` has exactly one row per domain/scenario cell, any
++method that samples rows *independently within each cell* can select a
++prompt's "friendship" variant while dropping its "career development"
++variant — the paper's within-prompt, cross-domain comparison stops being
++possible for that prompt. This was checked directly against the real
++`first_turns.csv`, not just reasoned about:
++
++| Method | Rows | Distinct prompts | Prompts with **all 8** domain/scenario replicates |
++|---|---|---|---|
++| `build_balanced_sample.py` (N=2/condition) | 192 | 96 | **0 / 96** |
++| `block_stratified_sample` (k=5/cue) | 480 | 60 | **60 / 60** |
++
++Every prompt `build_balanced_sample.py` touches is partially represented (1–5
++of its 8 replicates); every prompt `block_stratified_sample` touches is fully
++represented. Both methods hit the same condition-column proportions as the
++full dataset (`check_balance()` reports 0.0000 max diff for both on
++`use_domain`, `use_scenario`, `empathy`, `professionalism`, `cue`,
++`behavior_category`) — the difference is entirely about whether a *prompt*
++survives sampling intact, not about whether *conditions* are balanced.
++
++## Bug found and fixed: `row_stratified_sample` seed collapse
++
++`row_stratified_sample` called `df[mask].sample(n=k, random_state=random_state)`
++once per stratum, passing the *same literal* `random_state` every time.
++pandas' `.sample(n=k, random_state=X)` on same-sized groups selects the same
++*relative* row positions regardless of what's in the group — this is
++documented (and independently reproduced) in `build_balanced_sample.py`'s
++header comment, which fixed the identical issue there via
++`group_seed = seed + group_position`. `row_stratified_sample` had not
++received the equivalent fix.
++
++Impact, measured on the real dataset with `n=300` (the default):
++
++| | Before fix | After fix |
++|---|---|---|
++| Distinct `original_prompt` in the sample | 48 / 120 | 112 / 120 |
++| Distinct prompt-selection patterns among the 84 same-sized (k=3) strata | 12 | 81 |
++
++Fix: each stratum now draws with `random_state + position_in_stable_sorted_order`
++instead of the bare `random_state`, mirroring `build_balanced_sample.py`'s
++existing pattern. `block_stratified_sample` was never affected — it draws
++from a single `numpy.random.Generator` whose internal state advances across
++cues, rather than reseeding pandas fresh on every call.
++
++## Which one to use
++
++- **You want the current `--dialogues-per-condition` workflow** (see
++  `docs/guide_dialogues_per_condition_and_seed.md`): use
++  `build_balanced_sample.py`. It's what that flag's condition-grouping in
++  `generator.py` was built against, and its per-run random seed (embedded in
++  the filename and a `sampling_seed` column) is what makes a specific
++  generation run reproducible on demand.
++- **You want a smaller run that stays faithful to the paper's design** — no
++  partially-represented prompts, exact condition proportions, and the
++  ability to compare a model's response to the *same* prompt across domains
++  — use `block_stratified_sample` (the default/recommended path in
++  `stratified_subsample.py`). `k_per_cue` (or `frac`) directly controls how
++  much of the benchmark you run.
++- **You want an arbitrary row count and don't care about prompt
++  fragmentation** (e.g., you only need condition proportions to hold): use
++  `row_stratified_sample`. As of this patch it no longer under-diversifies
++  same-sized strata.
++- **Note:** `stratified_subsample.py`'s outputs are not currently documented
++  as `--custom-prompt-csv` inputs the way `build_balanced_sample.py`'s are,
++  but they retain the same columns `_resolve_condition_groups` in
++  `generator.py` looks for (`use_domain`, `use_scenario`, `empathy`,
++  `professionalism`, `cue`, `category`/`behavior_category`), so they should
++  work as `--custom-prompt-csv` input too — this hasn't been explicitly
++  exercised end-to-end with `--dialogues-per-condition` yet.
++
++## Files changed by this patch
++
++- `stratified_subsample.py` — fixed the seed-reuse bug in
++  `row_stratified_sample`; no change to `block_stratified_sample`,
++  `validate_structure`, `check_balance`, or the CLI.
++- `docs/sampling_strategies_guide.md` — this file.
+diff --git a/stratified_subsample.py b/stratified_subsample.py
+index 2d36e9e..851c7a9 100644
+--- a/stratified_subsample.py
++++ b/stratified_subsample.py
+@@ -30,6 +30,14 @@ IMPLICATION FOR SAMPLING:
+   you explicitly don't mind fragmenting prompts (e.g. you only care about
+   domain/scenario/cue proportions, not about within-prompt cross-domain
+   comparisons), and/or you need an arbitrary n not divisible by the design.
++
++PATCH NOTE (this version): `row_stratified_sample` previously reused the same
++literal `random_state` for every stratum's `.sample()` call, which collapses
++same-sized strata onto near-identical row selections (see that function's
++docstring for the verified numbers). Fixed by deriving a per-stratum seed,
++the same pattern `build_balanced_sample.py` already uses. See
++docs/sampling_strategies_guide.md for the full write-up, including a
++head-to-head comparison against `build_balanced_sample.py`.
+ """
+ 
+ import argparse
+@@ -84,6 +92,21 @@ def row_stratified_sample(df, strata_cols=('use_domain', 'use_scenario', 'cue'),
+     apportionment. Does NOT guarantee intact original_prompt coverage --
+     a given base prompt may end up represented in some domains/scenarios
+     but not others.
++
++    PATCHED: each stratum now draws with its own derived seed
++    (random_state + its position in the stable, sorted stratum order)
++    instead of the same literal random_state reused as-is for every
++    stratum. Reusing one random_state across same-sized strata makes
++    pandas' .sample() pick the same *relative* row positions in every one
++    of them -- verified on the real first_turns.csv: with the old code,
++    n=300 allocates k=3 to 84 of the 96 (domain, scenario, cue) strata,
++    and all 84 collapsed to just 12 distinct prompt-selection patterns
++    (one per cue) instead of up to 84 independent draws. This is the same
++    failure mode already fixed in build_balanced_sample.py via
++    group_seed = seed + group_position; row_stratified_sample just hadn't
++    received the equivalent fix until now. block_stratified_sample was
++    never affected -- it draws from a single numpy Generator whose state
++    advances across cues, rather than reseeding pandas per call.
+     """
+     assert (n is None) != (frac is None), "pass exactly one of n or frac"
+     strata_cols = list(strata_cols)
+@@ -98,14 +121,15 @@ def row_stratified_sample(df, strata_cols=('use_domain', 'use_scenario', 'cue'),
+         for key in order[:remainder]:
+             alloc[key] += 1
+     parts = []
+-    for key, k in alloc.items():
++    for position, (key, k) in enumerate(alloc.items()):
+         if k <= 0:
+             continue
+         mask = np.ones(len(df), dtype=bool)
+         keys = key if isinstance(key, tuple) else (key,)
+         for col, val in zip(strata_cols, keys):
+             mask &= (df[col] == val)
+-        parts.append(df[mask].sample(n=int(k), random_state=random_state))
++        stratum_seed = random_state + position
++        parts.append(df[mask].sample(n=int(k), random_state=stratum_seed))
+     return pd.concat(parts).sample(frac=1, random_state=random_state).reset_index(drop=True)
+ 
+ 

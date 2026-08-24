@@ -30,6 +30,14 @@ IMPLICATION FOR SAMPLING:
   you explicitly don't mind fragmenting prompts (e.g. you only care about
   domain/scenario/cue proportions, not about within-prompt cross-domain
   comparisons), and/or you need an arbitrary n not divisible by the design.
+
+PATCH NOTE (this version): `row_stratified_sample` previously reused the same
+literal `random_state` for every stratum's `.sample()` call, which collapses
+same-sized strata onto near-identical row selections (see that function's
+docstring for the verified numbers). Fixed by deriving a per-stratum seed,
+the same pattern `build_balanced_sample.py` already uses. See
+docs/sampling_strategies_guide.md for the full write-up, including a
+head-to-head comparison against `build_balanced_sample.py`.
 """
 
 import argparse
@@ -84,6 +92,21 @@ def row_stratified_sample(df, strata_cols=('use_domain', 'use_scenario', 'cue'),
     apportionment. Does NOT guarantee intact original_prompt coverage --
     a given base prompt may end up represented in some domains/scenarios
     but not others.
+
+    PATCHED: each stratum now draws with its own derived seed
+    (random_state + its position in the stable, sorted stratum order)
+    instead of the same literal random_state reused as-is for every
+    stratum. Reusing one random_state across same-sized strata makes
+    pandas' .sample() pick the same *relative* row positions in every one
+    of them -- verified on the real first_turns.csv: with the old code,
+    n=300 allocates k=3 to 84 of the 96 (domain, scenario, cue) strata,
+    and all 84 collapsed to just 12 distinct prompt-selection patterns
+    (one per cue) instead of up to 84 independent draws. This is the same
+    failure mode already fixed in build_balanced_sample.py via
+    group_seed = seed + group_position; row_stratified_sample just hadn't
+    received the equivalent fix until now. block_stratified_sample was
+    never affected -- it draws from a single numpy Generator whose state
+    advances across cues, rather than reseeding pandas per call.
     """
     assert (n is None) != (frac is None), "pass exactly one of n or frac"
     strata_cols = list(strata_cols)
@@ -98,14 +121,15 @@ def row_stratified_sample(df, strata_cols=('use_domain', 'use_scenario', 'cue'),
         for key in order[:remainder]:
             alloc[key] += 1
     parts = []
-    for key, k in alloc.items():
+    for position, (key, k) in enumerate(alloc.items()):
         if k <= 0:
             continue
         mask = np.ones(len(df), dtype=bool)
         keys = key if isinstance(key, tuple) else (key,)
         for col, val in zip(strata_cols, keys):
             mask &= (df[col] == val)
-        parts.append(df[mask].sample(n=int(k), random_state=random_state))
+        stratum_seed = random_state + position
+        parts.append(df[mask].sample(n=int(k), random_state=stratum_seed))
     return pd.concat(parts).sample(frac=1, random_state=random_state).reset_index(drop=True)
 
 

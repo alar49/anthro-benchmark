@@ -4,6 +4,11 @@ Both features below were implemented and executed against synthetic data to
 verify their behavior (not just syntax-checked) — see "What was tested" at
 the end of each section for exactly what was run.
 
+> This guide covers `build_balanced_sample.py` specifically. For how it
+> compares to `stratified_subsample.py`'s two sampling functions (different
+> sampling unit, different trade-offs, and a seed bug found and fixed in
+> `row_stratified_sample`), see `docs/sampling_strategies_guide.md`.
+
 ---
 
 ## 1. Controlling dialogues per condition
