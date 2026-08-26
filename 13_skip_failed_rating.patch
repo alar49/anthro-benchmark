@@ -1,0 +1,210 @@
+diff --git a/anthro_benchmark/classifier/rating.py b/anthro_benchmark/classifier/rating.py
+index 1056f0a..07335bd 100644
+--- a/anthro_benchmark/classifier/rating.py
++++ b/anthro_benchmark/classifier/rating.py
+@@ -204,6 +204,7 @@ def rate_dialogues(
+     strict_batch_ordering: bool = False,
+     incremental_save: bool = False,
+     resume: bool = False,
++    skip_failed: bool = False,
+     # --------------
+     verbose: bool = False,
+ ) -> str:
+@@ -374,6 +375,44 @@ def rate_dialogues(
+             if the existing file has no per-model "*_final_present"
+             columns (predates resume support, wasn't produced with
+             incremental_save, or wasn't produced by this pipeline).
++        skip_failed: Default False preserves prior behavior exactly
++            (every row in dialogues_csv_path is rated, regardless of
++            whether the dialogue it belongs to ever finished
++            generating). When True, rows are dropped BEFORE any rating
++            happens -- not sent to any classifier model, not written to
++            output_rated_csv at all -- for every dialogue_id whose
++            dialogue_status (via
++            dialogues_df.groupby("dialogue_id")["dialogue_status"].first())
++            is NOT "completed" or "completed_early_natural_end" (the same
++            two-member successful set generator.py's own
++            _SUCCESSFUL_STATUSES uses). This covers three distinct cases
++            alike: a genuine "failed_at_turn_..." generation error, a
++            "stopped_budget_exceeded_..." budget/iteration-cap stop, and
++            a missing/NaN/unrecognized dialogue_status -- all three mean
++            the dialogue didn't reach a confirmed-complete state, so
++            there's nothing to lose by not spending classifier tokens on
++            it now if the plan is to regenerate it later anyway. (This is
++            broader than generator.py's own dialogue_status categories
++            suggest they're equally "bad" -- a budget-capped dialogue's
++            existing turns are perfectly valid content, just fewer of
++            them than requested; skip_failed drops it anyway because it's
++            still incomplete, not because those turns are somehow wrong.)
++            NOTE: this drops ALL of a dropped dialogue's rows, including
++            any earlier turn pairs that themselves completed successfully
++            before the dialogue was cut off or failed on a later turn --
++            dialogue_status reflects the dialogue's overall/final
++            outcome, not a per-row state, and generator.py writes that
++            same final status onto every row of the dialogue (see its
++            CSV-writing code), so there's no reliable per-row signal to
++            preserve those earlier turns individually. Requires
++            'dialogue_id' and 'dialogue_status' columns; if either is
++            missing (e.g. a CSV from a source other than generator.py, or
++            one that predates dialogue_status), skip_failed can't
++            determine completeness, so it prints a warning and rates
++            every row instead of raising. Combines freely with resume:
++            filtering happens first, so a dropped row is simply absent
++            from what resume's merge (or anything else downstream) ever
++            sees.
+         verbose: Whether to print progress information
+ 
+     Returns:
+@@ -424,6 +463,82 @@ def rate_dialogues(
+         print(error_msg, file=sys.stderr)
+         raise ValueError(error_msg)
+ 
++    # --- skip_failed: drop rows belonging to any dialogue that did NOT
++    # reach a successful terminal status, before any classifier call is
++    # ever made for them. "Successful" is exactly the two-member set
++    # generator.py's own _SUCCESSFUL_STATUSES uses ("completed",
++    # "completed_early_natural_end") -- everything else (a genuine
++    # "failed_at_turn_..." error, a "stopped_budget_exceeded_..."
++    # session-limit stop, or a missing/NaN/unrecognized status) is
++    # treated as incomplete and dropped alike, on the assumption that an
++    # incomplete dialogue will be regenerated and re-rated later rather
++    # than rated as-is. See the docstring above for the full rationale.
++    if skip_failed:
++        if "dialogue_id" not in dialogues_df.columns or "dialogue_status" not in dialogues_df.columns:
++            print(
++                "Warning: skip_failed=True but the input CSV has no "
++                "'dialogue_id' and/or 'dialogue_status' column, so "
++                "dialogue completion can't be determined here. Proceeding "
++                "without filtering -- every row will be rated normally."
++            )
++        else:
++            status_per_dialogue = dialogues_df.groupby("dialogue_id")["dialogue_status"].first()
++            # .isin() is False for NaN by construction, so a missing/NaN
++            # status is automatically caught by the negation below without
++            # any special-casing.
++            is_incomplete = ~status_per_dialogue.isin(
++                {"completed", "completed_early_natural_end"}
++            )
++            incomplete_ids = set(status_per_dialogue[is_incomplete].index)
++
++            if incomplete_ids:
++                n_rows_before = len(dialogues_df)
++                dialogues_df = dialogues_df[
++                    ~dialogues_df["dialogue_id"].isin(incomplete_ids)
++                ].reset_index(drop=True)
++                n_rows_after = len(dialogues_df)
++
++                # Bucket the excluded statuses for a readable summary --
++                # same three buckets as analysis.py's
++                # write_dialogue_length_report, purely for the printed
++                # message here; the drop itself doesn't distinguish them.
++                incomplete_statuses = status_per_dialogue[is_incomplete]
++
++                def _bucket(status: Any) -> str:
++                    if pd.isna(status):
++                        return "unknown/missing"
++                    s = str(status)
++                    if s.startswith("stopped_budget_exceeded_"):
++                        return "budget/iteration-capped"
++                    if s.startswith("failed_at_turn_"):
++                        return "failed"
++                    return "unknown/missing"
++
++                buckets = incomplete_statuses.map(_bucket)
++                bucket_counts = buckets.value_counts()
++                bucket_summary = ", ".join(
++                    f"{count} {label}" for label, count in bucket_counts.items()
++                )
++
++                print(
++                    f"skip_failed: excluding {len(incomplete_ids)}/{len(status_per_dialogue)} "
++                    f"dialogue(s) not in a successful dialogue_status "
++                    f"({bucket_summary}) -- "
++                    f"{n_rows_before - n_rows_after} of {n_rows_before} row(s) dropped "
++                    f"before any classifier call. {n_rows_after} row(s) remain to be rated."
++                )
++                if n_rows_after == 0:
++                    print(
++                        "Warning: skip_failed removed every row from the input CSV -- "
++                        "no dialogue in it reached a successful status. The output "
++                        "CSV will be empty (header only)."
++                    )
++            elif verbose:
++                print(
++                    "skip_failed: every dialogue in the input CSV already has a "
++                    "successful dialogue_status; nothing excluded."
++                )
++
+     # Group cues into "call units": each unit is the list of cue names
+     # that will be asked about in a single LLM call. With
+     # cue_group_config=None every unit has exactly one cue, i.e. today's
+@@ -1134,6 +1249,7 @@ def run_rating_process(
+     strict_batch_ordering: bool = False,
+     incremental_save: bool = False,
+     resume: bool = False,
++    skip_failed: bool = False,
+     # --------------
+     verbose: bool = True,
+ ) -> str:
+@@ -1156,7 +1272,7 @@ def run_rating_process(
+             classifier_max_timeout_retries, classifier_initial_backoff,
+             classifier_max_backoff, rate_limiter, budget_guard,
+             max_concurrency, strict_batch_ordering, incremental_save,
+-            resume: See
++            resume, skip_failed: See
+             rate_dialogues()'s docstring -- passed straight through.
+         verbose: Whether to print progress information
+ 
+@@ -1188,6 +1304,7 @@ def run_rating_process(
+         strict_batch_ordering=strict_batch_ordering,
+         incremental_save=incremental_save,
+         resume=resume,
++        skip_failed=skip_failed,
+         # --------------
+         verbose=verbose,
+     )
+diff --git a/anthro_eval_cli.py b/anthro_eval_cli.py
+index d9e8a17..59ac49a 100644
+--- a/anthro_eval_cli.py
++++ b/anthro_eval_cli.py
+@@ -539,6 +539,7 @@ def rate_dialogues_command(args):
+             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
+             incremental_save=getattr(args, "incremental_save", False),
+             resume=getattr(args, "resume", False),
++            skip_failed=getattr(args, "skip_failed", False),
+             verbose=True,
+         )
+         if not output_path:
+@@ -1426,6 +1427,32 @@ def _parse_flags(_):
+         choices=[1, 3],
+         help="Number of times to sample rating for each turn per model (1 or 3, default: 1).",
+     )
++    rate_config_group.add_argument(
++        "--skip-failed",
++        action="store_true",
++        help=(
++            "Default off: every row in --dialogues-csv is rated, "
++            "regardless of whether the dialogue it belongs to finished "
++            "generating. Set this to drop, BEFORE any classifier call is "
++            "made, every row belonging to a dialogue whose dialogue_status "
++            "is NOT 'completed' or 'completed_early_natural_end' -- this "
++            "covers a genuine generation error ('failed_at_turn_...'), a "
++            "budget/iteration-cap stop ('stopped_budget_exceeded_...'), "
++            "and a missing/unrecognized status alike, saving the "
++            "classifier tokens that would otherwise be spent rating a "
++            "dialogue that never reached a confirmed-complete state and "
++            "that you plan to regenerate anyway. Requires 'dialogue_id' "
++            "and 'dialogue_status' columns in --dialogues-csv (present in "
++            "any CSV produced by the 'generate' subcommand); if either is "
++            "missing, this flag prints a warning and has no effect rather "
++            "than erroring out. Note this drops a dropped dialogue's rows "
++            "entirely, including any of its own earlier turns that "
++            "completed fine before it was cut off or failed -- "
++            "dialogue_status is a whole-dialogue outcome, not a per-row "
++            "one. See rate_dialogues()'s docstring in rating.py for the "
++            "full rationale."
++        ),
++    )
+ 
+     # Same mechanism/helper (_build_budget_guard) as the generate
+     # subcommand -- see that argument group's help text. One BudgetGuard

@@ -539,6 +539,7 @@ def rate_dialogues_command(args):
             strict_batch_ordering=getattr(args, "strict_batch_ordering", False),
             incremental_save=getattr(args, "incremental_save", False),
             resume=getattr(args, "resume", False),
+            skip_failed=getattr(args, "skip_failed", False),
             verbose=True,
         )
         if not output_path:
@@ -1425,6 +1426,32 @@ def _parse_flags(_):
         default=1,
         choices=[1, 3],
         help="Number of times to sample rating for each turn per model (1 or 3, default: 1).",
+    )
+    rate_config_group.add_argument(
+        "--skip-failed",
+        action="store_true",
+        help=(
+            "Default off: every row in --dialogues-csv is rated, "
+            "regardless of whether the dialogue it belongs to finished "
+            "generating. Set this to drop, BEFORE any classifier call is "
+            "made, every row belonging to a dialogue whose dialogue_status "
+            "is NOT 'completed' or 'completed_early_natural_end' -- this "
+            "covers a genuine generation error ('failed_at_turn_...'), a "
+            "budget/iteration-cap stop ('stopped_budget_exceeded_...'), "
+            "and a missing/unrecognized status alike, saving the "
+            "classifier tokens that would otherwise be spent rating a "
+            "dialogue that never reached a confirmed-complete state and "
+            "that you plan to regenerate anyway. Requires 'dialogue_id' "
+            "and 'dialogue_status' columns in --dialogues-csv (present in "
+            "any CSV produced by the 'generate' subcommand); if either is "
+            "missing, this flag prints a warning and has no effect rather "
+            "than erroring out. Note this drops a dropped dialogue's rows "
+            "entirely, including any of its own earlier turns that "
+            "completed fine before it was cut off or failed -- "
+            "dialogue_status is a whole-dialogue outcome, not a per-row "
+            "one. See rate_dialogues()'s docstring in rating.py for the "
+            "full rationale."
+        ),
     )
 
     # Same mechanism/helper (_build_budget_guard) as the generate
