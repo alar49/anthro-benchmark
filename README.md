@@ -54,5 +54,5 @@ Analysys.py specific:
 |  | Total Evaluation Calls / Model | R = B * M * J * S | 561,600 | ~2,880 | **~195× reduction in compute** |
 
 
-Full details and results available at: [WIP]
+Full details and results available at: [(WIP) Replicating and extending the AnthroBench library](https://docs.google.com/document/d/146u0fuif-q_K1KfOHvG6KMLTk4QhRbTkT9e94NRD-9U/edit?usp=sharing)
 
