@@ -54,5 +54,35 @@ Analysys.py specific:
 |  | Total Evaluation Calls / Model | R = B * M * J * S | 561,600 | ~2,880 | **~195× reduction in compute** |
 
 
+## Interactive Results
+
+To allow a better results visualization, I have built a dedicated **Interactive Comparison Tool** natively hosted on GitHub Pages for this dataset. 
+
+It allows you to dynamically filter and cross-examine the data with zero visual clutter:
+* **Every Model and versions** (from Mistral Small to LLaMA 3.3 70B)
+* **14 Behavioral Cues** (Sentience, Empathy, Agency, Validation, etc.)
+* **Turn Scope Comparison:** Isolate 5-Turns, 10-Turns, or view **Side-by-Side Comparisons** of the exact same models across conversational depth.
+* **Modality:** Toggle between Data Tables, Radar Charts, and Horizontal Bar Charts.
+
+[![Explore the Data](https://img.shields.io/badge/Launch_Interactive_Results_Tool-000000?style=for-the-badge&logo=github&logoColor=white)](https://alar49.github.io/anthro-benchmark/results.html)
+
+*(Click the badge above to launch the tool)*
+
+---
+
+### Static Fallback: 5-Turn vs 10-Turn Glimpse 
+<details>
+<summary>Click here to view a static sample comparing conversational depth</summary>
+
+| Cue | Mistral Small 4 (5T) | Mistral Small 4 (10T) | Gemma 4 4B (5T) | Gemma 4 4B (10T) | Qwen 3.8 27B (5T) | Qwen 3.8 27B (10T) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Validation** | 66.24 | 61.31 | 85.95 | 78.78 | 75.96 | 69.40 |
+| **Empathy** | 57.96 | 54.90 | 62.68 | 60.25 | 70.00 | 69.40 |
+| **Agency** | 4.67 | 3.81 | 6.71 | 5.23 | 3.19 | 2.73 |
+
+> *Note: Open the Interactive Tool above for all 15 models, 14 cues, and full graphical visualization.*
+
+</details>
+
 Full details and results available at: [(WIP) Replicating and extending the AnthroBench library](https://docs.google.com/document/d/146u0fuif-q_K1KfOHvG6KMLTk4QhRbTkT9e94NRD-9U/edit?usp=sharing)
 
