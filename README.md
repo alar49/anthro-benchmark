@@ -102,9 +102,9 @@ Different classifiers were tested on the same 96-scenarios run (k=1, seed=42) ge
 | Explicit relationship status | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.14% | 0.0% |
 | Validation | 87.99% | 60.76% | 61.31% | 68.19% | 57.36% | 20.3% | 73.3% |
 | Empathy | 94.41% | *57.9%* | *54.9%* | 41.88% | 44.46% | 69.48% | 83.92% |
-| Relatability | 69.07% | **18.53%** | **25.34%** | 21.24% | 13.42% | 15.14% | 58.45% |
+| Relatability | 69.07% | **18.53%\*** | **25.34%\*** | 21.24% | 13.42% | 15.14% | 58.45% |
 
-These results led me to choose ***Gemini 3.7 Flash under the Config_A cue option as the classifier model for every run***.
+Based on these results, I selected ***Gemini 3.7 Flash under the Config_A cue option as the classifier model***. Compared with the original rating mechanism, *Config_A* produced largely comparable results across the evaluated cues (with **Relatability\*** being the main notable exception), while offering a substantial reduction in computational time and cost (see ***Appendix***).
 
 
 ## Experimental Results
@@ -285,7 +285,7 @@ Notably, the *user LLM* **understood the chat ended prematurely (at turn 5)** an
 
 ### On *cues* *grouping*
 
-The original methodology evaluated each cue detection **sequentially**, requiring **13 separate inference calls per turn per dialogue** (one for each cue). To (sensibly) reduce inference costs, I proposed combining multiple cues into simultaneous calls — creating diverse *cue-groups* each one including 1\~n cues. However, since semantically similar cues can introduce **prompt contamination** though **cross-cue interference** (leading to biased LLM responses), and given that no single grouping is universally optimal, I prompted multiple LLMs to generate *candidate grouping strategies*, from which I selected five distinct configurations for evaluation (see Table 3 and Table 4 below).
+The original methodology evaluated each cue detection **sequentially**, requiring **13 separate inference calls per turn per dialogue** (one for each cue). To (sensibly) reduce inference costs, I proposed combining multiple cues into simultaneous calls — creating diverse *cue-groups* each one including 1\~n cues. However, since semantically similar cues can introduce **prompt contamination** though **cross-cue interference** (leading to biased LLM responses), and given that no single grouping is universally optimal, I prompted multiple LLMs to generate *candidate grouping strategies*, from which I selected five distinct configurations for evaluation.
 
 #### Candidate grouping strategies
 
