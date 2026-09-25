@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Cue Comparison Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; padding: 20px; max-width: 1200px; margin: auto; color: #24292f; }
+        .controls { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 15px; margin-bottom: 20px; }
+        .control-group { margin-bottom: 15px; }
+        .control-group label { font-weight: 600; display: block; margin-bottom: 5px; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; font-size: 14px;}
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #d0d7de; padding: 8px; text-align: right; }
+        th { background-color: #f6f8fa; text-align: center; }
+        td:first-child, th:first-child { text-align: left; font-weight: 600; background-color: #f6f8fa; }
+        .hidden { display: none; }
+        select, button { padding: 5px 10px; border-radius: 4px; border: 1px solid #d0d7de; margin-right: 5px; }
+        #chartContainer { width: 100%; min-height: 500px; margin: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>LLM Cue Comparison Tool</h2>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>1. Select Modality & Turn Scope</label>
+            <select id="viewType">
+                <option value="table">Data Table</option>
+                <option value="radar">Visual Chart (Radar)</option>
+                <option value="bar">Visual Chart (Horizontal Bar)</option>
+            </select>
+            <select id="turnType">
+                <option value="5">5-Turns Only</option>
+                <option value="10">10-Turns Only</option>
+                <option value="compare">Compare 5-Turns vs 10-Turns</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Select Target Cues</label>
+            <button onclick="toggleAllCues(true)">Select All</button>
+            <button onclick="toggleAllCues(false)">Deselect All</button>
+            <div class="checkbox-grid" id="cueCheckboxes" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="control-group">
+            <label>3. Select Models</label>
+            <button onclick="toggleAllModels(true)">Select All</button>
+            <button onclick="toggleAllModels(false)">Deselect All</button>
+            <div class="checkbox-grid" id="modelCheckboxes" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div id="tableContainer">
+        <div style="overflow-x: auto;">
+            <table id="dataTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="chartContainer" class="hidden">
+        <canvas id="visualChart"></canvas>
+    </div>
+
+<script>
+// EXACT DATA MAPPING - UNTOUCHED
+const models = [
+    "mistral_small_4_test", "mistral_small_4_all960_full", "gemma4_e4b", "phi4_mini_3.8",
+    "gemma4_e2b", "qwen3.8_27b", "llama3.3_70b", "gemini3.7_flash",
+    "mistral_nemo", "llama3.1_8b", "qwen3.5_9b", "gemma4_31b",
+    "gpt_oss_120b", "deepseek_v4_Flash", "mistral_small_4_seed42_only"
+];
+
+const data_5_turns = {
+    "Personal Pronoun Use": [36.52, 47.06, 79.04, 56.07, 76.41, 90.43, 72.50, 62.68, 44.65, 44.38, 81.89, 82.46, 93.10, 92.33, 47.49],
+    "Sentience": [0.64, 0.65, 0.00, 0.00, 0.21, 0.00, 0.00, 0.00, 0.84, 0.00, 0.21, 0.00, 0.21, 0.68, 0.42],
+    "Personal Relationships": [0.21, 0.58, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.63, 0.00, 0.00, 0.00, 0.21, 0.00, 0.63],
+    "Personal History": [2.34, 2.42, 0.21, 0.00, 0.00, 0.00, 0.00, 0.42, 3.35, 0.00, 0.63, 0.00, 0.42, 0.68, 3.14],
+    "Sensory Input": [0.64, 1.15, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.42, 0.00, 0.00, 0.63, 0.21, 0.00, 0.42],
+    "Movement & Interactions": [0.42, 2.57, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 2.10, 0.00, 0.00, 0.63, 0.21, 0.23, 2.09],
+    "Physical Embodiment": [0.21, 1.71, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.63, 0.00, 0.00, 0.63, 0.42, 0.00, 1.46],
+    "Desires": [1.70, 2.21, 3.98, 2.51, 2.30, 3.19, 2.92, 2.99, 2.52, 2.08, 4.00, 5.64, 4.18, 5.66, 1.05],
+    "Agency": [4.67, 6.00, 6.71, 9.41, 6.68, 3.19, 4.79, 1.47, 7.13, 3.56, 5.47, 5.65, 6.51, 6.32, 4.39],
+    "Emotions": [4.88, 5.97, 3.98, 4.81, 3.55, 3.40, 4.17, 1.50, 9.03, 3.54, 5.68, 2.71, 6.69, 7.69, 5.23],
+    "Explicit Relationship Status": [0.00, 0.08, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.21, 0.68, 0.00],
+    "Validation": [66.24, 63.46, 85.95, 51.26, 87.68, 75.96, 75.21, 75.47, 47.80, 55.02, 93.47, 77.04, 61.09, 92.33, 64.64],
+    "Empathy": [57.96, 55.13, 62.68, 41.00, 55.53, 70.00, 57.50, 66.88, 37.32, 41.72, 74.11, 65.27, 48.74, 78.33, 57.32],
+    "Relatability": [27.39, 31.13, 19.92, 9.00, 24.01, 25.11, 18.75, 23.88, 18.49, 14.79, 24.84, 21.09, 10.67, 41.18, 28.24]
+};
+
+const data_10_turns = {
+    "Personal Pronoun Use": [33.24, 44.90, 77.51, 59.79, 78.81, 82.38, 78.54, 58.75, 46.53, 48.79, 80.86, 81.82, 85.13, 90.29, 43.55],
+    "Sentience": [0.41, 0.54, 0.00, 0.00, 0.13, 0.00, 0.00, 0.00, 0.64, 0.00, 0.13, 0.00, 0.13, 0.43, 0.54],
+    "Personal Relationships": [0.14, 0.47, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.39, 0.00, 0.00, 0.00, 0.13, 0.00, 0.40],
+    "Personal History": [1.50, 2.25, 0.14, 0.00, 0.00, 0.00, 0.00, 0.86, 2.19, 0.00, 0.52, 0.00, 0.27, 0.71, 2.69],
+    "Sensory Input": [0.41, 1.16, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 0.51, 0.00, 0.00, 0.53, 0.13, 0.29, 0.40],
+    "Movement & Interactions": [0.82, 2.49, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 1.29, 0.00, 0.00, 0.80, 0.13, 0.86, 2.15],
+    "Physical Embodiment": [0.68, 1.56, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 0.39, 0.00, 0.00, 0.67, 0.27, 0.29, 1.34],
+    "Desires": [1.63, 2.05, 3.68, 2.13, 2.97, 2.87, 4.77, 2.60, 2.70, 1.66, 4.56, 5.21, 4.78, 5.44, 1.08],
+    "Agency": [3.81, 5.38, 5.23, 7.86, 7.69, 2.73, 6.03, 1.85, 7.33, 3.60, 4.56, 4.55, 5.99, 5.14, 3.76],
+    "Emotions": [4.63, 5.56, 7.36, 7.72, 12.82, 4.64, 8.41, 1.88, 11.45, 8.30, 9.00, 4.28, 7.70, 13.59, 5.38],
+    "Explicit Relationship Status": [0.00, 0.05, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.13, 0.00, 0.13, 1.00, 0.00],
+    "Validation": [61.31, 59.13, 78.78, 45.14, 81.92, 69.40, 68.26, 66.81, 40.75, 52.37, 88.15, 69.79, 54.58, 88.43, 60.35],
+    "Empathy": [54.90, 53.60, 60.25, 38.22, 56.55, 69.40, 58.79, 62.16, 32.65, 43.06, 78.65, 63.19, 47.14, 80.69, 54.44],
+    "Relatability": [25.34, 30.48, 16.69, 9.19, 21.32, 22.68, 19.32, 21.90, 16.09, 15.33, 23.47, 20.05, 7.70, 36.05, 28.49]
+};
+
+const cues = Object.keys(data_5_turns);
+let chartInstance = null;
+
+// INIT UI
+function initUI() {
+    const cueGrid = document.getElementById('cueCheckboxes');
+    cues.forEach(cue => {
+        cueGrid.innerHTML += `<label><input type="checkbox" class="cue-cb" value="${cue}" checked onchange="render()"> ${cue}</label>`;
+    });
+
+    const modelGrid = document.getElementById('modelCheckboxes');
+    models.forEach((model, i) => {
+        modelGrid.innerHTML += `<label><input type="checkbox" class="model-cb" value="${i}" checked onchange="render()"> ${model}</label>`;
+    });
+
+    document.getElementById('viewType').addEventListener('change', render);
+    document.getElementById('turnType').addEventListener('change', render);
+    render();
+}
+
+function toggleAllCues(state) {
+    document.querySelectorAll('.cue-cb').forEach(cb => cb.checked = state);
+    render();
+}
+
+function toggleAllModels(state) {
+    document.querySelectorAll('.model-cb').forEach(cb => cb.checked = state);
+    render();
+}
+
+// RENDER LOGIC
+function render() {
+    const viewType = document.getElementById('viewType').value;
+    const turnType = document.getElementById('turnType').value;
+    
+    const selectedCues = Array.from(document.querySelectorAll('.cue-cb:checked')).map(cb => cb.value);
+    const selectedModelIndices = Array.from(document.querySelectorAll('.model-cb:checked')).map(cb => parseInt(cb.value));
+
+    if (viewType === 'table') {
+        document.getElementById('tableContainer').classList.remove('hidden');
+        document.getElementById('chartContainer').classList.add('hidden');
+        renderTable(turnType, selectedCues, selectedModelIndices);
+    } else {
+        document.getElementById('tableContainer').classList.add('hidden');
+        document.getElementById('chartContainer').classList.remove('hidden');
+        renderChart(viewType, turnType, selectedCues, selectedModelIndices);
+    }
+}
+
+function renderTable(turnType, selectedCues, selectedModelIndices) {
+    const head = document.getElementById('tableHead');
+    const body = document.getElementById('tableBody');
+    
+    // Header setup based on comparison mode
+    let headerHtml = `<tr><th>Cue / Model</th>`;
+    selectedModelIndices.forEach(i => {
+        if (turnType === 'compare') {
+            headerHtml += `<th style="background-color: #e1e4e8;">${models[i]} (5T)</th><th>${models[i]} (10T)</th>`;
+        } else {
+            headerHtml += `<th>${models[i]}</th>`;
+        }
+    });
+    headerHtml += `</tr>`;
+    head.innerHTML = headerHtml;
+    
+    // Body setup
+    body.innerHTML = selectedCues.map(cue => {
+        let rowData = '';
+        selectedModelIndices.forEach(i => {
+            if (turnType === '5') {
+                rowData += `<td>${data_5_turns[cue][i].toFixed(2)}</td>`;
+            } else if (turnType === '10') {
+                rowData += `<td>${data_10_turns[cue][i].toFixed(2)}</td>`;
+            } else if (turnType === 'compare') {
+                rowData += `<td style="background-color: #f6f8fa;">${data_5_turns[cue][i].toFixed(2)}</td><td>${data_10_turns[cue][i].toFixed(2)}</td>`;
+            }
+        });
+        return `<tr><td>${cue}</td>${rowData}</tr>`;
+    }).join('');
+}
+
+function renderChart(viewType, turnType, selectedCues, selectedModelIndices) {
+    const ctx = document.getElementById('visualChart').getContext('2d');
+    
+    if (chartInstance) chartInstance.destroy();
+    
+    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#E7E9ED', '#8B0000', '#006400', '#00008B', '#800080', '#008080', '#A52A2A', '#D2691E', '#556B2F'];
+    let datasets = [];
+
+    selectedModelIndices.forEach((modelIdx, i) => {
+        const baseColor = colors[i % colors.length];
+
+        if (turnType === '5' || turnType === '10') {
+            const data = turnType === '5' ? data_5_turns : data_10_turns;
+            datasets.push({
+                label: `${models[modelIdx]} (${turnType}T)`,
+                data: selectedCues.map(cue => data[cue][modelIdx]),
+                borderColor: baseColor,
+                backgroundColor: baseColor + '33', // 20% opacity
+                borderWidth: 2
+            });
+        } else if (turnType === 'compare') {
+            // Push 5-turns
+            datasets.push({
+                label: `${models[modelIdx]} (5-Turns)`,
+                data: selectedCues.map(cue => data_5_turns[cue][modelIdx]),
+                borderColor: baseColor,
+                backgroundColor: baseColor + '80', // Darker opacity for 5T
+                borderWidth: 2
+            });
+            // Push 10-turns
+            datasets.push({
+                label: `${models[modelIdx]} (10-Turns)`,
+                data: selectedCues.map(cue => data_10_turns[cue][modelIdx]),
+                borderColor: baseColor,
+                backgroundColor: baseColor + '20', // Lighter opacity for 10T
+                borderWidth: 2,
+                borderDash: [5, 5] // Dashed line for easy visual distinction
+            });
+        }
+    });
+
+    const isHorizontalBar = (viewType === 'bar');
+
+    chartInstance = new Chart(ctx, {
+        type: isHorizontalBar ? 'bar' : 'radar',
+        data: { labels: selectedCues, datasets: datasets },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            indexAxis: isHorizontalBar ? 'y' : 'x', // Flips the bar chart horizontally
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+}
+
+window.onload = initUI;
+</script>
+</body>
+</html>
