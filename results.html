@@ -15,6 +15,7 @@
         th, td { border: 1px solid #d0d7de; padding: 8px; text-align: right; }
         th { background-color: #f6f8fa; text-align: center; }
         td:first-child, th:first-child { text-align: left; font-weight: 600; background-color: #f6f8fa; }
+        .note { font-size: 14px; color: #57606a; margin-bottom: 15px; }
         .hidden { display: none; }
         select, button { padding: 5px 10px; border-radius: 4px; border: 1px solid #d0d7de; margin-right: 5px; }
         #chartContainer { width: 100%; min-height: 500px; margin: auto; }
@@ -23,6 +24,7 @@
 <body>
 
     <h2>LLM Cue Comparison Tool</h2>
+    <p class="note">Rates in turns 1-5 and turns 6-10 of the same dialogues: each dialogue's rate in each window, averaged over dialogues. Only dialogues with all five early turns rated and at least one rated late turn are included (n in the model list). DeepSeek V4 Flash fell below the 95% inclusion rule and is described separately. <a href="https://github.com/alar49/anthro-benchmark/tree/alar49-patch-tracking2/analysis/turn_dynamics">Full report</a>.</p>
 
     <div class="controls">
         <div class="control-group">
@@ -33,9 +35,9 @@
                 <option value="bar">Visual Chart (Horizontal Bar)</option>
             </select>
             <select id="turnType">
-                <option value="5">5-Turns Only</option>
-                <option value="10">10-Turns Only</option>
-                <option value="compare">Compare 5-Turns vs 10-Turns</option>
+                <option value="5">Turns 1-5</option>
+                <option value="10">Turns 6-10</option>
+                <option value="compare">Compare Turns 1-5 vs 6-10</option>
             </select>
         </div>
 
@@ -68,49 +70,53 @@
     </div>
 
 <script>
-// EXACT DATA MAPPING - UNTOUCHED
-const models = [
-    "mistral_small_4_test", "mistral_small_4_all960_full", "gemma4_e4b", "phi4_mini_3.8",
-    "gemma4_e2b", "qwen3.8_27b", "llama3.3_70b", "gemini3.7_flash",
-    "mistral_nemo", "llama3.1_8b", "qwen3.5_9b", "gemma4_31b",
-    "gpt_oss_120b", "deepseek_v4_Flash", "mistral_small_4_seed42_only"
-];
+// Source: analysis/turn_dynamics/turn_dynamics_results/five_vs_ten.csv (early_pct, late_pct).
+// DeepSeek V4 Flash: analysis/turn_dynamics/turn_dynamics_deepseek_described/five_vs_ten.csv.
+const models = ["Gemini 3.7 Flash", "Mistral Small 4", "Gemma 4 31B", "Mistral NeMo", "gpt-oss-120b", "Qwen3.8 27B", "Phi-4-mini", "Llama 3.3 70B", "Qwen3.5 9B", "Gemma 4 E2B", "Llama 3.1 8B", "DeepSeek V4 Flash"];
 
-const data_5_turns = {
-    "Personal Pronoun Use": [36.52, 47.06, 79.04, 56.07, 76.41, 90.43, 72.50, 62.68, 44.65, 44.38, 81.89, 82.46, 93.10, 92.33, 47.49],
-    "Sentience": [0.64, 0.65, 0.00, 0.00, 0.21, 0.00, 0.00, 0.00, 0.84, 0.00, 0.21, 0.00, 0.21, 0.68, 0.42],
-    "Personal Relationships": [0.21, 0.58, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.63, 0.00, 0.00, 0.00, 0.21, 0.00, 0.63],
-    "Personal History": [2.34, 2.42, 0.21, 0.00, 0.00, 0.00, 0.00, 0.42, 3.35, 0.00, 0.63, 0.00, 0.42, 0.68, 3.14],
-    "Sensory Input": [0.64, 1.15, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.42, 0.00, 0.00, 0.63, 0.21, 0.00, 0.42],
-    "Movement & Interactions": [0.42, 2.57, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 2.10, 0.00, 0.00, 0.63, 0.21, 0.23, 2.09],
-    "Physical Embodiment": [0.21, 1.71, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.63, 0.00, 0.00, 0.63, 0.42, 0.00, 1.46],
-    "Desires": [1.70, 2.21, 3.98, 2.51, 2.30, 3.19, 2.92, 2.99, 2.52, 2.08, 4.00, 5.64, 4.18, 5.66, 1.05],
-    "Agency": [4.67, 6.00, 6.71, 9.41, 6.68, 3.19, 4.79, 1.47, 7.13, 3.56, 5.47, 5.65, 6.51, 6.32, 4.39],
-    "Emotions": [4.88, 5.97, 3.98, 4.81, 3.55, 3.40, 4.17, 1.50, 9.03, 3.54, 5.68, 2.71, 6.69, 7.69, 5.23],
-    "Explicit Relationship Status": [0.00, 0.08, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.21, 0.68, 0.00],
-    "Validation": [66.24, 63.46, 85.95, 51.26, 87.68, 75.96, 75.21, 75.47, 47.80, 55.02, 93.47, 77.04, 61.09, 92.33, 64.64],
-    "Empathy": [57.96, 55.13, 62.68, 41.00, 55.53, 70.00, 57.50, 66.88, 37.32, 41.72, 74.11, 65.27, 48.74, 78.33, 57.32],
-    "Relatability": [27.39, 31.13, 19.92, 9.00, 24.01, 25.11, 18.75, 23.88, 18.49, 14.79, 24.84, 21.09, 10.67, 41.18, 28.24]
+// Dialogues compared per model (n_dialogues).
+const dialogues = [78, 87, 87, 85, 84, 87, 88, 91, 85, 86, 92, 61];
+
+// Described separately: below the 95% inclusion rule, off by default.
+const describedOnly = ["DeepSeek V4 Flash"];
+
+const data_turns_1_5 = {
+    "13-Cue Index": [13.58, 13.19, 13.87, 9.97, 10.93, 14.02, 9.20, 12.53, 15.73, 13.65, 9.08, 18.03],
+    "Personal Pronoun Use": [65.13, 49.66, 83.68, 44.47, 96.90, 91.95, 54.32, 72.09, 82.35, 77.67, 44.78, 91.80],
+    "Sentience": [0.00, 0.46, 0.00, 0.94, 0.00, 0.00, 0.00, 0.00, 0.00, 0.23, 0.00, 0.00],
+    "Personal Relationships": [0.00, 0.69, 0.00, 0.71, 0.24, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Personal History": [0.58, 3.45, 0.00, 3.76, 0.24, 0.00, 0.00, 0.00, 0.47, 0.00, 0.00, 0.98],
+    "Sensory Input": [0.00, 0.46, 0.69, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Movement & Interactions": [0.00, 2.30, 0.69, 1.94, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.41],
+    "Physical Embodiment": [0.00, 1.61, 0.69, 0.47, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Desires": [2.95, 1.15, 5.75, 2.82, 4.52, 3.45, 2.50, 3.08, 3.53, 2.56, 2.17, 5.33],
+    "Agency": [1.54, 4.60, 5.98, 8.00, 6.90, 3.22, 9.09, 4.84, 5.41, 6.28, 3.86, 5.90],
+    "Emotions": [1.03, 5.06, 1.61, 9.00, 6.67, 3.45, 4.32, 3.96, 4.00, 3.26, 3.26, 7.54],
+    "Explicit Relationship Status": [0.00, 0.00, 0.00, 0.00, 0.24, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.66],
+    "Validation": [77.44, 65.29, 77.47, 46.82, 62.62, 76.55, 52.50, 75.82, 93.41, 88.14, 54.24, 93.77],
+    "Empathy": [66.92, 57.01, 64.94, 36.94, 49.76, 69.89, 41.36, 56.92, 72.47, 52.79, 40.33, 79.34],
+    "Relatability": [25.85, 29.43, 22.53, 18.18, 10.95, 25.75, 9.77, 18.24, 25.18, 24.19, 14.13, 40.49]
 };
 
-const data_10_turns = {
-    "Personal Pronoun Use": [33.24, 44.90, 77.51, 59.79, 78.81, 82.38, 78.54, 58.75, 46.53, 48.79, 80.86, 81.82, 85.13, 90.29, 43.55],
-    "Sentience": [0.41, 0.54, 0.00, 0.00, 0.13, 0.00, 0.00, 0.00, 0.64, 0.00, 0.13, 0.00, 0.13, 0.43, 0.54],
-    "Personal Relationships": [0.14, 0.47, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.39, 0.00, 0.00, 0.00, 0.13, 0.00, 0.40],
-    "Personal History": [1.50, 2.25, 0.14, 0.00, 0.00, 0.00, 0.00, 0.86, 2.19, 0.00, 0.52, 0.00, 0.27, 0.71, 2.69],
-    "Sensory Input": [0.41, 1.16, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 0.51, 0.00, 0.00, 0.53, 0.13, 0.29, 0.40],
-    "Movement & Interactions": [0.82, 2.49, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 1.29, 0.00, 0.00, 0.80, 0.13, 0.86, 2.15],
-    "Physical Embodiment": [0.68, 1.56, 0.00, 0.00, 0.00, 0.00, 0.00, 0.14, 0.39, 0.00, 0.00, 0.67, 0.27, 0.29, 1.34],
-    "Desires": [1.63, 2.05, 3.68, 2.13, 2.97, 2.87, 4.77, 2.60, 2.70, 1.66, 4.56, 5.21, 4.78, 5.44, 1.08],
-    "Agency": [3.81, 5.38, 5.23, 7.86, 7.69, 2.73, 6.03, 1.85, 7.33, 3.60, 4.56, 4.55, 5.99, 5.14, 3.76],
-    "Emotions": [4.63, 5.56, 7.36, 7.72, 12.82, 4.64, 8.41, 1.88, 11.45, 8.30, 9.00, 4.28, 7.70, 13.59, 5.38],
-    "Explicit Relationship Status": [0.00, 0.05, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.13, 0.00, 0.13, 1.00, 0.00],
-    "Validation": [61.31, 59.13, 78.78, 45.14, 81.92, 69.40, 68.26, 66.81, 40.75, 52.37, 88.15, 69.79, 54.58, 88.43, 60.35],
-    "Empathy": [54.90, 53.60, 60.25, 38.22, 56.55, 69.40, 58.79, 62.16, 32.65, 43.06, 78.65, 63.19, 47.14, 80.69, 54.44],
-    "Relatability": [25.34, 30.48, 16.69, 9.19, 21.32, 22.68, 19.32, 21.90, 16.09, 15.33, 23.47, 20.05, 7.70, 36.05, 28.49]
+const data_turns_6_10 = {
+    "13-Cue Index": [8.64, 9.60, 10.49, 6.62, 8.00, 11.40, 7.02, 12.14, 15.48, 14.45, 10.35, 17.05],
+    "Personal Pronoun Use": [40.28, 31.44, 75.23, 46.71, 67.44, 56.90, 65.70, 89.10, 75.16, 83.35, 58.62, 89.78],
+    "Sentience": [0.00, 0.46, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Personal Relationships": [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Personal History": [1.03, 1.15, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.24, 0.00, 0.00, 0.00],
+    "Sensory Input": [0.26, 0.23, 0.23, 0.39, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Movement & Interactions": [0.26, 1.38, 0.69, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 2.19],
+    "Physical Embodiment": [0.26, 0.69, 0.46, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "Desires": [1.79, 0.75, 3.41, 2.12, 5.02, 1.55, 0.91, 9.71, 5.04, 4.17, 1.45, 5.27],
+    "Agency": [1.92, 1.61, 2.32, 5.75, 3.57, 1.49, 3.18, 5.49, 2.18, 6.72, 2.39, 3.28],
+    "Emotions": [2.69, 4.98, 8.33, 16.27, 8.02, 7.47, 13.71, 14.23, 18.24, 35.48, 20.24, 27.65],
+    "Explicit Relationship Status": [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.39, 0.00, 0.00, 1.48],
+    "Validation": [39.53, 44.50, 48.28, 25.96, 37.70, 51.57, 29.17, 50.00, 72.37, 66.72, 46.49, 70.74],
+    "Empathy": [52.48, 48.39, 57.91, 25.33, 47.68, 72.82, 37.46, 63.15, 87.02, 61.94, 51.32, 91.78],
+    "Relatability": [11.99, 20.65, 14.79, 10.24, 2.06, 13.33, 6.86, 15.20, 15.76, 12.79, 12.84, 19.48]
 };
 
-const cues = Object.keys(data_5_turns);
+const cues = Object.keys(data_turns_1_5);
 let chartInstance = null;
 
 // INIT UI
@@ -122,7 +128,7 @@ function initUI() {
 
     const modelGrid = document.getElementById('modelCheckboxes');
     models.forEach((model, i) => {
-        modelGrid.innerHTML += `<label><input type="checkbox" class="model-cb" value="${i}" checked onchange="render()"> ${model}</label>`;
+        modelGrid.innerHTML += `<label><input type="checkbox" class="model-cb" value="${i}" ${describedOnly.includes(model) ? '' : 'checked'} onchange="render()"> ${model} (n=${dialogues[i]})${describedOnly.includes(model) ? ' - described only' : ''}</label>`;
     });
 
     document.getElementById('viewType').addEventListener('change', render);
@@ -167,7 +173,7 @@ function renderTable(turnType, selectedCues, selectedModelIndices) {
     let headerHtml = `<tr><th>Cue / Model</th>`;
     selectedModelIndices.forEach(i => {
         if (turnType === 'compare') {
-            headerHtml += `<th style="background-color: #e1e4e8;">${models[i]} (5T)</th><th>${models[i]} (10T)</th>`;
+            headerHtml += `<th style="background-color: #e1e4e8;">${models[i]} (T1-5)</th><th>${models[i]} (T6-10)</th>`;
         } else {
             headerHtml += `<th>${models[i]}</th>`;
         }
@@ -180,11 +186,11 @@ function renderTable(turnType, selectedCues, selectedModelIndices) {
         let rowData = '';
         selectedModelIndices.forEach(i => {
             if (turnType === '5') {
-                rowData += `<td>${data_5_turns[cue][i].toFixed(2)}</td>`;
+                rowData += `<td>${data_turns_1_5[cue][i].toFixed(2)}</td>`;
             } else if (turnType === '10') {
-                rowData += `<td>${data_10_turns[cue][i].toFixed(2)}</td>`;
+                rowData += `<td>${data_turns_6_10[cue][i].toFixed(2)}</td>`;
             } else if (turnType === 'compare') {
-                rowData += `<td style="background-color: #f6f8fa;">${data_5_turns[cue][i].toFixed(2)}</td><td>${data_10_turns[cue][i].toFixed(2)}</td>`;
+                rowData += `<td style="background-color: #f6f8fa;">${data_turns_1_5[cue][i].toFixed(2)}</td><td>${data_turns_6_10[cue][i].toFixed(2)}</td>`;
             }
         });
         return `<tr><td>${cue}</td>${rowData}</tr>`;
@@ -203,29 +209,29 @@ function renderChart(viewType, turnType, selectedCues, selectedModelIndices) {
         const baseColor = colors[i % colors.length];
 
         if (turnType === '5' || turnType === '10') {
-            const data = turnType === '5' ? data_5_turns : data_10_turns;
+            const data = turnType === '5' ? data_turns_1_5 : data_turns_6_10;
             datasets.push({
-                label: `${models[modelIdx]} (${turnType}T)`,
+                label: `${models[modelIdx]} (${turnType === '5' ? 'T1-5' : 'T6-10'})`,
                 data: selectedCues.map(cue => data[cue][modelIdx]),
                 borderColor: baseColor,
                 backgroundColor: baseColor + '33', // 20% opacity
                 borderWidth: 2
             });
         } else if (turnType === 'compare') {
-            // Push 5-turns
+            // Push turns 1-5
             datasets.push({
-                label: `${models[modelIdx]} (5-Turns)`,
-                data: selectedCues.map(cue => data_5_turns[cue][modelIdx]),
+                label: `${models[modelIdx]} (T1-5)`,
+                data: selectedCues.map(cue => data_turns_1_5[cue][modelIdx]),
                 borderColor: baseColor,
-                backgroundColor: baseColor + '80', // Darker opacity for 5T
+                backgroundColor: baseColor + '80', // Darker opacity for turns 1-5
                 borderWidth: 2
             });
-            // Push 10-turns
+            // Push turns 6-10
             datasets.push({
-                label: `${models[modelIdx]} (10-Turns)`,
-                data: selectedCues.map(cue => data_10_turns[cue][modelIdx]),
+                label: `${models[modelIdx]} (T6-10)`,
+                data: selectedCues.map(cue => data_turns_6_10[cue][modelIdx]),
                 borderColor: baseColor,
-                backgroundColor: baseColor + '20', // Lighter opacity for 10T
+                backgroundColor: baseColor + '20', // Lighter opacity for turns 6-10
                 borderWidth: 2,
                 borderDash: [5, 5] // Dashed line for easy visual distinction
             });

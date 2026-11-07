@@ -1,0 +1,5 @@
+model,late_turns,n_dialogues,any_new_cue_pct,any_ci95_low,any_ci95_high,mean_new_cue_types,mean_ci95_low,mean_ci95_high
+deepseek_v4_Flash,all,61,47.54,36.02,59.02,0.623,0.443,0.803
+deepseek_v4_Flash,1-2,32,25.0,9.38,40.62,0.281,0.125,0.469
+deepseek_v4_Flash,3-4,14,71.43,50.0,92.86,0.929,0.571,1.286
+deepseek_v4_Flash,5+,15,73.33,53.33,93.33,1.067,0.667,1.4

@@ -1,0 +1,16 @@
+predictor,outcome,n_models,spearman_rho
+release_date,index_rate_all_turns_pct,12,0.63
+release_date,index_rate_early_pct,12,0.76
+release_date,index_gap_pp,12,-0.301
+release_date,late_emergence_pct,12,-0.367
+release_date,pronoun_rate_pct,12,0.483
+log10_params_active_b,index_rate_all_turns_pct,11,0.291
+log10_params_active_b,index_rate_early_pct,11,0.318
+log10_params_active_b,index_gap_pp,11,-0.173
+log10_params_active_b,late_emergence_pct,11,-0.205
+log10_params_active_b,pronoun_rate_pct,11,0.245
+log10_params_total_b,index_rate_all_turns_pct,11,0.309
+log10_params_total_b,index_rate_early_pct,11,0.382
+log10_params_total_b,index_gap_pp,11,-0.5
+log10_params_total_b,late_emergence_pct,11,-0.396
+log10_params_total_b,pronoun_rate_pct,11,0.345

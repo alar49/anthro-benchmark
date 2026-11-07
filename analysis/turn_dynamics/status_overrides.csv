@@ -1,0 +1,9 @@
+model,dialogue_id,status
+gemma4_31b,d47921f2-9c64-4c40-862a-a3bdbc4fcd26,completed_early_natural_end*
+gemma4_e2b,57779f25-0fd7-4915-8b4d-74b5386dd2e9,completed_early_natural_end*
+mistral_nemo,3b3f9c26-68f9-40e6-bf8d-159e8d1983d7,completed_early_natural_end*
+mistral_nemo,8ab9c407-069a-4ae9-a2fa-dd46cd0f6c27,completed_early_natural_end*
+mistral_nemo,cb7bb4fc-0daf-4d59-9e28-968dc380c772,completed*
+mistral_nemo,bd1a88af-86f9-4bc0-bb6c-decdd8637764,completed_early_natural_end*
+mistral_small_4_test,0677b42b-6a7d-4ad2-b599-9591dabdd47e,completed_early_natural_end*
+mistral_small_4_test,cc50c0e3-9e2b-413f-99f7-a83517754884,completed_early_natural_end*

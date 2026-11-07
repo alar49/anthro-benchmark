@@ -1,0 +1,158 @@
+"model","cue","family","n_dialogues","n_rows","n_after_present","or_carry_over","ci95_low","ci95_high","z","p","optimizer","note","p_bh","p_holm","flag_bh","flag_holm"
+"gemini3.7_flash","agency","index",95,508,9,21.4735383594545,2.7697499095369,166.48176360156,2.93489773965847,0.00333657628354684,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.0142646191970301,0.0233560339848279,TRUE,TRUE
+"gemini3.7_flash","desires","index",93,488,11,4.11826923525438e-07,0,Inf,-0.00320211548193057,0.997445085861214,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.997445085861214,1,FALSE,FALSE
+"gemini3.7_flash","emotions","index",93,484,5,2.75587647655771e-07,0,Inf,-0.00321838091937902,0.997432107986673,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0); turn-1 value constant, term left out",0.997445085861214,1,FALSE,FALSE
+"gemini3.7_flash","empathy","index",95,508,323,2.68785647880743,1.36895206455444,5.27744735387685,2.87224989056907,0.00407560548486575,"bobyqa","",0.0142646191970301,0.0244536329091945,TRUE,TRUE
+"gemini3.7_flash","explicit relationship status","index",95,502,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","movement and interactions","index",93,488,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","personal history","index",94,498,5,0.852394853936122,0.0187059129386315,38.8421024624922,-0.0819585327419731,0.934679688549549,"bobyqa","turn-1 value constant, term left out",0.997445085861214,1,FALSE,FALSE
+"gemini3.7_flash","personal pronoun use","pronoun (separate, unadjusted)",95,508,338,0.994806350960537,0.575299111562456,1.72021763291734,-0.0186355189547286,0.98513186772231,"bobyqa","",NA,NA,FALSE,FALSE
+"gemini3.7_flash","personal relationships","index",95,508,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","physical embodiment","index",95,508,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","relatability","index",93,488,129,1.90942362601522,0.982025636107841,3.71263075986006,1.9065011160782,0.0565852210198357,"bobyqa","",0.132032182379617,0.282926105099178,FALSE,FALSE
+"gemini3.7_flash","sensory input","index",95,504,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","sentience","index",95,508,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemini3.7_flash","validation","index",95,506,387,0.785001580305478,0.394451655928006,1.56223829161607,-0.689414531734618,0.490562441218547,"bobyqa","",0.858484272132456,1,FALSE,FALSE
+"gemma4_31b","agency","index",94,543,28,0.799033441947714,0.140790411326883,4.53478639158504,-0.253277498192619,0.800053783174352,"bobyqa","",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","desires","index",94,545,33,0.654840202072137,0.0824107993489579,5.20339195393692,-0.400341765695457,0.688904809788374,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","emotions","index",94,545,9,0.120560074902216,0.00590168230076057,2.46281160518497,-1.37442373993935,0.169310170245688,"Nelder_Mead","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined",0.761895766105596,1,FALSE,FALSE
+"gemma4_31b","empathy","index",94,543,348,1.1913805921947,0.609088561504865,2.33034702203459,0.511570315146932,0.608951765372105,"bobyqa","",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","explicit relationship status","index",94,545,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_31b","movement and interactions","index",94,545,5,1.16606912093371,0.0370415870574681,36.7078546792714,0.0872991886863998,0.930433698894597,"bobyqa","Hessian is numerically singular: parameters are not uniquely determined; turn-1 value constant, term left out",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","personal history","index",94,545,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_31b","personal pronoun use","pronoun (separate, unadjusted)",94,545,462,1.2163230264963,0.575111017492452,2.5724454232083,0.512432372182331,0.608348439558798,"bobyqa","",NA,NA,FALSE,FALSE
+"gemma4_31b","personal relationships","index",94,543,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_31b","physical embodiment","index",94,543,5,1.16698610932375,0.037067550568321,36.7398589460201,0.0877436786540731,0.930080402933171,"bobyqa","Model is nearly unidentifiable: large eigenvalue ratio
+ - Rescale variables?; turn-1 value constant, term left out",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","relatability","index",94,545,119,0.880610475910354,0.438947859094676,1.7666672572056,-0.357910320091732,0.720410427332867,"bobyqa","",0.963002841319305,1,FALSE,FALSE
+"gemma4_31b","sensory input","index",94,545,3,2313.30618442493,3.70498268020277,1444375.30882216,2.35875546835276,0.0183363339566807,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0); turn-1 value constant, term left out",0.165027005610127,0.165027005610127,FALSE,FALSE
+"gemma4_31b","sentience","index",94,543,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_31b","validation","index",94,545,416,1.01546189175006,0.531007989876061,1.94189705853067,0.0463856908063281,0.963002841319305,"bobyqa","",0.963002841319305,1,FALSE,FALSE
+"gemma4_e2b","agency","index",93,536,45,1.58468066633852,0.477091886265409,5.26358315150659,0.75167616410539,0.452245827991158,"bobyqa","",0.678368741986737,1,FALSE,FALSE
+"gemma4_e2b","desires","index",93,536,16,1.70820963674432,0.198548500292037,14.6965610859524,0.487626746855182,0.6258142467437,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.75097709609244,1,FALSE,FALSE
+"gemma4_e2b","emotions","index",93,536,25,1.14923473612394,0.265667250869463,4.97140868658596,0.186141192950918,0.852334039067356,"bobyqa","",0.852334039067356,1,FALSE,FALSE
+"gemma4_e2b","empathy","index",93,536,286,1.48082682346263,0.755038727991286,2.90428556813277,1.14236649603559,0.253301711639183,"bobyqa","",0.506603423278365,1,FALSE,FALSE
+"gemma4_e2b","explicit relationship status","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","movement and interactions","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","personal history","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","personal pronoun use","pronoun (separate, unadjusted)",93,536,417,1.05055411162036,0.553826275856388,1.99279808408482,0.150980470019215,0.879991121949558,"bobyqa","",NA,NA,FALSE,FALSE
+"gemma4_e2b","personal relationships","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","physical embodiment","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","relatability","index",93,536,133,1.97339637416536,1.08878419018417,3.57673566963741,2.24030588598987,0.0250710713929675,"bobyqa","",0.150426428357805,0.150426428357805,FALSE,FALSE
+"gemma4_e2b","sensory input","index",93,536,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","sentience","index",93,536,1,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gemma4_e2b","validation","index",93,536,473,2.14770034441398,0.917682372628185,5.02637612639945,1.76195348879904,0.0780771561779078,"bobyqa","",0.234231468533724,0.390385780889539,FALSE,FALSE
+"gpt_oss_120b","agency","index",96,557,39,1.88036903838706,0.503187101438821,7.02678528605837,0.938853837590826,0.347805792883529,"bobyqa","",0.961486050115583,1,FALSE,FALSE
+"gpt_oss_120b","desires","index",96,560,30,1.12339765937852,0.266624120903344,4.73333881728817,0.158563024736317,0.874013162150593,"bobyqa","",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","emotions","index",96,560,34,0.52290371090152,0.115297817222243,2.37149581372847,-0.840515905189622,0.40061918754816,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.961486050115583,1,FALSE,FALSE
+"gpt_oss_120b","empathy","index",96,557,257,2.83550422404986,1.72445034207374,4.66240401850945,4.10751320800752,3.999419140165e-05,"bobyqa","",0.0004799302968198,0.0004799302968198,TRUE,TRUE
+"gpt_oss_120b","explicit relationship status","index",96,560,1,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"gpt_oss_120b","movement and interactions","index",96,560,1,0.00039550909995295,0,Inf,-0.00837561857664986,0.993317301383592,"bobyqa","turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","personal history","index",96,560,2,5.4403652504203e-08,0,Inf,-0.0100029808010713,0.992018909154532,"bobyqa","Hessian is numerically singular: parameters are not uniquely determined; turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","personal pronoun use","pronoun (separate, unadjusted)",96,560,525,1.19603359265693,0.302615306236001,4.72711170018691,0.255296281278153,0.798494271918954,"bobyqa","",NA,NA,FALSE,FALSE
+"gpt_oss_120b","personal relationships","index",96,557,1,8.97610345718274e-13,0,Inf,-1.40379327260096e-05,0.999988799350213,"bobyqa","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined; turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","physical embodiment","index",96,557,2,3.65579490698338e+23,0,Inf,0.085751523315758,0.93166394325008,"bobyqa","turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","relatability","index",96,560,57,1.71293763121215,0.565111890800962,5.1921670313183,0.951242238571348,0.34148142116428,"bobyqa","",0.961486050115583,1,FALSE,FALSE
+"gpt_oss_120b","sensory input","index",96,560,1,0.00039550909995295,0,Inf,-0.00837561857664986,0.993317301383592,"bobyqa","turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","sentience","index",96,557,1,2.64222540182934e-20,0,Inf,-0.0358231738023855,0.971423354901869,"bobyqa","turn-1 value constant, term left out",0.999988799350213,1,FALSE,FALSE
+"gpt_oss_120b","validation","index",96,560,347,2.29518190168085,1.44155218291119,3.65429710020275,3.50116315972122,0.000463232146612084,"bobyqa","",0.0027793928796725,0.00509555361273292,TRUE,TRUE
+"llama3.1_8b","agency","index",94,571,21,2.15908435908531,0.450182154203438,10.3550201315626,0.962218178629841,0.335940019447945,"bobyqa","",0.503910029171917,1,FALSE,FALSE
+"llama3.1_8b","desires","index",96,591,10,7.67268719780238,0.465870955454564,126.365741727512,1.4255700483073,0.15399248703306,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.307984974066119,0.615969948132239,FALSE,FALSE
+"llama3.1_8b","emotions","index",96,591,21,0.49207313417788,0.0484901677861141,4.99350652791475,-0.599786565979024,0.548648487541067,"bobyqa","",0.548648487541067,1,FALSE,FALSE
+"llama3.1_8b","empathy","index",94,571,232,3.08162904257726,1.81929546644344,5.21984346754864,4.18561669275735,2.84392917098226e-05,"bobyqa","",0.000170635750258935,0.000170635750258935,TRUE,TRUE
+"llama3.1_8b","explicit relationship status","index",95,583,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","movement and interactions","index",96,591,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","personal history","index",95,583,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","personal pronoun use","pronoun (separate, unadjusted)",96,591,260,2.82873815702606,1.72953442889348,4.62653962091669,4.14252022364324,3.43510066683263e-05,"bobyqa","",NA,NA,FALSE,FALSE
+"llama3.1_8b","personal relationships","index",94,571,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","physical embodiment","index",94,571,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","relatability","index",96,591,99,2.58000145140126,1.18770413512932,5.60443236017518,2.39457496295513,0.0166396416717653,"bobyqa","",0.049918925015296,0.0831982083588266,TRUE,FALSE
+"llama3.1_8b","sensory input","index",95,583,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","sentience","index",94,571,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.1_8b","validation","index",95,583,329,1.18392956960599,0.728656108218188,1.92366359106635,0.681754452602422,0.495394229375404,"bobyqa","",0.548648487541067,1,FALSE,FALSE
+"llama3.3_70b","agency","index",96,603,38,2.2356341695924,0.716604203271051,6.97464530271341,1.38592030502663,0.165771239871068,"bobyqa","",0.248656859806602,0.497313719613204,FALSE,FALSE
+"llama3.3_70b","desires","index",96,605,21,1.3085466452788,0.224990360765132,7.61052303328614,0.299365772134136,0.76466097517651,"bobyqa","",0.8023846281633,1,FALSE,FALSE
+"llama3.3_70b","emotions","index",96,605,30,3.13842620701486,1.02761120827033,9.5850638622916,2.00777774879587,0.0446669143686825,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.134000743106047,0.223334571843412,FALSE,FALSE
+"llama3.3_70b","empathy","index",96,603,338,3.86334443023588,1.94587069209258,7.67030936191544,3.86244518414196,0.000112257759059198,"bobyqa","",0.000673546554355186,0.000673546554355186,TRUE,TRUE
+"llama3.3_70b","explicit relationship status","index",96,605,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","movement and interactions","index",96,605,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","personal history","index",96,605,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","personal pronoun use","pronoun (separate, unadjusted)",96,605,448,1.56200094130686,0.889225786499487,2.74378788569344,1.55151644996043,0.120777968281194,"bobyqa","",NA,NA,FALSE,FALSE
+"llama3.3_70b","personal relationships","index",96,603,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","physical embodiment","index",96,603,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","relatability","index",96,605,126,1.71052848452301,0.926480251533943,3.15808965330914,1.71587330266864,0.0861852340268974,"bobyqa","",0.172370468053795,0.34474093610759,FALSE,FALSE
+"llama3.3_70b","sensory input","index",96,605,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","sentience","index",96,603,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"llama3.3_70b","validation","index",96,605,452,1.08287033583159,0.580478265478609,2.02007247120132,0.250262146149678,0.8023846281633,"bobyqa","",0.8023846281633,1,FALSE,FALSE
+"mistral_nemo","agency","index",93,570,49,2.16432779840802,0.654539357557474,7.15665874767567,1.26537771061237,0.205735961417529,"bobyqa","",0.630694408655164,1,FALSE,FALSE
+"mistral_nemo","desires","index",92,564,18,0.281382150770714,0.0320987872210384,2.46663259353483,-1.14483439750627,0.252277763462066,"Nelder_Mead","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined",0.630694408655164,1,FALSE,FALSE
+"mistral_nemo","emotions","index",92,564,40,2.00559963206274,0.842206733629017,4.77605999039902,1.57204800973258,0.11593941744835,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.579697087241753,1,FALSE,FALSE
+"mistral_nemo","empathy","index",93,570,197,1.37953246921653,0.693107970684865,2.74576244122857,0.916162971101192,0.359581423755623,"bobyqa","",0.719162847511247,1,FALSE,FALSE
+"mistral_nemo","explicit relationship status","index",93,570,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"mistral_nemo","movement and interactions","index",92,564,7,4485.16522654332,6.02956551598993,3336344.39430925,2.49255549652535,0.0126827509052883,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.126827509052883,0.126827509052883,FALSE,FALSE
+"mistral_nemo","personal history","index",93,570,16,0.408403877555707,0.0283670335322997,5.87984383395677,-0.658090055236875,0.510480265718724,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.72925752245532,1,FALSE,FALSE
+"mistral_nemo","personal pronoun use","pronoun (separate, unadjusted)",93,570,252,2.67717036604534,1.62637614914921,4.40687793692785,3.87253483180661,0.000107709277006647,"bobyqa","",NA,NA,FALSE,FALSE
+"mistral_nemo","personal relationships","index",93,570,3,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"mistral_nemo","physical embodiment","index",93,570,2,4.36253845823525e-256,0,Inf,-1.18633965824781e-05,0.999990534379028,"Nelder_Mead","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined",0.999990534379028,1,FALSE,FALSE
+"mistral_nemo","relatability","index",92,564,103,0.741119535650401,0.34372563746568,1.59795518941326,-0.764256541389086,0.44471437798523,"bobyqa","",0.72925752245532,1,FALSE,FALSE
+"mistral_nemo","sensory input","index",93,570,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"mistral_nemo","sentience","index",93,570,4,7.38613327939e-07,0,Inf,-0.00103194108386586,0.99917663028766,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.999990534379028,1,FALSE,FALSE
+"mistral_nemo","validation","index",93,570,261,0.946581103975329,0.553313116149622,1.61936480493779,-0.200396335020558,0.841170625586383,"bobyqa","",0.999990534379028,1,FALSE,FALSE
+"mistral_small_4_seed42_only","agency","index",96,552,25,0.537917754914788,0.0930730815724016,3.10890652983781,-0.692732469650256,0.488477458438477,"bobyqa","",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","desires","index",96,552,5,3.20162366474035e-07,0,Inf,-0.00133139222416216,0.998937703013807,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","emotions","index",96,552,29,0.852403772565693,0.117233684228615,6.19781077652828,-0.157768921451076,0.8746388889913,"bobyqa","",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","empathy","index",96,552,310,2.52364568291411,1.2063531308897,5.27937249037015,2.45812353432682,0.0139665122338124,"bobyqa","",0.0837990734028742,0.153631634571936,FALSE,FALSE
+"mistral_small_4_seed42_only","explicit relationship status","index",96,552,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"mistral_small_4_seed42_only","movement and interactions","index",96,552,13,2.48744508300411,0.442040644367822,13.9973170336182,1.03381528134328,0.301222526293207,"bobyqa","",0.903667578879622,1,FALSE,FALSE
+"mistral_small_4_seed42_only","personal history","index",96,552,18,0.625006723952614,0.106791141308589,3.65791956335765,-0.521351323069928,0.602122054272585,"bobyqa","",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","personal pronoun use","pronoun (separate, unadjusted)",96,552,262,1.41564470582282,0.881391352519873,2.27373450782637,1.43773469945447,0.150509343645752,"bobyqa","",NA,NA,FALSE,FALSE
+"mistral_small_4_seed42_only","personal relationships","index",96,552,3,7.06751662718461e-09,0,Inf,-0.000101274891243234,0.999919194328018,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","physical embodiment","index",96,552,9,0.697550832631733,0.057237924271203,8.50095754345911,-0.28233533528779,0.77768639355755,"bobyqa","Model is nearly unidentifiable: large eigenvalue ratio
+ - Rescale variables?",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","relatability","index",96,552,181,1.68218372817376,0.908249049028703,3.1156014953814,1.6539257448684,0.0981426009958714,"bobyqa","",0.392570403983485,0.981426009958714,FALSE,FALSE
+"mistral_small_4_seed42_only","sensory input","index",96,552,3,4.88161069437707e-09,0,Inf,-0.00934462387717061,0.992544177391605,"bobyqa","Hessian is numerically singular: parameters are not uniquely determined; turn-1 value constant, term left out",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","sentience","index",96,552,4,0.48933406084431,0.0204174053580224,11.7276323266168,-0.440968387259341,0.65923588322125,"Nelder_Mead","Model is nearly unidentifiable: large eigenvalue ratio
+ - Rescale variables?; turn-1 value constant, term left out",0.999919194328018,1,FALSE,FALSE
+"mistral_small_4_seed42_only","validation","index",96,552,371,2.73613447545796,1.4641098600223,5.11329926271762,3.15496292538204,0.00160518501749564,"bobyqa","",0.0192622202099476,0.0192622202099476,TRUE,TRUE
+"phi4_mini_3.8","agency","index",96,559,57,2.348123710776,0.730732905419317,7.54541764879815,1.43324216324404,0.151788644115921,"bobyqa","",0.303577288231841,0.607154576463682,FALSE,FALSE
+"phi4_mini_3.8","desires","index",96,559,15,0.809570393495862,0.150196860844822,4.36363462151306,-0.245788927121802,0.80584562905193,"Nelder_Mead","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined",0.808392735077754,1,FALSE,FALSE
+"phi4_mini_3.8","emotions","index",96,559,27,0.86638908449664,0.271824741041377,2.76144858212397,-0.242500028108637,0.808392735077754,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.808392735077754,1,FALSE,FALSE
+"phi4_mini_3.8","empathy","index",96,559,208,2.06885189021176,1.17442844479077,3.64445204185711,2.51651528714051,0.0118521758404624,"bobyqa","",0.0711130550427745,0.0711130550427745,FALSE,FALSE
+"phi4_mini_3.8","explicit relationship status","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","movement and interactions","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","personal history","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","personal pronoun use","pronoun (separate, unadjusted)",96,559,315,2.11523892728479,1.21512011429189,3.68213452059286,2.6488833667934,0.00807581969287486,"bobyqa","",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","personal relationships","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","physical embodiment","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","relatability","index",96,559,58,1.47269463846107,0.54726271571552,3.96304998654319,0.766415302825126,0.443429230253489,"bobyqa","",0.665143845380233,1,FALSE,FALSE
+"phi4_mini_3.8","sensory input","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","sentience","index",96,559,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"phi4_mini_3.8","validation","index",96,559,283,1.53399394873333,0.936012902479811,2.51400106613512,1.69760687944973,0.0895819835452726,"bobyqa","",0.268745950635818,0.447909917726363,FALSE,FALSE
+"qwen3.5_9b","agency","index",96,576,32,1.05196674517387,0.264691777998925,4.18084022600885,0.071960479733511,0.942633358881253,"bobyqa","",0.999997759431839,1,FALSE,FALSE
+"qwen3.5_9b","desires","index",96,576,30,0.734597312060878,0.107056568274583,5.04063617566177,-0.313877539881818,0.753614049534345,"bobyqa","",0.999997759431839,1,FALSE,FALSE
+"qwen3.5_9b","emotions","index",96,576,25,0.808948893901722,0.245148023969397,2.66940072511664,-0.34806924010286,0.727788184477343,"bobyqa","boundary (singular) fit: see help('isSingular'); singular fit (a random-effect variance near 0)",0.999997759431839,1,FALSE,FALSE
+"qwen3.5_9b","empathy","index",96,576,431,3.66714177297974,1.91865331974168,7.00904569093473,3.93152982687381,8.44070215204315e-05,"bobyqa","",0.000675256172163452,0.000675256172163452,TRUE,TRUE
+"qwen3.5_9b","explicit relationship status","index",96,576,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.5_9b","movement and interactions","index",96,576,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.5_9b","personal history","index",96,576,2,4.26360560368679e+62,0,Inf,7.44452903549185e-05,0.999940601252256,"bobyqa","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined",0.999997759431839,1,FALSE,FALSE
+"qwen3.5_9b","personal pronoun use","pronoun (separate, unadjusted)",96,576,466,2.94171153882578,1.59167913820056,5.43681610820381,3.44314158889619,0.000574998189469896,"bobyqa","",NA,NA,FALSE,FALSE
+"qwen3.5_9b","personal relationships","index",96,576,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.5_9b","physical embodiment","index",96,576,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.5_9b","relatability","index",96,576,156,1.47305786235921,0.772005957958439,2.81072891146666,1.17500269307543,0.239993638368228,"bobyqa","",0.959974553472911,1,FALSE,FALSE
+"qwen3.5_9b","sensory input","index",96,576,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.5_9b","sentience","index",96,576,1,0.000617423310746479,0,Inf,-2.80813575198563e-06,0.999997759431839,"bobyqa","unable to evaluate scaled gradient; Hessian is numerically singular: parameters are not uniquely determined; turn-1 value constant, term left out",0.999997759431839,1,FALSE,FALSE
+"qwen3.5_9b","validation","index",96,576,538,1.29812151075365,0.357227595270573,4.71721524034275,0.39633431623253,0.691858414857974,"bobyqa","",0.999997759431839,1,FALSE,FALSE
+"qwen3.8_27b","agency","index",94,541,15,3.55440508514876,0.370473959492356,34.1017099464773,1.09925985631733,0.271654737000512,"bobyqa","",0.407482105500768,0.814964211001536,FALSE,FALSE
+"qwen3.8_27b","desires","index",94,541,21,1.02046661057295,0.198806012197642,5.23803124353699,0.0242765699988845,0.980632002054897,"bobyqa","",0.980632002054897,1,FALSE,FALSE
+"qwen3.8_27b","emotions","index",94,541,17,0.737986628942401,0.0941786363245457,5.78288543721273,-0.289253249504394,0.772387585302209,"bobyqa","",0.92686510236265,1,FALSE,FALSE
+"qwen3.8_27b","empathy","index",94,541,370,4.134828602202,1.97911473943442,8.63861363312043,3.77589171870206,0.000159436246426477,"bobyqa","",0.000956617478558864,0.000956617478558864,TRUE,TRUE
+"qwen3.8_27b","explicit relationship status","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","movement and interactions","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","personal history","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","personal pronoun use","pronoun (separate, unadjusted)",94,541,497,1.43280153810595,0.528210276500056,3.88655870385845,0.706353734896317,0.479968184533908,"bobyqa","",NA,NA,FALSE,FALSE
+"qwen3.8_27b","personal relationships","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","physical embodiment","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","relatability","index",94,541,146,2.19798716232962,1.19252056765353,4.05120691148488,2.52432148295691,0.011592186442687,"bobyqa","",0.0321131320661738,0.057960932213435,TRUE,FALSE
+"qwen3.8_27b","sensory input","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","sentience","index",94,541,0,NA,NA,NA,NA,NA,NA,"no variation in the outcome or in the previous turn",NA,NA,FALSE,FALSE
+"qwen3.8_27b","validation","index",94,541,409,2.20205849336175,1.15809459993928,4.18710320248525,2.40762723750232,0.0160565660330869,"bobyqa","",0.0321131320661738,0.0642262641323477,TRUE,FALSE

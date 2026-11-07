@@ -1,0 +1,13 @@
+runs: [('mistral_small_4_all960_full', 'normalized/STEP 10 ONLY/mistral_small_4_all960_full/analysis_with_categories.csv'), ('mistral_small_4_seed42_only', 'normalized/mistral_small_4_seed42_only/analysis_with_categories.csv'), ('mistral_small_4_test', 'normalized/STEP 10 ONLY/mistral_small_4_test/analysis_with_categories.csv')]
+scenario_col: prompt_text
+margin_pp: 5.0
+margin_turns: 0.5
+n_boot: 2000
+seed: 0
+
+Status overrides applied to 2 dialogues.
+Overrides with no matching dialogue (check model labels and ids): ['gemma4_31b::d47921f2-9c64-4c40-862a-a3bdbc4fcd26', 'gemma4_e2b::57779f25-0fd7-4915-8b4d-74b5386dd2e9', 'mistral_nemo::3b3f9c26-68f9-40e6-bf8d-159e8d1983d7', 'mistral_nemo::8ab9c407-069a-4ae9-a2fa-dd46cd0f6c27', 'mistral_nemo::bd1a88af-86f9-4bc0-bb6c-decdd8637764', 'mistral_nemo::cb7bb4fc-0daf-4d59-9e28-968dc380c772']
+Failed dialogues excluded per run: {'mistral_small_4_test': 4}
+Dialogues with an empty reply per run: {} (cut at the first one)
+Check 1 split by 'prompt_text': 96 of 96 subsample keys found in the full run.
+Check 2: 92 scenarios present in both runs.

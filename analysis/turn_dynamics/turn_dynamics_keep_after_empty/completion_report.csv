@@ -1,0 +1,13 @@
+model,dialogues,completed,failed,budget_capped,unknown,completion_rate,dialogues_with_empty_reply,rated_turns_after_empty_reply,dialogues_without_usable_turns,usable_rate,included
+deepseek_v4_Flash,96,96,0,0,0,1.0,36,152,0,1.0,True
+gemini3.7_flash,96,95,1,0,0,0.9895833333333334,1,0,0,0.9895833333333334,True
+gemma4_31b,96,94,2,0,0,0.9791666666666666,0,0,0,0.9791666666666666,True
+gemma4_e2b,96,93,3,0,0,0.96875,6,0,0,0.96875,True
+gpt_oss_120b,96,96,0,0,0,1.0,0,0,0,1.0,True
+llama3.1_8b,96,96,0,0,0,1.0,0,0,0,1.0,True
+llama3.3_70b,96,96,0,0,0,1.0,0,0,0,1.0,True
+mistral_nemo,96,93,3,0,0,0.96875,0,0,0,0.96875,True
+mistral_small_4_seed42_only,96,96,0,0,0,1.0,0,0,0,1.0,True
+phi4_mini_3.8,96,96,0,0,0,1.0,0,0,0,1.0,True
+qwen3.5_9b,96,96,0,0,0,1.0,0,0,0,1.0,True
+qwen3.8_27b,96,94,2,0,0,0.9791666666666666,2,0,0,0.9791666666666666,True

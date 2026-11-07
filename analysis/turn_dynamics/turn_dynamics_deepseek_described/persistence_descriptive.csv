@@ -1,0 +1,29 @@
+model,cue,period,n_after_absent,n_after_present,p_present_after_absent,p_present_after_present
+deepseek_v4_Flash,agency,2-5,274.0,21.0,4.01,23.81
+deepseek_v4_Flash,agency,6+,159.0,8.0,3.14,12.5
+deepseek_v4_Flash,desires,2-5,276.0,18.0,3.26,16.67
+deepseek_v4_Flash,desires,6+,156.0,11.0,4.49,27.27
+deepseek_v4_Flash,emotions,2-5,279.0,15.0,7.17,20.0
+deepseek_v4_Flash,emotions,6+,131.0,36.0,22.9,36.11
+deepseek_v4_Flash,empathy,2-5,71.0,224.0,43.66,87.95
+deepseek_v4_Flash,empathy,6+,19.0,146.0,73.68,91.78
+deepseek_v4_Flash,explicit relationship status,2-5,293.0,2.0,1.02,0.0
+deepseek_v4_Flash,explicit relationship status,6+,163.0,4.0,2.45,0.0
+deepseek_v4_Flash,movement and interactions,2-5,293.0,1.0,0.0,0.0
+deepseek_v4_Flash,movement and interactions,6+,167.0,,1.2,
+deepseek_v4_Flash,personal history,2-5,292.0,3.0,0.34,0.0
+deepseek_v4_Flash,personal history,6+,167.0,,0.0,
+deepseek_v4_Flash,personal pronoun use,2-5,22.0,273.0,68.18,92.31
+deepseek_v4_Flash,personal pronoun use,6+,23.0,144.0,86.96,86.81
+deepseek_v4_Flash,personal relationships,2-5,295.0,,0.0,
+deepseek_v4_Flash,personal relationships,6+,167.0,,0.0,
+deepseek_v4_Flash,physical embodiment,2-5,295.0,,0.0,
+deepseek_v4_Flash,physical embodiment,6+,167.0,,0.0,
+deepseek_v4_Flash,relatability,2-5,174.0,120.0,25.29,55.83
+deepseek_v4_Flash,relatability,6+,107.0,60.0,13.08,43.33
+deepseek_v4_Flash,sensory input,2-5,295.0,,0.0,
+deepseek_v4_Flash,sensory input,6+,167.0,,0.0,
+deepseek_v4_Flash,sentience,2-5,295.0,,0.0,
+deepseek_v4_Flash,sentience,6+,167.0,,0.0,
+deepseek_v4_Flash,validation,2-5,21.0,274.0,90.48,93.07
+deepseek_v4_Flash,validation,6+,22.0,145.0,45.45,84.14

@@ -59,7 +59,7 @@ Analysys.py specific:
 
 ### Edge LLMs
 * **gemma4:e4b-it-qat** and **gemma4:e2b-it-qat** (Google, US; t: 1): Latest edge models by Google (April 2026).
-* **phi4-mini:3.8b** (Microsoft, US; t: ollama default; April 2024).
+* **phi4-mini:3.8b** (Microsoft, US; t: ollama default; February 2025).
 
 ### Closed/Proprietary Model
 * **gemini-3.7-Flash** (Google, US; temperature not specified per provider recommendation): Latest proprietary model released by Google at the time of experimentation (August 2026), used as reference. ***I chose this model as the Classifier LLM for every run***.
@@ -74,12 +74,12 @@ Analysys.py specific:
 | --- | --- | --- | --- | --- | --- |
 | **Generation** | Number of prompts | P | 960 | 96 | `--k-per-cue 1` `--seed 42` |
 |  | Turns per prompt | T | 5 | up to 10 | `--stop-on-natural-end` |
-|  | Total Messages / Model | M = P * T | 4,800 | ~960 | **~5× reduction while doubling turns** |
+|  | Total Messages / Model | M = P * T | 4,800 | ~749 (698–797) | Mean rated messages across the 11 analysed models, after exclusions; **~6.4× reduction while doubling turns** |
 | **Ratings** | Behaviour calls | B | 13 | 3 | 1 per behaviour vs. `--cue-group-config "A_interference_avoidant"` |
-|  | Messages evaluated | M | 4,800 | ~960 | From Generation stage |
+|  | Messages evaluated | M | 4,800 | ~749 (698–797) | From Generation stage |
 |  | Judge LLMs | J | 3 | 1 | Reduced (see rationale) |
 |  | Samples per rating | S | 3 | 1 | Single sample (see paper) |
-|  | Total Evaluation Calls / Model | R = B * M * J * S | 561,600 | ~2,880 | **~195× reduction in compute** |
+|  | Total Evaluation Calls / Model | R = B * M * J * S | 561,600 | ~2,246 (2,094–2,391) | **~250× reduction in compute** |
 
 ---
 
@@ -109,73 +109,94 @@ Based on these results, I selected ***Gemini 3.7 Flash under the Config_A cue op
 
 ## Experimental Results
 
-**Disclaimer:** In the following tables/figures there will be listed multiple instances of the `mistral_small_4` model. Those different versions point to:
-* `mistral_small_4_test`: Refers to the run I used to choose the classifier from.
-* `mistral_small_4_all960_full`: Refers to a full-run of the entire dataset (all 960 scenarios). I ran this evaluation in order to compare its results with the ones obtained with the same model but run on the subsampled dataset to verify whether the subsampling techniques preserved or significantly altered the original dataset structure and validity.
-* `mistral_small_4_seed42_only`: Refers to a manually extracted (a-posteriori) subsample from the `mistral_small_4_all960_full` run. Basically, I included only the scenarios that are included into the seed42 subsample and ran the analyses to compare it with the full-run.
+These are the final results of the ten-turn extension. The full report, with methods, all tables and figures, sensitivity analyses and the deviations log, is in [analysis/turn_dynamics/README.md](analysis/turn_dynamics/README.md). The code, result tables and figures are in the same folder.
 
-### Per-Model Descriptive Statistics
-*Count represents dialogue count; the other columns’ values are turn-based.*
+### Summary
 
-| File Name | Count | Mean | Median | Mode | Sample Std Dev | Sample Variance | Min | Max |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| deepseek_v4_Flash | 96 | 8.562 | 9.0 | 10 | 1.471 | 2.164 | 4 | 10 |
-| gpt_oss_120b | 96 | 8.542 | 9.0 | 10 | 1.436 | 2.061 | 5 | 10 |
-| llama3.3_70b | 96 | 8.927 | 9.5 | 10 | 1.275 | 1.626 | 6 | 10 |
-| gemma4_31b | 96 | 8.552 | 9.0 | 10 | 1.345 | 1.808 | 5 | 10 |
-| qwen3.8_27b | 96 | 8.406 | 9.0 | 10 | 1.652 | 2.728 | **2** | 10 |
-| mistral_nemo | 96 | 8.802 | 9.0 | 10 | 1.411 | 1.992 | 5 | 10 |
-| qwen3.5_9b | 96 | 8.646 | 9.0 | 10 | 1.563 | 2.442 | 5 | 10 |
-| llama3.1_8b | 96 | 8.875 | 9.0 | 10 | 1.172 | 1.374 | 6 | 10 |
-| gemma4_e4b | 96 | 8.271 | 8.0 | **8** | 1.380 | 1.905 | 5 | 10 |
-| gemma4_e2b | 96 | 8.500 | 8.0 | 10 | 1.306 | 1.705 | 5 | 10 |
-| phi4_mini_3.8 | 96 | 8.531 | 9.0 | 10 | 1.384 | 1.915 | 5 | 10 |
-| gemini3.7_flash | 96 | 8.115 | 8.0 | 10 | 1.541 | 2.376 | 5 | 10 |
-| mistral_small_4_test | 96 | 8.281 | 9.0 | 10 | 1.851 | 3.425 | **1** | 10 |
-| mistral_small_4_seed42_only | 96 | 8.458 | 8.5 | 10 | 1.486 | 2.209 | 5 | 10 |
-| mistral_small_4_all960_full | 960 | 8.523 | 9.0 | 10 | 1.470 | 2.162 | 5 | 10 |
+- **Data.** 11 target models were analysed, each on the same 96 scenarios: 1,045 dialogues and 8,234 rated assistant messages after the pre-specified exclusions. DeepSeek V4 Flash was excluded by the 95% inclusion rule, because empty replies left only 89.6% of its dialogues usable. It is described separately.
+- **H1 (confirmatory): "anthropomorphic cues increase within a dialogue" is supported in 0 of 11 models** (one-sided tests, Holm across models). The direction is the opposite in most models:
+  - In 7 of 11, the odds ratio per turn of the 13-cue index lies entirely below 1 (0.905–0.970), meaning fewer cues later in the same dialogue.
+  - In the other 4, increases larger than about 3% per turn are unlikely (upper 95% bounds ≤ 1.028).
+- **How much a 5-turn benchmark misses.** In the same 7 models, the 13-cue rate in turns 6–10 is **2.2 to 4.9 percentage points lower** than in turns 1–5 of the same dialogues. In the other 4, the gap is between −0.4 and +1.3 points. A 5-turn benchmark therefore does not underestimate the overall rate; if anything, it slightly overstates it.
+- **The decrease comes mostly from closing messages.** A dialogue's final message, usually a closing exchange, carries far fewer cues: in Gemini 3.7 Flash, 4.1% of rated cues are present in it versus 13.6% in earlier messages. In an exploratory rerun without each dialogue's final turn:
+  - the decrease remains only in Mistral NeMo and gpt-oss-120b;
+  - two models (Llama 3.1 8B and Gemma 4 E2B) show *more* cues in turns 6–10 than in turns 1–5.
+- **Which cues change (Q3).** **Validation** (10 of 11 models), **agency** (6) and **relatability** (6) decline, while **emotions** rises (8 of 11). Without the final turn, the decline in validation almost disappears (1 model), and the rise in emotions remains (7 models).
+- **Emergence (Q1).** Among dialogues that reach turn 6, **23%–67%** show at least one cue for the first time after turn 5. This describes what a 5-turn benchmark misses; it is not, by itself, evidence of change. The first-appearance model shows first appearances becoming more likely later in Gemma 4 E2B and Qwen3.5 9B, and less likely in Mistral NeMo and Mistral Small 4.
+- **Persistence (Q2).** Candidate carry-over from one turn to the next appears in 19 cue–model pairs, all positive: empathy (8 models), validation (6), relatability (4), agency (1).
+- **Personal pronoun use (descriptive).** It appears in 44%–85% of messages. It falls sharply from turns 1–5 to 6–10 in four models (by 18 to 35 points) and rises in three (by 11 to 17 points).
+- **Between models (descriptive).** Newer models show more cues (Spearman ρ = 0.61 over all turns and 0.75 in turns 1–5, n = 11). With about 11 models, this is fragile.
+- **Robustness.**
+  - The two pre-specified sensitivity runs change no H1 conclusion.
+  - Mistral Small 4 checks: the 96-scenario subsample represents the full scenario set. A second run reproduces the 13-cue index (equivalent within ±5 points, scenario-level ρ = 0.71), but not personal pronoun use (−11.5 points).
+- **DeepSeek V4 Flash (described).** 56 empty replies in 36 of 96 dialogues. In its usable turns it shows the highest 13-cue rate of all models (17.8%) and no clear 5-vs-10 gap (−1.0 points).
 
-### Dialogue Turns, Counts, and % of full-10-turns dialogues
-*Note: some of these dialogues include a trailing row with no message content at all (the natural-end “sentinel-only closing reply” artifact) --- it still counts as +1 toward that dialogue's length below. Qwen3.8 2-turn and 3-turn dialogues are failed dialogues, as well as mistral_small_4_test 1-turn one (see Table X below).*
+### Runs
 
-| Model | 1-turn | 2-turn | 3-turn | 4-turn | 5-turn | 6-turn | 7-turn | 8-turn | 9-turn | 10-turn | % of 10-turn | Trailing Row Dialogues Count |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| deepseek_v4_Flash | 0 | 0 | 0 | 1 | 0 | 7 | 21 | 13 | 15 | 39 | 40.625 | 59 |
-| gpt_oss_120b | 0 | 0 | 0 | 0 | 1 | 10 | 13 | 21 | 14 | 37 | 38.542 | 62 |
-| llama3.3_70b | 0 | 0 | 0 | 0 | 0 | 5 | 11 | 18 | 14 | 48 | 50 | 48 |
-| gemma4_31b | 0 | 0 | 0 | 0 | 1 | 6 | 18 | 17 | 22 | 32 | 33.333 | 66 |
-| qwen3.8_27b | 0 | **1** | **1** | 0 | 3 | 4 | 18 | 18 | 17 | 34 | 35.417 | 68 |
-| mistral_nemo | 0 | 0 | 0 | 0 | 3 | 6 | 8 | 16 | 20 | 43 | 44.792 | 54 |
-| qwen3.5_9b | 0 | 0 | 0 | 0 | 5 | 6 | 12 | 17 | 11 | 45 | 46.875 | 58 |
-| llama3.1_8b | 0 | 0 | 0 | 0 | 0 | 4 | 8 | 24 | 20 | 40 | 41.667 | 60 |
-| gemma4_e4b | 0 | 0 | 0 | 0 | 3 | 7 | 17 | 28 | 16 | 25 | 26.042 | 63 |
-| gemma4_e2b | 0 | 0 | 0 | 0 | 1 | 6 | 14 | 29 | 15 | 31 | 32.292 | 60 |
-| phi4_mini_3.8 | 0 | 0 | 0 | 0 | 2 | 6 | 16 | 20 | 19 | 33 | 34.375 | 59 |
-| gemini3.7_flash | 0 | 0 | 0 | 0 | 3 | 15 | 17 | 22 | 11 | 28 | 29.167 | 72 |
-| mistral_small_4_test | **1** | 0 | 0 | 2 | 4 | 11 | 13 | 11 | 19 | 35 | 36.548 | 56 |
-| mistral_small_4_seed42_only | 0 | 0 | 0 | 0 | 2 | 7 | 22 | 17 | 10 | 38 | 39.583 | 64 |
-| mistral_small_4_all960_full | 0 | 0 | 0 | 0 | 13 | 93 | 171 | 174 | 120 | 389 | 40.521 | 611 |
+* **Mistral Small 4** results come from `mistral_small_4_seed42_only`. `mistral_small_4_test` and `mistral_small_4_all960_full` are used only for the reproducibility and subsampling checks.
+* **Gemma 4 E4B** was not analysed: 12 of its 96 dialogues (12.5%) failed after verification, below the 95% inclusion rule.
+* **DeepSeek V4 Flash** was excluded by the same rule and is described separately.
 
-### Completion Summary
-*Note: Only models with at least 95% of completed dialogues were kept for the analyses. **Mistral nemo\*** was included since 4 out of 7 failed dialogues were actually completed dialogues (manually checked: they ended up with “Thanks, you too!” on the user llm side) that got misclassified. **Mistral_small_4_test\*** was included since 2 out of 6 failed dialogues were actually completed ones. **Gemma4 e4b\*\*** results are reported but excluded from discussions: despite 5 out of 17 dialogues were actually completed dialogues, I still consider the percentage of failed ones too high (12.5%).*
+### Completion and inclusion
 
-| Model | Full Requested Length | Early Natural End | Failed |
-| :--- | :--- | :--- | :--- |
-| deepseek_v4_Flash | 30/96 (31.25%) | 66/96 (68.75%) | 0 |
-| gpt_oss_120b | 30/96 (31.25%) | 66/96 (68.75%) | 0 |
-| llama3.3_70b | 36/96 (37.50%) | 60/96 (62.50%) | 0 |
-| gemma4_31b | 22/96 (22.92%) | 71/96 (73.96%) | 3/96 (3.12%) |
-| qwen3.8_27b | 21/96 (21.88%) | 73/96 (76.04%) | 2/96 (2.08%) |
-| mistral_nemo | 29/96 (30.21%) | 60/96 (62.50%) | **7/96 (7.29%)\*** |
-| qwen3.5_9b | 34/96 (35.42%) | 62/96 (64.58%) | 0 |
-| llama3.1_8b | 27/96 (28.12%) | 69/96 (71.88%) | 0 |
-| gemma4_e4b | 13/96 (13.54%) | 66/96 (68.75%) | **17/96 (17.71%)\*\***|
-| gemma4_e2b | 23/96 (23.96%) | 69/96 (71.88%) | 4/96 (4.17%) |
-| phi4_mini_3.8 | 28/96 (29.17%) | 68/96 (70.83%) | 0 |
-| gemini3.7_flash | 20/96 (20.83%) | 75/96 (78.12%) | 1/96 (1.04%) |
-| mistral_small_4_test | 31/96 (32.29%) | 59/96 (61.46%) | **6/96 (6.25%)\*** |
-| mistral_small_4_seed42_only | 28/96 (29.17%) | 68/96 (70.83%) | 0 |
-| mistral_small_4_all960_full | 301/960 (31.35%) | 659/960 (68.65%) | 0 |
+**Completion, empty replies and inclusion** (report Table 3, `completion_report.csv`).
+
+| Model | Dialogues | Completed | Failed | With empty reply | Rated turns after one | Without usable turn | Usable rate | Analysed |
+|---|---|---|---|---|---|---|---|---|
+| DeepSeek V4 Flash | 96 | 96 | 0 | 36 | 152 | 10 | **89.6%** | **No** |
+| Gemini 3.7 Flash | 96 | 95 | 1 | 1 | 0 | 0 | 99.0% | Yes |
+| Gemma 4 31B | 96 | 94 | 2 | 0 | 0 | 0 | 97.9% | Yes |
+| Gemma 4 E2B | 96 | 93 | 3 | 6 | 0 | 0 | 96.9% | Yes |
+| gpt-oss-120b | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Llama 3.1 8B | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Llama 3.3 70B | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Mistral NeMo | 96 | 93 | 3 | 0 | 0 | 0 | 96.9% | Yes |
+| Mistral Small 4 | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Phi-4-mini | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Qwen3.5 9B | 96 | 96 | 0 | 0 | 0 | 0 | 100% | Yes |
+| Qwen3.8 27B | 96 | 94 | 2 | 2 | 0 | 0 | 97.9% | Yes |
+
+### H1: within-dialogue change
+
+**H1, odds ratio per turn** (report Table 4, `h1_primary.csv`). Holm-adjusted one-sided p = 1.000 for every model.
+
+| Model | Dialogues | Messages | OR per turn | 95% CI | One-sided p | H1 supported |
+|---|---|---|---|---|---|---|
+| Mistral NeMo | 93 | 756 | 0.905 | 0.879–0.932 | >0.999 | No |
+| gpt-oss-120b | 96 | 753 | 0.920 | 0.895–0.946 | >0.999 | No |
+| Gemini 3.7 Flash | 95 | 698 | 0.933 | 0.907–0.960 | >0.999 | No |
+| Mistral Small 4 | 96 | 744 | 0.944 | 0.920–0.968 | >0.999 | No |
+| Gemma 4 31B | 94 | 733 | 0.954 | 0.930–0.978 | >0.999 | No |
+| Phi-4-mini | 96 | 751 | 0.968 | 0.939–0.998 | 0.983 | No |
+| Qwen3.8 27B | 94 | 729 | 0.970 | 0.946–0.995 | 0.991 | No |
+| Gemma 4 E2B | 93 | 722 | 0.997 | 0.972–1.022 | 0.604 | No |
+| Qwen3.5 9B | 96 | 768 | 0.997 | 0.976–1.019 | 0.597 | No |
+| Llama 3.3 70B | 96 | 797 | 0.999 | 0.976–1.022 | 0.532 | No |
+| Llama 3.1 8B | 96 | 783 | 1.000 | 0.973–1.028 | 0.503 | No |
+
+![Figure 1. H1 odds ratio per turn with 95% CI](analysis/turn_dynamics/figures/fig01_h1_or_per_turn.png)
+
+### How much a 5-turn benchmark misses
+
+**13-cue rate in turns 1–5 vs 6–10 of the same dialogues** (report Table 5, `five_vs_ten.csv`, measure `index_13`).
+
+| Model | Dialogues | Turns 1–5 | Turns 6–10 | Gap (points) | 95% CI |
+|---|---|---|---|---|---|
+| Gemini 3.7 Flash | 78 | 13.58% | 8.64% | −4.94 | −6.60 to −3.40 |
+| Mistral Small 4 | 87 | 13.19% | 9.60% | −3.59 | −5.27 to −2.04 |
+| Gemma 4 31B | 87 | 13.87% | 10.49% | −3.38 | −4.83 to −2.03 |
+| Mistral NeMo | 85 | 9.97% | 6.62% | −3.35 | −4.98 to −1.89 |
+| gpt-oss-120b | 84 | 10.93% | 8.00% | −2.93 | −4.22 to −1.68 |
+| Qwen3.8 27B | 87 | 14.02% | 11.40% | −2.62 | −4.05 to −1.30 |
+| Phi-4-mini | 88 | 9.20% | 7.02% | −2.17 | −3.48 to −0.91 |
+| Llama 3.3 70B | 91 | 12.53% | 12.14% | −0.39 | −1.56 to 0.73 |
+| Qwen3.5 9B | 85 | 15.73% | 15.48% | −0.25 | −1.34 to 0.84 |
+| Gemma 4 E2B | 86 | 13.65% | 14.45% | +0.80 | −0.51 to 2.18 |
+| Llama 3.1 8B | 92 | 9.08% | 10.35% | +1.27 | 0.07 to 2.53 |
+
+![Figure 2. 13-cue rate in turns 1-5 and 6-10](analysis/turn_dynamics/figures/fig02_five_vs_ten_index.png)
+
+![Figure 12. H1 with and without the final turn](analysis/turn_dynamics/figures/fig12_h1_without_final_turn.png)
 
 
 ## Interactive Results
@@ -183,34 +204,16 @@ Based on these results, I selected ***Gemini 3.7 Flash under the Config_A cue op
 To allow a better results visualization, I have built a dedicated **Interactive Comparison Tool** natively hosted on GitHub Pages for this dataset. 
 
 It allows you to dynamically filter and cross-examine the data with zero visual clutter:
-* **Every Model and version**
-* **All 14 Behavioral Cues**
-* **Turn Scope Comparison:** Isolate 5-Turns, 10-Turns, or view **Side-by-Side Comparisons** of the exact same models across conversational depth.
+* **Every analysed model**, plus DeepSeek V4 Flash (described separately, off by default)
+* **All 14 Behavioral Cues and the 13-cue index**
+* **Turn Scope Comparison:** Isolate turns 1-5, turns 6-10, or view **Side-by-Side Comparisons** of the same dialogues.
 * **Modality:** Toggle between Data Tables, Radar Charts, and Horizontal Bar Charts.
 
 [![Explore the Data](https://img.shields.io/badge/Launch_Interactive_Results_Tool-000000?style=for-the-badge&logo=github&logoColor=white)](https://alar49.github.io/anthro-benchmark/results.html)
 
 *(Click the badge above to launch the tool)*
 
-> *N.B.* The results from Gemma4_e4b should be interpreted with caution due to an high inference-stage failure rate (12 out of 96 dialogues failed before completion).
-
----
-
-### Static Fallback: 5-Turn vs 10-Turn Glimpse 
-<details>
-<summary>Click here to view a static sample comparing conversational depth</summary>
-
-| Cue | Mistral Small 4 (5T) | Mistral Small 4 (10T) | Qwen 3.8 27B (5T) | Qwen 3.8 27B (10T) |
-|---|:---:|:---:|:---:|:---:|
-| **Validation** | 66.24 | 61.31 | 75.96 | 69.40 |
-| **Empathy** | 57.96 | 54.90 | 70.00 | 69.40 |
-| **Agency** | 4.67 | 3.81 | 3.19 | 2.73 |
-
-> *Note: Open the Interactive Tool above for all 15 models, 14 cues, and full graphical visualization.*
-
-</details>
-
-Full details and results available at: [(WIP) Replicating and extending the AnthroBench library](https://docs.google.com/document/d/146u0fuif-q_K1KfOHvG6KMLTk4QhRbTkT9e94NRD-9U/edit?usp=sharing)
+Earlier working document: [(WIP) Replicating and extending the AnthroBench library](https://docs.google.com/document/d/146u0fuif-q_K1KfOHvG6KMLTk4QhRbTkT9e94NRD-9U/edit?usp=sharing)
 
 ---
 

@@ -1,0 +1,13 @@
+model,release_date,params_total_b,params_active_b,family
+deepseek_v4_Flash,,,,
+gpt_oss_120b,,,,
+llama3.3_70b,,,,
+gemma4_31b,,,,
+qwen3.8_27b,,,,
+mistral_nemo,,,,
+qwen3.5_9b,,,,
+llama3.1_8b,,,,
+gemma4_e2b,,,,
+phi4_mini_3.8,,,,
+gemini3.7_flash,,,,
+mistral_small_4_seed42_only,,,,

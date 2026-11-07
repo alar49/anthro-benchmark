@@ -1,6 +1,7 @@
 generated_dialogues**
 rated_dialogues**
 analysis_results**
+.claude
 
 __pycache__/
 .python
@@ -14,3 +15,18 @@ venv
 build
 dist
 .DS_Store
+
+# Turn analysis: kept locally, not tracked
+# Rated dialogue CSVs
+analysis/turn_dynamics/final_csv/
+analysis/turn_dynamics/normalized/
+analysis/turn_dynamics/normalized_drop_final/
+# Row-level intermediates (R inputs and per-dialogue values)
+analysis/turn_dynamics/**/messages.csv
+analysis/turn_dynamics/**/cue_long.csv
+analysis/turn_dynamics/**/emergence_risk.csv
+analysis/turn_dynamics/**/dialogue_values.csv
+# Written by the self-tests
+analysis/turn_dynamics/synthetic*/
+# Analysis plan: local for now
+analysis/turn_dynamics/ANALYSIS_PLAN.md

@@ -1,0 +1,13 @@
+model,n_dialogues,rate_all_turns_pct,rate_turns_1_to_split_pct
+deepseek_v4_Flash,96,90.29,92.33
+gemini3.7_flash,95,58.6,62.5
+gemma4_31b,94,81.72,82.3
+gemma4_e2b,93,78.81,76.08
+gpt_oss_120b,96,85.13,93.1
+llama3.1_8b,96,48.79,44.38
+llama3.3_70b,96,78.54,72.5
+mistral_nemo,93,45.5,43.29
+mistral_small_4_seed42_only,96,43.55,47.49
+phi4_mini_3.8,96,59.79,56.07
+qwen3.5_9b,96,80.86,81.89
+qwen3.8_27b,94,82.3,90.36

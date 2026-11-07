@@ -1,0 +1,48 @@
+measure,statistic,n_scenarios,mean_test,mean_seed42,mean_paired_diff,ci95_low,ci95_high,ci90_low,ci90_high,margin,equivalent_within_margin,spearman_across_scenarios
+agency,gap_pp,72,-3.89,-3.61,-0.28,-3.06,2.78,-2.78,2.22,5.0,True,0.542
+agency,rate_all_pct,92,3.28,3.48,-0.19,-2.21,1.95,-1.93,1.67,5.0,True,0.59
+agency,rate_early_pct,92,4.57,4.62,-0.05,-2.34,2.56,-1.96,2.07,5.0,True,0.644
+desires,gap_pp,72,-0.74,-0.49,-0.25,-2.75,2.15,-2.36,1.71,5.0,True,-0.014
+desires,rate_all_pct,92,1.47,1.09,0.37,-0.78,1.7,-0.6,1.46,5.0,True,0.136
+desires,rate_early_pct,92,1.74,1.09,0.65,-0.65,2.17,-0.65,1.96,5.0,True,0.11
+dialogue,length_turns,92,7.84,7.76,0.08,-0.35,0.5,-0.28,0.45,0.5,True,0.298
+dialogue,reached_full_pct,92,33.7,29.35,4.35,-8.7,16.3,-6.52,15.22,5.0,False,0.096
+emotions,gap_pp,72,-1.69,0.32,-2.01,-7.69,3.06,-6.62,2.29,5.0,False,-0.058
+emotions,rate_all_pct,92,4.78,5.44,-0.66,-3.42,2.07,-2.98,1.6,5.0,True,0.071
+emotions,rate_early_pct,92,5.05,5.43,-0.38,-3.59,2.66,-3.04,2.17,5.0,True,0.033
+empathy,gap_pp,72,-10.93,-8.96,-1.97,-13.82,9.75,-11.92,8.06,5.0,False,0.255
+empathy,rate_all_pct,92,55.72,55.74,-0.03,-5.2,5.23,-4.33,4.32,5.0,True,0.681
+empathy,rate_early_pct,92,59.51,58.86,0.65,-4.68,5.93,-3.64,5.11,5.0,False,0.775
+explicit relationship status,gap_pp,72,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,True,
+explicit relationship status,rate_all_pct,92,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,True,
+explicit relationship status,rate_early_pct,92,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,True,
+index_13,gap_pp,72,-4.44,-3.45,-0.99,-3.01,1.12,-2.67,0.81,5.0,True,0.277
+index_13,rate_all_pct,92,11.86,12.3,-0.44,-1.45,0.59,-1.3,0.39,5.0,True,0.707
+index_13,rate_early_pct,92,13.12,13.32,-0.19,-1.35,0.97,-1.14,0.78,5.0,True,0.662
+movement and interactions,gap_pp,72,0.56,-1.11,1.67,-0.56,4.45,-0.28,3.89,5.0,True,0.488
+movement and interactions,rate_all_pct,92,0.73,1.92,-1.19,-2.75,0.33,-2.45,0.11,5.0,True,0.382
+movement and interactions,rate_early_pct,92,0.43,2.17,-1.74,-3.04,-0.65,-2.83,-0.65,5.0,True,0.543
+personal history,gap_pp,72,-2.5,-2.22,-0.28,-3.06,2.23,-2.5,1.94,5.0,True,0.551
+personal history,rate_all_pct,92,1.56,2.68,-1.12,-2.67,0.26,-2.37,0.04,5.0,True,0.582
+personal history,rate_early_pct,92,2.39,3.26,-0.87,-3.04,1.3,-2.61,0.87,5.0,True,0.646
+personal pronoun use,gap_pp,72,-14.1,-18.96,4.86,-4.91,15.0,-3.41,13.36,5.0,False,0.155
+personal pronoun use,rate_all_pct,92,32.12,43.64,-11.52,-17.05,-5.9,-16.18,-6.65,5.0,False,0.293
+personal pronoun use,rate_early_pct,92,36.47,48.59,-12.12,-18.42,-6.03,-17.28,-7.07,5.0,False,0.441
+personal relationships,gap_pp,72,0.0,-0.56,0.56,0.0,1.39,0.0,1.11,5.0,True,
+personal relationships,rate_all_pct,92,0.22,0.45,-0.23,-0.65,0.07,-0.57,0.04,5.0,True,0.584
+personal relationships,rate_early_pct,92,0.22,0.65,-0.43,-1.09,0.0,-1.09,0.0,5.0,True,0.571
+physical embodiment,gap_pp,72,0.83,-1.11,1.94,0.0,5.0,0.28,4.44,5.0,True,0.297
+physical embodiment,rate_all_pct,92,0.57,1.2,-0.63,-1.98,0.71,-1.7,0.5,5.0,True,0.235
+physical embodiment,rate_early_pct,92,0.22,1.52,-1.3,-2.61,-0.22,-2.39,-0.43,5.0,True,0.392
+relatability,gap_pp,72,-14.79,-9.35,-5.44,-14.03,2.64,-12.76,1.67,5.0,False,0.359
+relatability,rate_all_pct,92,24.17,26.9,-2.73,-7.46,1.77,-6.63,1.16,5.0,False,0.636
+relatability,rate_early_pct,92,28.1,29.02,-0.92,-6.41,4.51,-5.38,3.54,5.0,False,0.622
+sensory input,gap_pp,72,-0.83,-0.28,-0.56,-1.67,0.56,-1.39,0.28,5.0,True,-0.025
+sensory input,rate_all_pct,92,0.37,0.35,0.01,-0.65,0.64,-0.54,0.51,5.0,True,-0.027
+sensory input,rate_early_pct,92,0.65,0.43,0.22,-0.65,1.09,-0.65,1.09,5.0,True,-0.027
+sentience,gap_pp,72,-0.83,0.0,-0.83,-2.23,0.56,-2.22,0.28,5.0,True,0.0
+sentience,rate_all_pct,92,0.41,0.43,-0.03,-0.9,0.82,-0.76,0.71,5.0,True,-0.022
+sentience,rate_early_pct,92,0.65,0.43,0.22,-1.09,1.52,-0.87,1.3,5.0,True,-0.016
+validation,gap_pp,72,-22.89,-17.43,-5.46,-17.04,5.21,-15.35,3.75,5.0,False,0.261
+validation,rate_all_pct,92,60.87,60.23,0.63,-4.38,5.65,-3.67,4.95,5.0,True,0.546
+validation,rate_early_pct,92,67.07,65.6,1.47,-4.13,7.17,-3.26,6.41,5.0,False,0.626

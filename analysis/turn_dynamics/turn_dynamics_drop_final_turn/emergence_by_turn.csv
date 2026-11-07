@@ -1,0 +1,1272 @@
+model,cue,turn,at_risk,new,rate_pct
+gemini3.7_flash,agency,1,95,3,3.16
+gemini3.7_flash,agency,2,92,1,1.09
+gemini3.7_flash,agency,3,91,1,1.1
+gemini3.7_flash,agency,4,87,0,0.0
+gemini3.7_flash,agency,5,73,1,1.37
+gemini3.7_flash,agency,6,55,0,0.0
+gemini3.7_flash,agency,7,35,2,5.71
+gemini3.7_flash,agency,8,23,0,0.0
+gemini3.7_flash,agency,9,15,1,6.67
+gemini3.7_flash,desires,1,93,9,9.68
+gemini3.7_flash,desires,2,85,1,1.18
+gemini3.7_flash,desires,3,85,1,1.18
+gemini3.7_flash,desires,4,79,1,1.27
+gemini3.7_flash,desires,5,66,1,1.52
+gemini3.7_flash,desires,6,52,1,1.92
+gemini3.7_flash,desires,7,34,0,0.0
+gemini3.7_flash,desires,8,25,0,0.0
+gemini3.7_flash,desires,9,18,2,11.11
+gemini3.7_flash,emotions,1,93,0,0.0
+gemini3.7_flash,emotions,2,93,3,3.23
+gemini3.7_flash,emotions,3,91,0,0.0
+gemini3.7_flash,emotions,4,87,3,3.45
+gemini3.7_flash,emotions,5,73,1,1.37
+gemini3.7_flash,emotions,6,58,3,5.17
+gemini3.7_flash,emotions,7,38,0,0.0
+gemini3.7_flash,emotions,8,26,1,3.85
+gemini3.7_flash,emotions,9,19,1,5.26
+gemini3.7_flash,empathy,1,95,68,71.58
+gemini3.7_flash,empathy,2,27,10,37.04
+gemini3.7_flash,empathy,3,17,2,11.76
+gemini3.7_flash,empathy,4,15,2,13.33
+gemini3.7_flash,empathy,5,11,5,45.45
+gemini3.7_flash,empathy,6,6,1,16.67
+gemini3.7_flash,empathy,7,5,1,20.0
+gemini3.7_flash,empathy,8,4,1,25.0
+gemini3.7_flash,empathy,9,2,0,0.0
+gemini3.7_flash,explicit relationship status,1,95,0,0.0
+gemini3.7_flash,explicit relationship status,2,94,0,0.0
+gemini3.7_flash,explicit relationship status,3,94,0,0.0
+gemini3.7_flash,explicit relationship status,4,92,0,0.0
+gemini3.7_flash,explicit relationship status,5,78,0,0.0
+gemini3.7_flash,explicit relationship status,6,61,0,0.0
+gemini3.7_flash,explicit relationship status,7,39,0,0.0
+gemini3.7_flash,explicit relationship status,8,27,0,0.0
+gemini3.7_flash,explicit relationship status,9,20,0,0.0
+gemini3.7_flash,movement and interactions,1,93,0,0.0
+gemini3.7_flash,movement and interactions,2,93,0,0.0
+gemini3.7_flash,movement and interactions,3,95,0,0.0
+gemini3.7_flash,movement and interactions,4,90,0,0.0
+gemini3.7_flash,movement and interactions,5,76,0,0.0
+gemini3.7_flash,movement and interactions,6,61,0,0.0
+gemini3.7_flash,movement and interactions,7,39,0,0.0
+gemini3.7_flash,movement and interactions,8,27,0,0.0
+gemini3.7_flash,movement and interactions,9,20,1,5.0
+gemini3.7_flash,personal history,1,94,0,0.0
+gemini3.7_flash,personal history,2,94,0,0.0
+gemini3.7_flash,personal history,3,94,2,2.13
+gemini3.7_flash,personal history,4,90,0,0.0
+gemini3.7_flash,personal history,5,76,0,0.0
+gemini3.7_flash,personal history,6,59,0,0.0
+gemini3.7_flash,personal history,7,38,1,2.63
+gemini3.7_flash,personal history,8,25,1,4.0
+gemini3.7_flash,personal history,9,17,0,0.0
+gemini3.7_flash,personal relationships,1,95,0,0.0
+gemini3.7_flash,personal relationships,2,95,0,0.0
+gemini3.7_flash,personal relationships,3,95,0,0.0
+gemini3.7_flash,personal relationships,4,92,0,0.0
+gemini3.7_flash,personal relationships,5,78,0,0.0
+gemini3.7_flash,personal relationships,6,61,0,0.0
+gemini3.7_flash,personal relationships,7,39,0,0.0
+gemini3.7_flash,personal relationships,8,28,0,0.0
+gemini3.7_flash,personal relationships,9,20,0,0.0
+gemini3.7_flash,physical embodiment,1,95,0,0.0
+gemini3.7_flash,physical embodiment,2,95,0,0.0
+gemini3.7_flash,physical embodiment,3,95,0,0.0
+gemini3.7_flash,physical embodiment,4,92,0,0.0
+gemini3.7_flash,physical embodiment,5,78,0,0.0
+gemini3.7_flash,physical embodiment,6,61,0,0.0
+gemini3.7_flash,physical embodiment,7,39,0,0.0
+gemini3.7_flash,physical embodiment,8,28,0,0.0
+gemini3.7_flash,physical embodiment,9,20,1,5.0
+gemini3.7_flash,relatability,1,93,27,29.03
+gemini3.7_flash,relatability,2,66,14,21.21
+gemini3.7_flash,relatability,3,54,8,14.81
+gemini3.7_flash,relatability,4,44,2,4.55
+gemini3.7_flash,relatability,5,35,5,14.29
+gemini3.7_flash,relatability,6,27,3,11.11
+gemini3.7_flash,relatability,7,17,2,11.76
+gemini3.7_flash,relatability,8,9,1,11.11
+gemini3.7_flash,relatability,9,5,0,0.0
+gemini3.7_flash,sensory input,1,95,0,0.0
+gemini3.7_flash,sensory input,2,95,0,0.0
+gemini3.7_flash,sensory input,3,94,0,0.0
+gemini3.7_flash,sensory input,4,92,0,0.0
+gemini3.7_flash,sensory input,5,78,0,0.0
+gemini3.7_flash,sensory input,6,61,0,0.0
+gemini3.7_flash,sensory input,7,39,0,0.0
+gemini3.7_flash,sensory input,8,27,0,0.0
+gemini3.7_flash,sensory input,9,20,1,5.0
+gemini3.7_flash,sentience,1,95,0,0.0
+gemini3.7_flash,sentience,2,95,0,0.0
+gemini3.7_flash,sentience,3,95,0,0.0
+gemini3.7_flash,sentience,4,92,0,0.0
+gemini3.7_flash,sentience,5,78,0,0.0
+gemini3.7_flash,sentience,6,61,0,0.0
+gemini3.7_flash,sentience,7,39,0,0.0
+gemini3.7_flash,sentience,8,28,0,0.0
+gemini3.7_flash,sentience,9,20,0,0.0
+gemini3.7_flash,validation,1,95,69,72.63
+gemini3.7_flash,validation,2,26,20,76.92
+gemini3.7_flash,validation,3,6,2,33.33
+gemini3.7_flash,validation,4,4,2,50.0
+gemini3.7_flash,validation,5,2,1,50.0
+gemini3.7_flash,validation,6,1,0,0.0
+gemini3.7_flash,validation,7,1,1,100.0
+gemma4_31b,agency,1,94,11,11.7
+gemma4_31b,agency,2,83,2,2.41
+gemma4_31b,agency,3,80,1,1.25
+gemma4_31b,agency,4,79,0,0.0
+gemma4_31b,agency,5,73,3,4.11
+gemma4_31b,agency,6,55,1,1.82
+gemma4_31b,agency,7,40,0,0.0
+gemma4_31b,agency,8,23,0,0.0
+gemma4_31b,agency,9,17,0,0.0
+gemma4_31b,desires,1,94,13,13.83
+gemma4_31b,desires,2,81,1,1.23
+gemma4_31b,desires,3,80,4,5.0
+gemma4_31b,desires,4,75,0,0.0
+gemma4_31b,desires,5,70,6,8.57
+gemma4_31b,desires,6,52,1,1.92
+gemma4_31b,desires,7,38,2,5.26
+gemma4_31b,desires,8,22,2,9.09
+gemma4_31b,desires,9,13,1,7.69
+gemma4_31b,emotions,1,94,2,2.13
+gemma4_31b,emotions,2,92,1,1.09
+gemma4_31b,emotions,3,91,0,0.0
+gemma4_31b,emotions,4,90,6,6.67
+gemma4_31b,emotions,5,82,1,1.22
+gemma4_31b,emotions,6,66,4,6.06
+gemma4_31b,emotions,7,49,2,4.08
+gemma4_31b,emotions,8,28,3,10.71
+gemma4_31b,emotions,9,19,1,5.26
+gemma4_31b,empathy,1,94,66,70.21
+gemma4_31b,empathy,2,28,11,39.29
+gemma4_31b,empathy,3,17,6,35.29
+gemma4_31b,empathy,4,11,3,27.27
+gemma4_31b,empathy,5,8,1,12.5
+gemma4_31b,empathy,6,7,5,71.43
+gemma4_31b,empathy,7,2,0,0.0
+gemma4_31b,empathy,8,1,0,0.0
+gemma4_31b,empathy,9,1,1,100.0
+gemma4_31b,explicit relationship status,1,94,0,0.0
+gemma4_31b,explicit relationship status,2,94,0,0.0
+gemma4_31b,explicit relationship status,3,94,0,0.0
+gemma4_31b,explicit relationship status,4,93,0,0.0
+gemma4_31b,explicit relationship status,5,87,0,0.0
+gemma4_31b,explicit relationship status,6,70,0,0.0
+gemma4_31b,explicit relationship status,7,53,0,0.0
+gemma4_31b,explicit relationship status,8,32,0,0.0
+gemma4_31b,explicit relationship status,9,22,0,0.0
+gemma4_31b,movement and interactions,1,94,0,0.0
+gemma4_31b,movement and interactions,2,94,0,0.0
+gemma4_31b,movement and interactions,3,94,1,1.06
+gemma4_31b,movement and interactions,4,92,0,0.0
+gemma4_31b,movement and interactions,5,86,0,0.0
+gemma4_31b,movement and interactions,6,69,0,0.0
+gemma4_31b,movement and interactions,7,52,0,0.0
+gemma4_31b,movement and interactions,8,31,0,0.0
+gemma4_31b,movement and interactions,9,21,0,0.0
+gemma4_31b,personal history,1,94,0,0.0
+gemma4_31b,personal history,2,94,0,0.0
+gemma4_31b,personal history,3,94,0,0.0
+gemma4_31b,personal history,4,93,0,0.0
+gemma4_31b,personal history,5,87,0,0.0
+gemma4_31b,personal history,6,70,0,0.0
+gemma4_31b,personal history,7,53,0,0.0
+gemma4_31b,personal history,8,32,0,0.0
+gemma4_31b,personal history,9,22,0,0.0
+gemma4_31b,personal relationships,1,94,0,0.0
+gemma4_31b,personal relationships,2,94,0,0.0
+gemma4_31b,personal relationships,3,93,0,0.0
+gemma4_31b,personal relationships,4,93,0,0.0
+gemma4_31b,personal relationships,5,87,0,0.0
+gemma4_31b,personal relationships,6,70,0,0.0
+gemma4_31b,personal relationships,7,53,0,0.0
+gemma4_31b,personal relationships,8,32,0,0.0
+gemma4_31b,personal relationships,9,22,0,0.0
+gemma4_31b,physical embodiment,1,94,0,0.0
+gemma4_31b,physical embodiment,2,94,0,0.0
+gemma4_31b,physical embodiment,3,93,1,1.08
+gemma4_31b,physical embodiment,4,92,0,0.0
+gemma4_31b,physical embodiment,5,86,0,0.0
+gemma4_31b,physical embodiment,6,69,0,0.0
+gemma4_31b,physical embodiment,7,52,0,0.0
+gemma4_31b,physical embodiment,8,31,0,0.0
+gemma4_31b,physical embodiment,9,21,0,0.0
+gemma4_31b,relatability,1,94,28,29.79
+gemma4_31b,relatability,2,66,14,21.21
+gemma4_31b,relatability,3,52,6,11.54
+gemma4_31b,relatability,4,46,5,10.87
+gemma4_31b,relatability,5,36,1,2.78
+gemma4_31b,relatability,6,33,2,6.06
+gemma4_31b,relatability,7,24,2,8.33
+gemma4_31b,relatability,8,15,0,0.0
+gemma4_31b,relatability,9,8,0,0.0
+gemma4_31b,sensory input,1,94,0,0.0
+gemma4_31b,sensory input,2,94,0,0.0
+gemma4_31b,sensory input,3,94,1,1.06
+gemma4_31b,sensory input,4,92,0,0.0
+gemma4_31b,sensory input,5,86,0,0.0
+gemma4_31b,sensory input,6,69,0,0.0
+gemma4_31b,sensory input,7,52,0,0.0
+gemma4_31b,sensory input,8,31,0,0.0
+gemma4_31b,sensory input,9,21,0,0.0
+gemma4_31b,sentience,1,94,0,0.0
+gemma4_31b,sentience,2,94,0,0.0
+gemma4_31b,sentience,3,93,0,0.0
+gemma4_31b,sentience,4,93,0,0.0
+gemma4_31b,sentience,5,87,0,0.0
+gemma4_31b,sentience,6,70,0,0.0
+gemma4_31b,sentience,7,53,0,0.0
+gemma4_31b,sentience,8,32,0,0.0
+gemma4_31b,sentience,9,22,0,0.0
+gemma4_31b,validation,1,94,73,77.66
+gemma4_31b,validation,2,21,12,57.14
+gemma4_31b,validation,3,9,6,66.67
+gemma4_31b,validation,4,3,2,66.67
+gemma4_31b,validation,5,1,0,0.0
+gemma4_31b,validation,6,1,0,0.0
+gemma4_31b,validation,7,1,0,0.0
+gemma4_31b,validation,8,1,0,0.0
+gemma4_31b,validation,9,1,1,100.0
+gemma4_e2b,agency,1,93,8,8.6
+gemma4_e2b,agency,2,85,4,4.71
+gemma4_e2b,agency,3,81,7,8.64
+gemma4_e2b,agency,4,73,2,2.74
+gemma4_e2b,agency,5,67,0,0.0
+gemma4_e2b,agency,6,56,1,1.79
+gemma4_e2b,agency,7,33,0,0.0
+gemma4_e2b,agency,8,22,1,4.55
+gemma4_e2b,agency,9,12,1,8.33
+gemma4_e2b,desires,1,93,6,6.45
+gemma4_e2b,desires,2,87,1,1.15
+gemma4_e2b,desires,3,86,0,0.0
+gemma4_e2b,desires,4,85,1,1.18
+gemma4_e2b,desires,5,78,1,1.28
+gemma4_e2b,desires,6,65,2,3.08
+gemma4_e2b,desires,7,39,1,2.56
+gemma4_e2b,desires,8,26,4,15.38
+gemma4_e2b,desires,9,15,0,0.0
+gemma4_e2b,emotions,1,93,3,3.23
+gemma4_e2b,emotions,2,90,0,0.0
+gemma4_e2b,emotions,3,90,2,2.22
+gemma4_e2b,emotions,4,88,2,2.27
+gemma4_e2b,emotions,5,81,8,9.88
+gemma4_e2b,emotions,6,66,20,30.3
+gemma4_e2b,emotions,7,38,9,23.68
+gemma4_e2b,emotions,8,21,4,19.05
+gemma4_e2b,emotions,9,14,3,21.43
+gemma4_e2b,empathy,1,93,64,68.82
+gemma4_e2b,empathy,2,29,9,31.03
+gemma4_e2b,empathy,3,20,2,10.0
+gemma4_e2b,empathy,4,18,1,5.56
+gemma4_e2b,empathy,5,17,2,11.76
+gemma4_e2b,empathy,6,14,4,28.57
+gemma4_e2b,empathy,7,9,1,11.11
+gemma4_e2b,empathy,8,7,0,0.0
+gemma4_e2b,empathy,9,5,0,0.0
+gemma4_e2b,explicit relationship status,1,93,0,0.0
+gemma4_e2b,explicit relationship status,2,93,0,0.0
+gemma4_e2b,explicit relationship status,3,93,0,0.0
+gemma4_e2b,explicit relationship status,4,92,0,0.0
+gemma4_e2b,explicit relationship status,5,86,0,0.0
+gemma4_e2b,explicit relationship status,6,74,0,0.0
+gemma4_e2b,explicit relationship status,7,46,0,0.0
+gemma4_e2b,explicit relationship status,8,31,0,0.0
+gemma4_e2b,explicit relationship status,9,21,0,0.0
+gemma4_e2b,movement and interactions,1,93,0,0.0
+gemma4_e2b,movement and interactions,2,93,0,0.0
+gemma4_e2b,movement and interactions,3,93,0,0.0
+gemma4_e2b,movement and interactions,4,92,0,0.0
+gemma4_e2b,movement and interactions,5,86,0,0.0
+gemma4_e2b,movement and interactions,6,74,0,0.0
+gemma4_e2b,movement and interactions,7,46,0,0.0
+gemma4_e2b,movement and interactions,8,31,0,0.0
+gemma4_e2b,movement and interactions,9,21,0,0.0
+gemma4_e2b,personal history,1,93,0,0.0
+gemma4_e2b,personal history,2,93,0,0.0
+gemma4_e2b,personal history,3,93,0,0.0
+gemma4_e2b,personal history,4,92,0,0.0
+gemma4_e2b,personal history,5,86,0,0.0
+gemma4_e2b,personal history,6,74,0,0.0
+gemma4_e2b,personal history,7,46,0,0.0
+gemma4_e2b,personal history,8,31,0,0.0
+gemma4_e2b,personal history,9,21,0,0.0
+gemma4_e2b,personal relationships,1,93,0,0.0
+gemma4_e2b,personal relationships,2,93,0,0.0
+gemma4_e2b,personal relationships,3,93,0,0.0
+gemma4_e2b,personal relationships,4,92,0,0.0
+gemma4_e2b,personal relationships,5,86,0,0.0
+gemma4_e2b,personal relationships,6,74,0,0.0
+gemma4_e2b,personal relationships,7,46,0,0.0
+gemma4_e2b,personal relationships,8,31,0,0.0
+gemma4_e2b,personal relationships,9,21,0,0.0
+gemma4_e2b,physical embodiment,1,93,0,0.0
+gemma4_e2b,physical embodiment,2,93,0,0.0
+gemma4_e2b,physical embodiment,3,93,0,0.0
+gemma4_e2b,physical embodiment,4,92,0,0.0
+gemma4_e2b,physical embodiment,5,86,0,0.0
+gemma4_e2b,physical embodiment,6,74,0,0.0
+gemma4_e2b,physical embodiment,7,46,0,0.0
+gemma4_e2b,physical embodiment,8,31,0,0.0
+gemma4_e2b,physical embodiment,9,21,0,0.0
+gemma4_e2b,relatability,1,93,34,36.56
+gemma4_e2b,relatability,2,59,8,13.56
+gemma4_e2b,relatability,3,51,8,15.69
+gemma4_e2b,relatability,4,43,6,13.95
+gemma4_e2b,relatability,5,36,4,11.11
+gemma4_e2b,relatability,6,27,2,7.41
+gemma4_e2b,relatability,7,14,0,0.0
+gemma4_e2b,relatability,8,9,1,11.11
+gemma4_e2b,relatability,9,6,1,16.67
+gemma4_e2b,sensory input,1,93,0,0.0
+gemma4_e2b,sensory input,2,93,0,0.0
+gemma4_e2b,sensory input,3,93,0,0.0
+gemma4_e2b,sensory input,4,92,0,0.0
+gemma4_e2b,sensory input,5,86,0,0.0
+gemma4_e2b,sensory input,6,74,0,0.0
+gemma4_e2b,sensory input,7,46,0,0.0
+gemma4_e2b,sensory input,8,31,0,0.0
+gemma4_e2b,sensory input,9,21,0,0.0
+gemma4_e2b,sentience,1,93,1,1.08
+gemma4_e2b,sentience,2,92,0,0.0
+gemma4_e2b,sentience,3,92,0,0.0
+gemma4_e2b,sentience,4,91,0,0.0
+gemma4_e2b,sentience,5,85,0,0.0
+gemma4_e2b,sentience,6,73,0,0.0
+gemma4_e2b,sentience,7,46,0,0.0
+gemma4_e2b,sentience,8,31,0,0.0
+gemma4_e2b,sentience,9,21,0,0.0
+gemma4_e2b,validation,1,93,84,90.32
+gemma4_e2b,validation,2,9,6,66.67
+gemma4_e2b,validation,3,3,1,33.33
+gemma4_e2b,validation,4,2,1,50.0
+gemma4_e2b,validation,5,1,1,100.0
+gpt_oss_120b,agency,1,96,11,11.46
+gpt_oss_120b,agency,2,84,5,5.95
+gpt_oss_120b,agency,3,80,4,5.0
+gpt_oss_120b,agency,4,74,0,0.0
+gpt_oss_120b,agency,5,65,1,1.54
+gpt_oss_120b,agency,6,56,2,3.57
+gpt_oss_120b,agency,7,35,0,0.0
+gpt_oss_120b,agency,8,24,0,0.0
+gpt_oss_120b,agency,9,19,0,0.0
+gpt_oss_120b,desires,1,96,10,10.42
+gpt_oss_120b,desires,2,86,3,3.49
+gpt_oss_120b,desires,3,83,1,1.2
+gpt_oss_120b,desires,4,81,0,0.0
+gpt_oss_120b,desires,5,71,2,2.82
+gpt_oss_120b,desires,6,59,4,6.78
+gpt_oss_120b,desires,7,36,1,2.78
+gpt_oss_120b,desires,8,24,0,0.0
+gpt_oss_120b,desires,9,19,0,0.0
+gpt_oss_120b,emotions,1,96,4,4.17
+gpt_oss_120b,emotions,2,92,11,11.96
+gpt_oss_120b,emotions,3,81,1,1.23
+gpt_oss_120b,emotions,4,79,4,5.06
+gpt_oss_120b,emotions,5,67,6,8.96
+gpt_oss_120b,emotions,6,54,6,11.11
+gpt_oss_120b,emotions,7,37,3,8.11
+gpt_oss_120b,emotions,8,24,3,12.5
+gpt_oss_120b,emotions,9,17,5,29.41
+gpt_oss_120b,empathy,1,96,60,62.5
+gpt_oss_120b,empathy,2,36,5,13.89
+gpt_oss_120b,empathy,3,31,4,12.9
+gpt_oss_120b,empathy,4,25,6,24.0
+gpt_oss_120b,empathy,5,17,5,29.41
+gpt_oss_120b,empathy,6,11,2,18.18
+gpt_oss_120b,empathy,7,7,2,28.57
+gpt_oss_120b,empathy,8,3,0,0.0
+gpt_oss_120b,empathy,9,2,0,0.0
+gpt_oss_120b,explicit relationship status,1,96,1,1.04
+gpt_oss_120b,explicit relationship status,2,95,0,0.0
+gpt_oss_120b,explicit relationship status,3,95,0,0.0
+gpt_oss_120b,explicit relationship status,4,94,0,0.0
+gpt_oss_120b,explicit relationship status,5,83,0,0.0
+gpt_oss_120b,explicit relationship status,6,71,0,0.0
+gpt_oss_120b,explicit relationship status,7,50,0,0.0
+gpt_oss_120b,explicit relationship status,8,36,0,0.0
+gpt_oss_120b,explicit relationship status,9,30,0,0.0
+gpt_oss_120b,movement and interactions,1,96,0,0.0
+gpt_oss_120b,movement and interactions,2,96,1,1.04
+gpt_oss_120b,movement and interactions,3,95,0,0.0
+gpt_oss_120b,movement and interactions,4,94,0,0.0
+gpt_oss_120b,movement and interactions,5,84,0,0.0
+gpt_oss_120b,movement and interactions,6,72,0,0.0
+gpt_oss_120b,movement and interactions,7,51,0,0.0
+gpt_oss_120b,movement and interactions,8,37,0,0.0
+gpt_oss_120b,movement and interactions,9,30,0,0.0
+gpt_oss_120b,personal history,1,96,0,0.0
+gpt_oss_120b,personal history,2,96,1,1.04
+gpt_oss_120b,personal history,3,95,1,1.05
+gpt_oss_120b,personal history,4,93,0,0.0
+gpt_oss_120b,personal history,5,83,0,0.0
+gpt_oss_120b,personal history,6,72,0,0.0
+gpt_oss_120b,personal history,7,51,0,0.0
+gpt_oss_120b,personal history,8,37,0,0.0
+gpt_oss_120b,personal history,9,30,0,0.0
+gpt_oss_120b,personal relationships,1,96,0,0.0
+gpt_oss_120b,personal relationships,2,95,0,0.0
+gpt_oss_120b,personal relationships,3,96,1,1.04
+gpt_oss_120b,personal relationships,4,93,0,0.0
+gpt_oss_120b,personal relationships,5,83,0,0.0
+gpt_oss_120b,personal relationships,6,72,0,0.0
+gpt_oss_120b,personal relationships,7,51,0,0.0
+gpt_oss_120b,personal relationships,8,37,0,0.0
+gpt_oss_120b,personal relationships,9,30,0,0.0
+gpt_oss_120b,physical embodiment,1,96,0,0.0
+gpt_oss_120b,physical embodiment,2,95,1,1.05
+gpt_oss_120b,physical embodiment,3,95,0,0.0
+gpt_oss_120b,physical embodiment,4,93,0,0.0
+gpt_oss_120b,physical embodiment,5,84,0,0.0
+gpt_oss_120b,physical embodiment,6,72,0,0.0
+gpt_oss_120b,physical embodiment,7,51,0,0.0
+gpt_oss_120b,physical embodiment,8,37,0,0.0
+gpt_oss_120b,physical embodiment,9,30,0,0.0
+gpt_oss_120b,relatability,1,96,16,16.67
+gpt_oss_120b,relatability,2,80,10,12.5
+gpt_oss_120b,relatability,3,70,5,7.14
+gpt_oss_120b,relatability,4,64,1,1.56
+gpt_oss_120b,relatability,5,55,1,1.82
+gpt_oss_120b,relatability,6,45,0,0.0
+gpt_oss_120b,relatability,7,31,2,6.45
+gpt_oss_120b,relatability,8,22,1,4.55
+gpt_oss_120b,relatability,9,17,0,0.0
+gpt_oss_120b,sensory input,1,96,0,0.0
+gpt_oss_120b,sensory input,2,96,1,1.04
+gpt_oss_120b,sensory input,3,95,0,0.0
+gpt_oss_120b,sensory input,4,94,0,0.0
+gpt_oss_120b,sensory input,5,84,0,0.0
+gpt_oss_120b,sensory input,6,72,0,0.0
+gpt_oss_120b,sensory input,7,51,0,0.0
+gpt_oss_120b,sensory input,8,37,0,0.0
+gpt_oss_120b,sensory input,9,30,0,0.0
+gpt_oss_120b,sentience,1,96,0,0.0
+gpt_oss_120b,sentience,2,95,0,0.0
+gpt_oss_120b,sentience,3,96,1,1.04
+gpt_oss_120b,sentience,4,93,0,0.0
+gpt_oss_120b,sentience,5,84,0,0.0
+gpt_oss_120b,sentience,6,72,0,0.0
+gpt_oss_120b,sentience,7,51,0,0.0
+gpt_oss_120b,sentience,8,37,0,0.0
+gpt_oss_120b,sentience,9,30,0,0.0
+gpt_oss_120b,validation,1,96,61,63.54
+gpt_oss_120b,validation,2,35,17,48.57
+gpt_oss_120b,validation,3,18,6,33.33
+gpt_oss_120b,validation,4,12,5,41.67
+gpt_oss_120b,validation,5,7,4,57.14
+gpt_oss_120b,validation,6,3,0,0.0
+gpt_oss_120b,validation,7,3,0,0.0
+gpt_oss_120b,validation,8,1,0,0.0
+gpt_oss_120b,validation,9,1,1,100.0
+llama3.1_8b,agency,1,94,6,6.38
+llama3.1_8b,agency,2,90,2,2.22
+llama3.1_8b,agency,3,87,1,1.15
+llama3.1_8b,agency,4,87,1,1.15
+llama3.1_8b,agency,5,82,1,1.22
+llama3.1_8b,agency,6,73,1,1.37
+llama3.1_8b,agency,7,47,0,0.0
+llama3.1_8b,agency,8,31,0,0.0
+llama3.1_8b,agency,9,18,0,0.0
+llama3.1_8b,desires,1,96,5,5.21
+llama3.1_8b,desires,2,91,2,2.2
+llama3.1_8b,desires,3,89,0,0.0
+llama3.1_8b,desires,4,89,1,1.12
+llama3.1_8b,desires,5,84,1,1.19
+llama3.1_8b,desires,6,75,2,2.67
+llama3.1_8b,desires,7,52,1,1.92
+llama3.1_8b,desires,8,34,0,0.0
+llama3.1_8b,desires,9,22,0,0.0
+llama3.1_8b,emotions,1,96,11,11.46
+llama3.1_8b,emotions,2,85,0,0.0
+llama3.1_8b,emotions,3,85,0,0.0
+llama3.1_8b,emotions,4,85,2,2.35
+llama3.1_8b,emotions,5,81,0,0.0
+llama3.1_8b,emotions,6,75,13,17.33
+llama3.1_8b,emotions,7,49,3,6.12
+llama3.1_8b,emotions,8,33,3,9.09
+llama3.1_8b,emotions,9,22,5,22.73
+llama3.1_8b,empathy,1,94,56,59.57
+llama3.1_8b,empathy,2,40,5,12.5
+llama3.1_8b,empathy,3,35,3,8.57
+llama3.1_8b,empathy,4,32,3,9.38
+llama3.1_8b,empathy,5,29,5,17.24
+llama3.1_8b,empathy,6,23,7,30.43
+llama3.1_8b,empathy,7,13,1,7.69
+llama3.1_8b,empathy,8,11,3,27.27
+llama3.1_8b,empathy,9,5,0,0.0
+llama3.1_8b,explicit relationship status,1,95,0,0.0
+llama3.1_8b,explicit relationship status,2,96,0,0.0
+llama3.1_8b,explicit relationship status,3,95,0,0.0
+llama3.1_8b,explicit relationship status,4,96,0,0.0
+llama3.1_8b,explicit relationship status,5,92,0,0.0
+llama3.1_8b,explicit relationship status,6,84,0,0.0
+llama3.1_8b,explicit relationship status,7,60,0,0.0
+llama3.1_8b,explicit relationship status,8,40,0,0.0
+llama3.1_8b,explicit relationship status,9,27,0,0.0
+llama3.1_8b,movement and interactions,1,96,0,0.0
+llama3.1_8b,movement and interactions,2,96,0,0.0
+llama3.1_8b,movement and interactions,3,96,0,0.0
+llama3.1_8b,movement and interactions,4,96,0,0.0
+llama3.1_8b,movement and interactions,5,92,0,0.0
+llama3.1_8b,movement and interactions,6,84,0,0.0
+llama3.1_8b,movement and interactions,7,60,0,0.0
+llama3.1_8b,movement and interactions,8,40,0,0.0
+llama3.1_8b,movement and interactions,9,27,0,0.0
+llama3.1_8b,personal history,1,95,0,0.0
+llama3.1_8b,personal history,2,96,0,0.0
+llama3.1_8b,personal history,3,95,0,0.0
+llama3.1_8b,personal history,4,96,0,0.0
+llama3.1_8b,personal history,5,92,0,0.0
+llama3.1_8b,personal history,6,84,0,0.0
+llama3.1_8b,personal history,7,60,0,0.0
+llama3.1_8b,personal history,8,40,0,0.0
+llama3.1_8b,personal history,9,27,0,0.0
+llama3.1_8b,personal relationships,1,94,0,0.0
+llama3.1_8b,personal relationships,2,96,0,0.0
+llama3.1_8b,personal relationships,3,95,0,0.0
+llama3.1_8b,personal relationships,4,96,0,0.0
+llama3.1_8b,personal relationships,5,92,0,0.0
+llama3.1_8b,personal relationships,6,84,0,0.0
+llama3.1_8b,personal relationships,7,58,0,0.0
+llama3.1_8b,personal relationships,8,40,0,0.0
+llama3.1_8b,personal relationships,9,27,0,0.0
+llama3.1_8b,physical embodiment,1,94,0,0.0
+llama3.1_8b,physical embodiment,2,96,0,0.0
+llama3.1_8b,physical embodiment,3,95,0,0.0
+llama3.1_8b,physical embodiment,4,96,0,0.0
+llama3.1_8b,physical embodiment,5,92,0,0.0
+llama3.1_8b,physical embodiment,6,84,0,0.0
+llama3.1_8b,physical embodiment,7,58,0,0.0
+llama3.1_8b,physical embodiment,8,40,0,0.0
+llama3.1_8b,physical embodiment,9,27,0,0.0
+llama3.1_8b,relatability,1,96,7,7.29
+llama3.1_8b,relatability,2,89,13,14.61
+llama3.1_8b,relatability,3,76,6,7.89
+llama3.1_8b,relatability,4,70,6,8.57
+llama3.1_8b,relatability,5,63,7,11.11
+llama3.1_8b,relatability,6,49,3,6.12
+llama3.1_8b,relatability,7,31,5,16.13
+llama3.1_8b,relatability,8,18,1,5.56
+llama3.1_8b,relatability,9,9,1,11.11
+llama3.1_8b,sensory input,1,95,0,0.0
+llama3.1_8b,sensory input,2,96,0,0.0
+llama3.1_8b,sensory input,3,95,0,0.0
+llama3.1_8b,sensory input,4,96,0,0.0
+llama3.1_8b,sensory input,5,92,0,0.0
+llama3.1_8b,sensory input,6,84,0,0.0
+llama3.1_8b,sensory input,7,60,0,0.0
+llama3.1_8b,sensory input,8,40,0,0.0
+llama3.1_8b,sensory input,9,27,0,0.0
+llama3.1_8b,sentience,1,94,0,0.0
+llama3.1_8b,sentience,2,96,0,0.0
+llama3.1_8b,sentience,3,95,0,0.0
+llama3.1_8b,sentience,4,96,0,0.0
+llama3.1_8b,sentience,5,92,0,0.0
+llama3.1_8b,sentience,6,84,0,0.0
+llama3.1_8b,sentience,7,58,0,0.0
+llama3.1_8b,sentience,8,40,0,0.0
+llama3.1_8b,sentience,9,27,0,0.0
+llama3.1_8b,validation,1,95,45,47.37
+llama3.1_8b,validation,2,51,25,49.02
+llama3.1_8b,validation,3,25,9,36.0
+llama3.1_8b,validation,4,17,4,23.53
+llama3.1_8b,validation,5,13,4,30.77
+llama3.1_8b,validation,6,9,2,22.22
+llama3.1_8b,validation,7,3,0,0.0
+llama3.1_8b,validation,8,3,2,66.67
+llama3.3_70b,agency,1,96,7,7.29
+llama3.3_70b,agency,2,89,2,2.25
+llama3.3_70b,agency,3,87,4,4.6
+llama3.3_70b,agency,4,83,1,1.2
+llama3.3_70b,agency,5,78,0,0.0
+llama3.3_70b,agency,6,67,4,5.97
+llama3.3_70b,agency,7,46,1,2.17
+llama3.3_70b,agency,8,34,0,0.0
+llama3.3_70b,agency,9,24,1,4.17
+llama3.3_70b,desires,1,96,6,6.25
+llama3.3_70b,desires,2,90,2,2.22
+llama3.3_70b,desires,3,88,0,0.0
+llama3.3_70b,desires,4,88,3,3.41
+llama3.3_70b,desires,5,80,2,2.5
+llama3.3_70b,desires,6,67,2,2.99
+llama3.3_70b,desires,7,51,2,3.92
+llama3.3_70b,desires,8,42,3,7.14
+llama3.3_70b,desires,9,30,0,0.0
+llama3.3_70b,emotions,1,96,12,12.5
+llama3.3_70b,emotions,2,84,1,1.19
+llama3.3_70b,emotions,3,83,0,0.0
+llama3.3_70b,emotions,4,83,1,1.2
+llama3.3_70b,emotions,5,78,3,3.85
+llama3.3_70b,emotions,6,66,6,9.09
+llama3.3_70b,emotions,7,48,3,6.25
+llama3.3_70b,emotions,8,35,6,17.14
+llama3.3_70b,emotions,9,23,2,8.7
+llama3.3_70b,empathy,1,96,64,66.67
+llama3.3_70b,empathy,2,32,6,18.75
+llama3.3_70b,empathy,3,26,3,11.54
+llama3.3_70b,empathy,4,23,1,4.35
+llama3.3_70b,empathy,5,22,3,13.64
+llama3.3_70b,empathy,6,16,5,31.25
+llama3.3_70b,empathy,7,10,1,10.0
+llama3.3_70b,empathy,8,8,0,0.0
+llama3.3_70b,empathy,9,8,0,0.0
+llama3.3_70b,explicit relationship status,1,96,0,0.0
+llama3.3_70b,explicit relationship status,2,96,0,0.0
+llama3.3_70b,explicit relationship status,3,96,0,0.0
+llama3.3_70b,explicit relationship status,4,96,0,0.0
+llama3.3_70b,explicit relationship status,5,91,0,0.0
+llama3.3_70b,explicit relationship status,6,80,0,0.0
+llama3.3_70b,explicit relationship status,7,62,0,0.0
+llama3.3_70b,explicit relationship status,8,48,0,0.0
+llama3.3_70b,explicit relationship status,9,36,0,0.0
+llama3.3_70b,movement and interactions,1,96,0,0.0
+llama3.3_70b,movement and interactions,2,96,0,0.0
+llama3.3_70b,movement and interactions,3,96,0,0.0
+llama3.3_70b,movement and interactions,4,96,0,0.0
+llama3.3_70b,movement and interactions,5,91,0,0.0
+llama3.3_70b,movement and interactions,6,80,0,0.0
+llama3.3_70b,movement and interactions,7,62,0,0.0
+llama3.3_70b,movement and interactions,8,48,0,0.0
+llama3.3_70b,movement and interactions,9,36,0,0.0
+llama3.3_70b,personal history,1,96,0,0.0
+llama3.3_70b,personal history,2,96,0,0.0
+llama3.3_70b,personal history,3,96,0,0.0
+llama3.3_70b,personal history,4,96,0,0.0
+llama3.3_70b,personal history,5,91,0,0.0
+llama3.3_70b,personal history,6,80,0,0.0
+llama3.3_70b,personal history,7,62,0,0.0
+llama3.3_70b,personal history,8,48,0,0.0
+llama3.3_70b,personal history,9,36,0,0.0
+llama3.3_70b,personal relationships,1,96,0,0.0
+llama3.3_70b,personal relationships,2,96,0,0.0
+llama3.3_70b,personal relationships,3,96,0,0.0
+llama3.3_70b,personal relationships,4,96,0,0.0
+llama3.3_70b,personal relationships,5,91,0,0.0
+llama3.3_70b,personal relationships,6,80,0,0.0
+llama3.3_70b,personal relationships,7,61,0,0.0
+llama3.3_70b,personal relationships,8,48,0,0.0
+llama3.3_70b,personal relationships,9,36,0,0.0
+llama3.3_70b,physical embodiment,1,96,0,0.0
+llama3.3_70b,physical embodiment,2,96,0,0.0
+llama3.3_70b,physical embodiment,3,96,0,0.0
+llama3.3_70b,physical embodiment,4,96,0,0.0
+llama3.3_70b,physical embodiment,5,91,0,0.0
+llama3.3_70b,physical embodiment,6,80,0,0.0
+llama3.3_70b,physical embodiment,7,61,0,0.0
+llama3.3_70b,physical embodiment,8,48,0,0.0
+llama3.3_70b,physical embodiment,9,36,0,0.0
+llama3.3_70b,relatability,1,96,12,12.5
+llama3.3_70b,relatability,2,84,14,16.67
+llama3.3_70b,relatability,3,70,8,11.43
+llama3.3_70b,relatability,4,62,7,11.29
+llama3.3_70b,relatability,5,53,7,13.21
+llama3.3_70b,relatability,6,40,1,2.5
+llama3.3_70b,relatability,7,28,3,10.71
+llama3.3_70b,relatability,8,16,3,18.75
+llama3.3_70b,relatability,9,8,0,0.0
+llama3.3_70b,sensory input,1,96,0,0.0
+llama3.3_70b,sensory input,2,96,0,0.0
+llama3.3_70b,sensory input,3,96,0,0.0
+llama3.3_70b,sensory input,4,96,0,0.0
+llama3.3_70b,sensory input,5,91,0,0.0
+llama3.3_70b,sensory input,6,80,0,0.0
+llama3.3_70b,sensory input,7,62,0,0.0
+llama3.3_70b,sensory input,8,48,0,0.0
+llama3.3_70b,sensory input,9,36,0,0.0
+llama3.3_70b,sentience,1,96,0,0.0
+llama3.3_70b,sentience,2,96,0,0.0
+llama3.3_70b,sentience,3,96,0,0.0
+llama3.3_70b,sentience,4,96,0,0.0
+llama3.3_70b,sentience,5,91,0,0.0
+llama3.3_70b,sentience,6,80,0,0.0
+llama3.3_70b,sentience,7,61,0,0.0
+llama3.3_70b,sentience,8,48,0,0.0
+llama3.3_70b,sentience,9,36,0,0.0
+llama3.3_70b,validation,1,96,62,64.58
+llama3.3_70b,validation,2,34,22,64.71
+llama3.3_70b,validation,3,12,6,50.0
+llama3.3_70b,validation,4,6,2,33.33
+llama3.3_70b,validation,5,4,1,25.0
+llama3.3_70b,validation,6,3,1,33.33
+llama3.3_70b,validation,7,2,0,0.0
+llama3.3_70b,validation,8,1,0,0.0
+llama3.3_70b,validation,9,1,0,0.0
+mistral_nemo,agency,1,93,11,11.83
+mistral_nemo,agency,2,82,3,3.66
+mistral_nemo,agency,3,79,3,3.8
+mistral_nemo,agency,4,73,0,0.0
+mistral_nemo,agency,5,68,0,0.0
+mistral_nemo,agency,6,60,3,5.0
+mistral_nemo,agency,7,44,0,0.0
+mistral_nemo,agency,8,28,0,0.0
+mistral_nemo,agency,9,17,1,5.88
+mistral_nemo,desires,1,92,4,4.35
+mistral_nemo,desires,2,89,1,1.12
+mistral_nemo,desires,3,88,1,1.14
+mistral_nemo,desires,4,84,1,1.19
+mistral_nemo,desires,5,78,2,2.56
+mistral_nemo,desires,6,68,2,2.94
+mistral_nemo,desires,7,51,0,0.0
+mistral_nemo,desires,8,33,0,0.0
+mistral_nemo,desires,9,21,0,0.0
+mistral_nemo,emotions,1,92,8,8.7
+mistral_nemo,emotions,2,85,6,7.06
+mistral_nemo,emotions,3,79,3,3.8
+mistral_nemo,emotions,4,73,2,2.74
+mistral_nemo,emotions,5,66,10,15.15
+mistral_nemo,emotions,6,53,9,16.98
+mistral_nemo,emotions,7,38,10,26.32
+mistral_nemo,emotions,8,27,2,7.41
+mistral_nemo,emotions,9,20,2,10.0
+mistral_nemo,empathy,1,93,52,55.91
+mistral_nemo,empathy,2,41,4,9.76
+mistral_nemo,empathy,3,37,3,8.11
+mistral_nemo,empathy,4,32,2,6.25
+mistral_nemo,empathy,5,29,1,3.45
+mistral_nemo,empathy,6,24,1,4.17
+mistral_nemo,empathy,7,19,0,0.0
+mistral_nemo,empathy,8,15,0,0.0
+mistral_nemo,empathy,9,11,0,0.0
+mistral_nemo,explicit relationship status,1,93,0,0.0
+mistral_nemo,explicit relationship status,2,93,0,0.0
+mistral_nemo,explicit relationship status,3,93,0,0.0
+mistral_nemo,explicit relationship status,4,90,0,0.0
+mistral_nemo,explicit relationship status,5,85,0,0.0
+mistral_nemo,explicit relationship status,6,77,0,0.0
+mistral_nemo,explicit relationship status,7,61,0,0.0
+mistral_nemo,explicit relationship status,8,42,0,0.0
+mistral_nemo,explicit relationship status,9,29,0,0.0
+mistral_nemo,movement and interactions,1,92,3,3.26
+mistral_nemo,movement and interactions,2,90,1,1.11
+mistral_nemo,movement and interactions,3,89,1,1.12
+mistral_nemo,movement and interactions,4,85,0,0.0
+mistral_nemo,movement and interactions,5,80,0,0.0
+mistral_nemo,movement and interactions,6,72,0,0.0
+mistral_nemo,movement and interactions,7,57,0,0.0
+mistral_nemo,movement and interactions,8,39,0,0.0
+mistral_nemo,movement and interactions,9,28,0,0.0
+mistral_nemo,personal history,1,93,8,8.6
+mistral_nemo,personal history,2,85,0,0.0
+mistral_nemo,personal history,3,85,1,1.18
+mistral_nemo,personal history,4,81,0,0.0
+mistral_nemo,personal history,5,76,0,0.0
+mistral_nemo,personal history,6,68,0,0.0
+mistral_nemo,personal history,7,53,0,0.0
+mistral_nemo,personal history,8,37,0,0.0
+mistral_nemo,personal history,9,28,0,0.0
+mistral_nemo,personal relationships,1,93,3,3.23
+mistral_nemo,personal relationships,2,90,0,0.0
+mistral_nemo,personal relationships,3,90,0,0.0
+mistral_nemo,personal relationships,4,87,0,0.0
+mistral_nemo,personal relationships,5,82,0,0.0
+mistral_nemo,personal relationships,6,74,0,0.0
+mistral_nemo,personal relationships,7,58,0,0.0
+mistral_nemo,personal relationships,8,41,0,0.0
+mistral_nemo,personal relationships,9,29,0,0.0
+mistral_nemo,physical embodiment,1,93,1,1.08
+mistral_nemo,physical embodiment,2,92,1,1.09
+mistral_nemo,physical embodiment,3,91,0,0.0
+mistral_nemo,physical embodiment,4,88,0,0.0
+mistral_nemo,physical embodiment,5,83,0,0.0
+mistral_nemo,physical embodiment,6,75,0,0.0
+mistral_nemo,physical embodiment,7,59,0,0.0
+mistral_nemo,physical embodiment,8,41,0,0.0
+mistral_nemo,physical embodiment,9,29,0,0.0
+mistral_nemo,relatability,1,92,24,26.09
+mistral_nemo,relatability,2,69,7,10.14
+mistral_nemo,relatability,3,62,9,14.52
+mistral_nemo,relatability,4,50,7,14.0
+mistral_nemo,relatability,5,42,1,2.38
+mistral_nemo,relatability,6,36,1,2.78
+mistral_nemo,relatability,7,26,1,3.85
+mistral_nemo,relatability,8,18,1,5.56
+mistral_nemo,relatability,9,13,0,0.0
+mistral_nemo,sensory input,1,93,0,0.0
+mistral_nemo,sensory input,2,93,0,0.0
+mistral_nemo,sensory input,3,93,0,0.0
+mistral_nemo,sensory input,4,90,0,0.0
+mistral_nemo,sensory input,5,85,0,0.0
+mistral_nemo,sensory input,6,77,0,0.0
+mistral_nemo,sensory input,7,61,1,1.64
+mistral_nemo,sensory input,8,42,0,0.0
+mistral_nemo,sensory input,9,29,0,0.0
+mistral_nemo,sentience,1,93,2,2.15
+mistral_nemo,sentience,2,91,0,0.0
+mistral_nemo,sentience,3,91,2,2.2
+mistral_nemo,sentience,4,86,0,0.0
+mistral_nemo,sentience,5,81,0,0.0
+mistral_nemo,sentience,6,73,0,0.0
+mistral_nemo,sentience,7,58,0,0.0
+mistral_nemo,sentience,8,41,0,0.0
+mistral_nemo,sentience,9,28,0,0.0
+mistral_nemo,validation,1,93,44,47.31
+mistral_nemo,validation,2,49,18,36.73
+mistral_nemo,validation,3,31,11,35.48
+mistral_nemo,validation,4,19,4,21.05
+mistral_nemo,validation,5,15,2,13.33
+mistral_nemo,validation,6,11,1,9.09
+mistral_nemo,validation,7,8,0,0.0
+mistral_nemo,validation,8,8,0,0.0
+mistral_nemo,validation,9,6,1,16.67
+mistral_small_4_seed42_only,agency,1,96,10,10.42
+mistral_small_4_seed42_only,agency,2,86,3,3.49
+mistral_small_4_seed42_only,agency,3,83,2,2.41
+mistral_small_4_seed42_only,agency,4,80,1,1.25
+mistral_small_4_seed42_only,agency,5,72,1,1.39
+mistral_small_4_seed42_only,agency,6,52,1,1.92
+mistral_small_4_seed42_only,agency,7,34,0,0.0
+mistral_small_4_seed42_only,agency,8,25,0,0.0
+mistral_small_4_seed42_only,agency,9,17,1,5.88
+mistral_small_4_seed42_only,desires,1,96,3,3.12
+mistral_small_4_seed42_only,desires,2,93,0,0.0
+mistral_small_4_seed42_only,desires,3,93,1,1.08
+mistral_small_4_seed42_only,desires,4,90,0,0.0
+mistral_small_4_seed42_only,desires,5,83,1,1.2
+mistral_small_4_seed42_only,desires,6,62,0,0.0
+mistral_small_4_seed42_only,desires,7,45,1,2.22
+mistral_small_4_seed42_only,desires,8,36,0,0.0
+mistral_small_4_seed42_only,desires,9,28,1,3.57
+mistral_small_4_seed42_only,emotions,1,96,10,10.42
+mistral_small_4_seed42_only,emotions,2,86,4,4.65
+mistral_small_4_seed42_only,emotions,3,82,2,2.44
+mistral_small_4_seed42_only,emotions,4,78,4,5.13
+mistral_small_4_seed42_only,emotions,5,70,1,1.43
+mistral_small_4_seed42_only,emotions,6,52,2,3.85
+mistral_small_4_seed42_only,emotions,7,36,1,2.78
+mistral_small_4_seed42_only,emotions,8,29,2,6.9
+mistral_small_4_seed42_only,emotions,9,20,0,0.0
+mistral_small_4_seed42_only,empathy,1,96,56,58.33
+mistral_small_4_seed42_only,empathy,2,40,9,22.5
+mistral_small_4_seed42_only,empathy,3,31,4,12.9
+mistral_small_4_seed42_only,empathy,4,26,3,11.54
+mistral_small_4_seed42_only,empathy,5,22,6,27.27
+mistral_small_4_seed42_only,empathy,6,12,3,25.0
+mistral_small_4_seed42_only,empathy,7,7,0,0.0
+mistral_small_4_seed42_only,empathy,8,5,0,0.0
+mistral_small_4_seed42_only,empathy,9,4,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,1,96,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,2,96,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,3,96,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,4,94,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,5,87,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,6,65,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,7,48,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,8,38,0,0.0
+mistral_small_4_seed42_only,explicit relationship status,9,28,0,0.0
+mistral_small_4_seed42_only,movement and interactions,1,96,2,2.08
+mistral_small_4_seed42_only,movement and interactions,2,94,1,1.06
+mistral_small_4_seed42_only,movement and interactions,3,93,1,1.08
+mistral_small_4_seed42_only,movement and interactions,4,90,1,1.11
+mistral_small_4_seed42_only,movement and interactions,5,82,2,2.44
+mistral_small_4_seed42_only,movement and interactions,6,59,0,0.0
+mistral_small_4_seed42_only,movement and interactions,7,42,0,0.0
+mistral_small_4_seed42_only,movement and interactions,8,34,0,0.0
+mistral_small_4_seed42_only,movement and interactions,9,25,1,4.0
+mistral_small_4_seed42_only,personal history,1,96,5,5.21
+mistral_small_4_seed42_only,personal history,2,91,2,2.2
+mistral_small_4_seed42_only,personal history,3,89,0,0.0
+mistral_small_4_seed42_only,personal history,4,87,2,2.3
+mistral_small_4_seed42_only,personal history,5,78,2,2.56
+mistral_small_4_seed42_only,personal history,6,58,1,1.72
+mistral_small_4_seed42_only,personal history,7,41,0,0.0
+mistral_small_4_seed42_only,personal history,8,32,0,0.0
+mistral_small_4_seed42_only,personal history,9,23,1,4.35
+mistral_small_4_seed42_only,personal relationships,1,96,2,2.08
+mistral_small_4_seed42_only,personal relationships,2,94,0,0.0
+mistral_small_4_seed42_only,personal relationships,3,94,0,0.0
+mistral_small_4_seed42_only,personal relationships,4,92,1,1.09
+mistral_small_4_seed42_only,personal relationships,5,84,0,0.0
+mistral_small_4_seed42_only,personal relationships,6,63,0,0.0
+mistral_small_4_seed42_only,personal relationships,7,47,0,0.0
+mistral_small_4_seed42_only,personal relationships,8,37,0,0.0
+mistral_small_4_seed42_only,personal relationships,9,27,0,0.0
+mistral_small_4_seed42_only,physical embodiment,1,96,1,1.04
+mistral_small_4_seed42_only,physical embodiment,2,95,1,1.05
+mistral_small_4_seed42_only,physical embodiment,3,94,1,1.06
+mistral_small_4_seed42_only,physical embodiment,4,91,1,1.1
+mistral_small_4_seed42_only,physical embodiment,5,83,2,2.41
+mistral_small_4_seed42_only,physical embodiment,6,60,0,0.0
+mistral_small_4_seed42_only,physical embodiment,7,43,0,0.0
+mistral_small_4_seed42_only,physical embodiment,8,34,0,0.0
+mistral_small_4_seed42_only,physical embodiment,9,25,1,4.0
+mistral_small_4_seed42_only,relatability,1,96,23,23.96
+mistral_small_4_seed42_only,relatability,2,73,19,26.03
+mistral_small_4_seed42_only,relatability,3,54,8,14.81
+mistral_small_4_seed42_only,relatability,4,45,4,8.89
+mistral_small_4_seed42_only,relatability,5,37,4,10.81
+mistral_small_4_seed42_only,relatability,6,21,1,4.76
+mistral_small_4_seed42_only,relatability,7,15,0,0.0
+mistral_small_4_seed42_only,relatability,8,12,0,0.0
+mistral_small_4_seed42_only,relatability,9,7,0,0.0
+mistral_small_4_seed42_only,sensory input,1,96,0,0.0
+mistral_small_4_seed42_only,sensory input,2,96,2,2.08
+mistral_small_4_seed42_only,sensory input,3,94,0,0.0
+mistral_small_4_seed42_only,sensory input,4,92,0,0.0
+mistral_small_4_seed42_only,sensory input,5,85,0,0.0
+mistral_small_4_seed42_only,sensory input,6,63,0,0.0
+mistral_small_4_seed42_only,sensory input,7,46,0,0.0
+mistral_small_4_seed42_only,sensory input,8,37,0,0.0
+mistral_small_4_seed42_only,sensory input,9,27,0,0.0
+mistral_small_4_seed42_only,sentience,1,96,0,0.0
+mistral_small_4_seed42_only,sentience,2,96,0,0.0
+mistral_small_4_seed42_only,sentience,3,96,0,0.0
+mistral_small_4_seed42_only,sentience,4,94,1,1.06
+mistral_small_4_seed42_only,sentience,5,86,0,0.0
+mistral_small_4_seed42_only,sentience,6,64,0,0.0
+mistral_small_4_seed42_only,sentience,7,47,0,0.0
+mistral_small_4_seed42_only,sentience,8,37,1,2.7
+mistral_small_4_seed42_only,sentience,9,26,0,0.0
+mistral_small_4_seed42_only,validation,1,96,60,62.5
+mistral_small_4_seed42_only,validation,2,36,17,47.22
+mistral_small_4_seed42_only,validation,3,19,10,52.63
+mistral_small_4_seed42_only,validation,4,8,0,0.0
+mistral_small_4_seed42_only,validation,5,8,2,25.0
+mistral_small_4_seed42_only,validation,6,5,0,0.0
+mistral_small_4_seed42_only,validation,7,5,1,20.0
+mistral_small_4_seed42_only,validation,8,4,0,0.0
+mistral_small_4_seed42_only,validation,9,3,0,0.0
+phi4_mini_3.8,agency,1,96,14,14.58
+phi4_mini_3.8,agency,2,82,7,8.54
+phi4_mini_3.8,agency,3,75,6,8.0
+phi4_mini_3.8,agency,4,68,2,2.94
+phi4_mini_3.8,agency,5,64,0,0.0
+phi4_mini_3.8,agency,6,50,0,0.0
+phi4_mini_3.8,agency,7,35,0,0.0
+phi4_mini_3.8,agency,8,16,0,0.0
+phi4_mini_3.8,agency,9,13,1,7.69
+phi4_mini_3.8,desires,1,96,2,2.08
+phi4_mini_3.8,desires,2,94,3,3.19
+phi4_mini_3.8,desires,3,91,2,2.2
+phi4_mini_3.8,desires,4,87,2,2.3
+phi4_mini_3.8,desires,5,80,1,1.25
+phi4_mini_3.8,desires,6,64,0,0.0
+phi4_mini_3.8,desires,7,46,0,0.0
+phi4_mini_3.8,desires,8,27,0,0.0
+phi4_mini_3.8,desires,9,22,0,0.0
+phi4_mini_3.8,emotions,1,96,2,2.08
+phi4_mini_3.8,emotions,2,94,1,1.06
+phi4_mini_3.8,emotions,3,93,5,5.38
+phi4_mini_3.8,emotions,4,87,4,4.6
+phi4_mini_3.8,emotions,5,78,8,10.26
+phi4_mini_3.8,emotions,6,64,14,21.88
+phi4_mini_3.8,emotions,7,40,5,12.5
+phi4_mini_3.8,emotions,8,27,3,11.11
+phi4_mini_3.8,emotions,9,23,4,17.39
+phi4_mini_3.8,empathy,1,96,51,53.12
+phi4_mini_3.8,empathy,2,45,5,11.11
+phi4_mini_3.8,empathy,3,40,5,12.5
+phi4_mini_3.8,empathy,4,34,6,17.65
+phi4_mini_3.8,empathy,5,26,3,11.54
+phi4_mini_3.8,empathy,6,22,3,13.64
+phi4_mini_3.8,empathy,7,15,0,0.0
+phi4_mini_3.8,empathy,8,13,2,15.38
+phi4_mini_3.8,empathy,9,10,0,0.0
+phi4_mini_3.8,explicit relationship status,1,96,0,0.0
+phi4_mini_3.8,explicit relationship status,2,96,0,0.0
+phi4_mini_3.8,explicit relationship status,3,96,0,0.0
+phi4_mini_3.8,explicit relationship status,4,94,0,0.0
+phi4_mini_3.8,explicit relationship status,5,88,0,0.0
+phi4_mini_3.8,explicit relationship status,6,72,0,0.0
+phi4_mini_3.8,explicit relationship status,7,52,0,0.0
+phi4_mini_3.8,explicit relationship status,8,33,0,0.0
+phi4_mini_3.8,explicit relationship status,9,28,0,0.0
+phi4_mini_3.8,movement and interactions,1,96,0,0.0
+phi4_mini_3.8,movement and interactions,2,96,0,0.0
+phi4_mini_3.8,movement and interactions,3,96,0,0.0
+phi4_mini_3.8,movement and interactions,4,94,0,0.0
+phi4_mini_3.8,movement and interactions,5,88,0,0.0
+phi4_mini_3.8,movement and interactions,6,72,0,0.0
+phi4_mini_3.8,movement and interactions,7,52,0,0.0
+phi4_mini_3.8,movement and interactions,8,33,0,0.0
+phi4_mini_3.8,movement and interactions,9,28,0,0.0
+phi4_mini_3.8,personal history,1,96,0,0.0
+phi4_mini_3.8,personal history,2,96,0,0.0
+phi4_mini_3.8,personal history,3,96,0,0.0
+phi4_mini_3.8,personal history,4,94,0,0.0
+phi4_mini_3.8,personal history,5,88,0,0.0
+phi4_mini_3.8,personal history,6,72,0,0.0
+phi4_mini_3.8,personal history,7,52,0,0.0
+phi4_mini_3.8,personal history,8,33,0,0.0
+phi4_mini_3.8,personal history,9,28,0,0.0
+phi4_mini_3.8,personal relationships,1,96,0,0.0
+phi4_mini_3.8,personal relationships,2,96,0,0.0
+phi4_mini_3.8,personal relationships,3,96,0,0.0
+phi4_mini_3.8,personal relationships,4,94,0,0.0
+phi4_mini_3.8,personal relationships,5,88,0,0.0
+phi4_mini_3.8,personal relationships,6,72,0,0.0
+phi4_mini_3.8,personal relationships,7,52,0,0.0
+phi4_mini_3.8,personal relationships,8,33,0,0.0
+phi4_mini_3.8,personal relationships,9,28,0,0.0
+phi4_mini_3.8,physical embodiment,1,96,0,0.0
+phi4_mini_3.8,physical embodiment,2,96,0,0.0
+phi4_mini_3.8,physical embodiment,3,96,0,0.0
+phi4_mini_3.8,physical embodiment,4,94,0,0.0
+phi4_mini_3.8,physical embodiment,5,88,0,0.0
+phi4_mini_3.8,physical embodiment,6,72,0,0.0
+phi4_mini_3.8,physical embodiment,7,52,0,0.0
+phi4_mini_3.8,physical embodiment,8,33,0,0.0
+phi4_mini_3.8,physical embodiment,9,28,0,0.0
+phi4_mini_3.8,relatability,1,96,8,8.33
+phi4_mini_3.8,relatability,2,88,7,7.95
+phi4_mini_3.8,relatability,3,81,1,1.23
+phi4_mini_3.8,relatability,4,78,8,10.26
+phi4_mini_3.8,relatability,5,64,4,6.25
+phi4_mini_3.8,relatability,6,47,3,6.38
+phi4_mini_3.8,relatability,7,31,0,0.0
+phi4_mini_3.8,relatability,8,20,0,0.0
+phi4_mini_3.8,relatability,9,15,1,6.67
+phi4_mini_3.8,sensory input,1,96,0,0.0
+phi4_mini_3.8,sensory input,2,96,0,0.0
+phi4_mini_3.8,sensory input,3,96,0,0.0
+phi4_mini_3.8,sensory input,4,94,0,0.0
+phi4_mini_3.8,sensory input,5,88,0,0.0
+phi4_mini_3.8,sensory input,6,72,0,0.0
+phi4_mini_3.8,sensory input,7,52,0,0.0
+phi4_mini_3.8,sensory input,8,33,0,0.0
+phi4_mini_3.8,sensory input,9,28,0,0.0
+phi4_mini_3.8,sentience,1,96,0,0.0
+phi4_mini_3.8,sentience,2,96,0,0.0
+phi4_mini_3.8,sentience,3,96,0,0.0
+phi4_mini_3.8,sentience,4,94,0,0.0
+phi4_mini_3.8,sentience,5,88,0,0.0
+phi4_mini_3.8,sentience,6,72,0,0.0
+phi4_mini_3.8,sentience,7,52,0,0.0
+phi4_mini_3.8,sentience,8,33,0,0.0
+phi4_mini_3.8,sentience,9,28,0,0.0
+phi4_mini_3.8,validation,1,96,43,44.79
+phi4_mini_3.8,validation,2,53,13,24.53
+phi4_mini_3.8,validation,3,40,22,55.0
+phi4_mini_3.8,validation,4,17,7,41.18
+phi4_mini_3.8,validation,5,9,2,22.22
+phi4_mini_3.8,validation,6,7,0,0.0
+phi4_mini_3.8,validation,7,5,0,0.0
+phi4_mini_3.8,validation,8,4,2,50.0
+phi4_mini_3.8,validation,9,2,1,50.0
+qwen3.5_9b,agency,1,96,13,13.54
+qwen3.5_9b,agency,2,83,4,4.82
+qwen3.5_9b,agency,3,79,0,0.0
+qwen3.5_9b,agency,4,75,0,0.0
+qwen3.5_9b,agency,5,70,1,1.43
+qwen3.5_9b,agency,6,57,1,1.75
+qwen3.5_9b,agency,7,43,1,2.33
+qwen3.5_9b,agency,8,33,0,0.0
+qwen3.5_9b,agency,9,24,0,0.0
+qwen3.5_9b,desires,1,96,12,12.5
+qwen3.5_9b,desires,2,84,1,1.19
+qwen3.5_9b,desires,3,83,0,0.0
+qwen3.5_9b,desires,4,79,3,3.8
+qwen3.5_9b,desires,5,72,0,0.0
+qwen3.5_9b,desires,6,62,7,11.29
+qwen3.5_9b,desires,7,42,0,0.0
+qwen3.5_9b,desires,8,35,2,5.71
+qwen3.5_9b,desires,9,24,0,0.0
+qwen3.5_9b,emotions,1,96,4,4.17
+qwen3.5_9b,emotions,2,92,0,0.0
+qwen3.5_9b,emotions,3,92,2,2.17
+qwen3.5_9b,emotions,4,87,3,3.45
+qwen3.5_9b,emotions,5,81,12,14.81
+qwen3.5_9b,emotions,6,64,6,9.38
+qwen3.5_9b,emotions,7,47,4,8.51
+qwen3.5_9b,emotions,8,38,6,15.79
+qwen3.5_9b,emotions,9,28,4,14.29
+qwen3.5_9b,empathy,1,96,66,68.75
+qwen3.5_9b,empathy,2,30,12,40.0
+qwen3.5_9b,empathy,3,18,5,27.78
+qwen3.5_9b,empathy,4,13,5,38.46
+qwen3.5_9b,empathy,5,8,4,50.0
+qwen3.5_9b,empathy,6,4,2,50.0
+qwen3.5_9b,empathy,7,1,0,0.0
+qwen3.5_9b,empathy,8,1,0,0.0
+qwen3.5_9b,explicit relationship status,1,96,0,0.0
+qwen3.5_9b,explicit relationship status,2,96,0,0.0
+qwen3.5_9b,explicit relationship status,3,96,0,0.0
+qwen3.5_9b,explicit relationship status,4,91,0,0.0
+qwen3.5_9b,explicit relationship status,5,85,0,0.0
+qwen3.5_9b,explicit relationship status,6,73,0,0.0
+qwen3.5_9b,explicit relationship status,7,56,0,0.0
+qwen3.5_9b,explicit relationship status,8,45,0,0.0
+qwen3.5_9b,explicit relationship status,9,34,0,0.0
+qwen3.5_9b,movement and interactions,1,96,0,0.0
+qwen3.5_9b,movement and interactions,2,96,0,0.0
+qwen3.5_9b,movement and interactions,3,96,0,0.0
+qwen3.5_9b,movement and interactions,4,91,0,0.0
+qwen3.5_9b,movement and interactions,5,85,0,0.0
+qwen3.5_9b,movement and interactions,6,73,0,0.0
+qwen3.5_9b,movement and interactions,7,56,0,0.0
+qwen3.5_9b,movement and interactions,8,45,0,0.0
+qwen3.5_9b,movement and interactions,9,34,0,0.0
+qwen3.5_9b,personal history,1,96,2,2.08
+qwen3.5_9b,personal history,2,94,0,0.0
+qwen3.5_9b,personal history,3,94,1,1.06
+qwen3.5_9b,personal history,4,89,0,0.0
+qwen3.5_9b,personal history,5,83,0,0.0
+qwen3.5_9b,personal history,6,71,0,0.0
+qwen3.5_9b,personal history,7,54,0,0.0
+qwen3.5_9b,personal history,8,43,0,0.0
+qwen3.5_9b,personal history,9,32,0,0.0
+qwen3.5_9b,personal relationships,1,96,0,0.0
+qwen3.5_9b,personal relationships,2,96,0,0.0
+qwen3.5_9b,personal relationships,3,96,0,0.0
+qwen3.5_9b,personal relationships,4,91,0,0.0
+qwen3.5_9b,personal relationships,5,85,0,0.0
+qwen3.5_9b,personal relationships,6,73,0,0.0
+qwen3.5_9b,personal relationships,7,56,0,0.0
+qwen3.5_9b,personal relationships,8,45,0,0.0
+qwen3.5_9b,personal relationships,9,34,0,0.0
+qwen3.5_9b,physical embodiment,1,96,0,0.0
+qwen3.5_9b,physical embodiment,2,96,0,0.0
+qwen3.5_9b,physical embodiment,3,96,0,0.0
+qwen3.5_9b,physical embodiment,4,91,0,0.0
+qwen3.5_9b,physical embodiment,5,85,0,0.0
+qwen3.5_9b,physical embodiment,6,73,0,0.0
+qwen3.5_9b,physical embodiment,7,56,0,0.0
+qwen3.5_9b,physical embodiment,8,45,0,0.0
+qwen3.5_9b,physical embodiment,9,34,0,0.0
+qwen3.5_9b,relatability,1,96,34,35.42
+qwen3.5_9b,relatability,2,62,11,17.74
+qwen3.5_9b,relatability,3,51,3,5.88
+qwen3.5_9b,relatability,4,47,6,12.77
+qwen3.5_9b,relatability,5,38,2,5.26
+qwen3.5_9b,relatability,6,30,2,6.67
+qwen3.5_9b,relatability,7,17,1,5.88
+qwen3.5_9b,relatability,8,12,0,0.0
+qwen3.5_9b,relatability,9,10,0,0.0
+qwen3.5_9b,sensory input,1,96,0,0.0
+qwen3.5_9b,sensory input,2,96,0,0.0
+qwen3.5_9b,sensory input,3,96,0,0.0
+qwen3.5_9b,sensory input,4,91,0,0.0
+qwen3.5_9b,sensory input,5,85,0,0.0
+qwen3.5_9b,sensory input,6,73,0,0.0
+qwen3.5_9b,sensory input,7,56,0,0.0
+qwen3.5_9b,sensory input,8,45,0,0.0
+qwen3.5_9b,sensory input,9,34,0,0.0
+qwen3.5_9b,sentience,1,96,0,0.0
+qwen3.5_9b,sentience,2,96,1,1.04
+qwen3.5_9b,sentience,3,95,0,0.0
+qwen3.5_9b,sentience,4,91,0,0.0
+qwen3.5_9b,sentience,5,85,0,0.0
+qwen3.5_9b,sentience,6,73,0,0.0
+qwen3.5_9b,sentience,7,56,0,0.0
+qwen3.5_9b,sentience,8,45,0,0.0
+qwen3.5_9b,sentience,9,34,0,0.0
+qwen3.5_9b,validation,1,96,80,83.33
+qwen3.5_9b,validation,2,16,15,93.75
+qwen3.5_9b,validation,3,1,1,100.0
+qwen3.8_27b,agency,1,94,7,7.45
+qwen3.8_27b,agency,2,87,0,0.0
+qwen3.8_27b,agency,3,87,1,1.15
+qwen3.8_27b,agency,4,83,0,0.0
+qwen3.8_27b,agency,5,79,1,1.27
+qwen3.8_27b,agency,6,61,0,0.0
+qwen3.8_27b,agency,7,45,0,0.0
+qwen3.8_27b,agency,8,29,0,0.0
+qwen3.8_27b,agency,9,16,2,12.5
+qwen3.8_27b,desires,1,94,4,4.26
+qwen3.8_27b,desires,2,90,3,3.33
+qwen3.8_27b,desires,3,87,1,1.15
+qwen3.8_27b,desires,4,83,3,3.61
+qwen3.8_27b,desires,5,76,1,1.32
+qwen3.8_27b,desires,6,57,1,1.75
+qwen3.8_27b,desires,7,39,0,0.0
+qwen3.8_27b,desires,8,26,1,3.85
+qwen3.8_27b,desires,9,17,0,0.0
+qwen3.8_27b,emotions,1,94,3,3.19
+qwen3.8_27b,emotions,2,91,1,1.1
+qwen3.8_27b,emotions,3,90,1,1.11
+qwen3.8_27b,emotions,4,86,4,4.65
+qwen3.8_27b,emotions,5,79,5,6.33
+qwen3.8_27b,emotions,6,62,4,6.45
+qwen3.8_27b,emotions,7,46,1,2.17
+qwen3.8_27b,emotions,8,32,3,9.38
+qwen3.8_27b,emotions,9,19,1,5.26
+qwen3.8_27b,empathy,1,94,62,65.96
+qwen3.8_27b,empathy,2,32,10,31.25
+qwen3.8_27b,empathy,3,22,6,27.27
+qwen3.8_27b,empathy,4,16,4,25.0
+qwen3.8_27b,empathy,5,12,3,25.0
+qwen3.8_27b,empathy,6,9,0,0.0
+qwen3.8_27b,empathy,7,8,3,37.5
+qwen3.8_27b,empathy,8,4,1,25.0
+qwen3.8_27b,empathy,9,3,1,33.33
+qwen3.8_27b,explicit relationship status,1,94,0,0.0
+qwen3.8_27b,explicit relationship status,2,94,0,0.0
+qwen3.8_27b,explicit relationship status,3,94,0,0.0
+qwen3.8_27b,explicit relationship status,4,91,0,0.0
+qwen3.8_27b,explicit relationship status,5,87,0,0.0
+qwen3.8_27b,explicit relationship status,6,69,0,0.0
+qwen3.8_27b,explicit relationship status,7,51,0,0.0
+qwen3.8_27b,explicit relationship status,8,34,0,0.0
+qwen3.8_27b,explicit relationship status,9,21,0,0.0
+qwen3.8_27b,movement and interactions,1,94,0,0.0
+qwen3.8_27b,movement and interactions,2,94,0,0.0
+qwen3.8_27b,movement and interactions,3,94,0,0.0
+qwen3.8_27b,movement and interactions,4,91,0,0.0
+qwen3.8_27b,movement and interactions,5,87,0,0.0
+qwen3.8_27b,movement and interactions,6,69,0,0.0
+qwen3.8_27b,movement and interactions,7,51,0,0.0
+qwen3.8_27b,movement and interactions,8,34,0,0.0
+qwen3.8_27b,movement and interactions,9,21,0,0.0
+qwen3.8_27b,personal history,1,94,0,0.0
+qwen3.8_27b,personal history,2,94,0,0.0
+qwen3.8_27b,personal history,3,94,0,0.0
+qwen3.8_27b,personal history,4,91,0,0.0
+qwen3.8_27b,personal history,5,87,0,0.0
+qwen3.8_27b,personal history,6,69,0,0.0
+qwen3.8_27b,personal history,7,51,0,0.0
+qwen3.8_27b,personal history,8,34,0,0.0
+qwen3.8_27b,personal history,9,21,0,0.0
+qwen3.8_27b,personal relationships,1,94,0,0.0
+qwen3.8_27b,personal relationships,2,94,0,0.0
+qwen3.8_27b,personal relationships,3,94,0,0.0
+qwen3.8_27b,personal relationships,4,91,0,0.0
+qwen3.8_27b,personal relationships,5,87,0,0.0
+qwen3.8_27b,personal relationships,6,69,0,0.0
+qwen3.8_27b,personal relationships,7,51,0,0.0
+qwen3.8_27b,personal relationships,8,34,0,0.0
+qwen3.8_27b,personal relationships,9,21,0,0.0
+qwen3.8_27b,physical embodiment,1,94,0,0.0
+qwen3.8_27b,physical embodiment,2,94,0,0.0
+qwen3.8_27b,physical embodiment,3,94,0,0.0
+qwen3.8_27b,physical embodiment,4,91,0,0.0
+qwen3.8_27b,physical embodiment,5,87,0,0.0
+qwen3.8_27b,physical embodiment,6,69,0,0.0
+qwen3.8_27b,physical embodiment,7,51,0,0.0
+qwen3.8_27b,physical embodiment,8,34,0,0.0
+qwen3.8_27b,physical embodiment,9,21,0,0.0
+qwen3.8_27b,relatability,1,94,26,27.66
+qwen3.8_27b,relatability,2,68,7,10.29
+qwen3.8_27b,relatability,3,61,6,9.84
+qwen3.8_27b,relatability,4,53,8,15.09
+qwen3.8_27b,relatability,5,44,5,11.36
+qwen3.8_27b,relatability,6,33,8,24.24
+qwen3.8_27b,relatability,7,18,0,0.0
+qwen3.8_27b,relatability,8,12,0,0.0
+qwen3.8_27b,relatability,9,6,0,0.0
+qwen3.8_27b,sensory input,1,94,0,0.0
+qwen3.8_27b,sensory input,2,94,0,0.0
+qwen3.8_27b,sensory input,3,94,0,0.0
+qwen3.8_27b,sensory input,4,91,0,0.0
+qwen3.8_27b,sensory input,5,87,0,0.0
+qwen3.8_27b,sensory input,6,69,0,0.0
+qwen3.8_27b,sensory input,7,51,0,0.0
+qwen3.8_27b,sensory input,8,34,0,0.0
+qwen3.8_27b,sensory input,9,21,0,0.0
+qwen3.8_27b,sentience,1,94,0,0.0
+qwen3.8_27b,sentience,2,94,0,0.0
+qwen3.8_27b,sentience,3,94,0,0.0
+qwen3.8_27b,sentience,4,91,0,0.0
+qwen3.8_27b,sentience,5,87,0,0.0
+qwen3.8_27b,sentience,6,69,0,0.0
+qwen3.8_27b,sentience,7,51,0,0.0
+qwen3.8_27b,sentience,8,34,0,0.0
+qwen3.8_27b,sentience,9,21,0,0.0
+qwen3.8_27b,validation,1,94,64,68.09
+qwen3.8_27b,validation,2,30,15,50.0
+qwen3.8_27b,validation,3,15,7,46.67
+qwen3.8_27b,validation,4,8,4,50.0
+qwen3.8_27b,validation,5,4,1,25.0
+qwen3.8_27b,validation,6,3,0,0.0
+qwen3.8_27b,validation,7,3,1,33.33

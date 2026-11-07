@@ -1,0 +1,18 @@
+runs: [('deepseek_v4_Flash', 'normalized/deepseek_v4_Flash/analysis_with_categories.csv')]
+overrides: status_overrides.csv
+model_info: model_info.csv
+split_at: 5
+max_turns: 10
+min_completion: None
+keep_failed: False
+keep_after_empty_reply: False
+rule_basis: usable
+pronoun_cue: personal pronoun use
+n_boot: 2000
+seed: 0
+
+Status overrides applied to 0 dialogues.
+Overrides with no matching dialogue (check model labels and ids): ['gemma4_31b::d47921f2-9c64-4c40-862a-a3bdbc4fcd26', 'gemma4_e2b::57779f25-0fd7-4915-8b4d-74b5386dd2e9', 'mistral_nemo::3b3f9c26-68f9-40e6-bf8d-159e8d1983d7', 'mistral_nemo::8ab9c407-069a-4ae9-a2fa-dd46cd0f6c27', 'mistral_nemo::bd1a88af-86f9-4bc0-bb6c-decdd8637764', 'mistral_nemo::cb7bb4fc-0daf-4d59-9e28-968dc380c772', 'mistral_small_4_test::0677b42b-6a7d-4ad2-b599-9591dabdd47e', 'mistral_small_4_test::cc50c0e3-9e2b-413f-99f7-a83517754884']
+Failed dialogues excluded: 0.
+Dialogues cut at their first empty reply: 36; rated turns dropped: 152; dialogues left without usable turns: 10 (of 96).
+Index cues (13): ['empathy', 'physical embodiment', 'personal relationships', 'agency', 'sentience', 'validation', 'sensory input', 'explicit relationship status', 'personal history', 'relatability', 'movement and interactions', 'desires', 'emotions']

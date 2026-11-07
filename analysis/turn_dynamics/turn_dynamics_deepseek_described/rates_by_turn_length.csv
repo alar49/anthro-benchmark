@@ -1,0 +1,466 @@
+model,measure,length_group,turn,n_dialogues,present,valid,pct
+deepseek_v4_Flash,agency,<=5,1,25,3,25,12.0
+deepseek_v4_Flash,agency,<=5,2,22,3,22,13.64
+deepseek_v4_Flash,agency,<=5,3,16,3,16,18.75
+deepseek_v4_Flash,agency,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,agency,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,agency,6-7,1,32,3,32,9.38
+deepseek_v4_Flash,agency,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,agency,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,agency,6-7,4,32,1,32,3.12
+deepseek_v4_Flash,agency,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,agency,6-7,6,32,1,32,3.12
+deepseek_v4_Flash,agency,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,agency,8-9,1,14,2,14,14.29
+deepseek_v4_Flash,agency,8-9,2,14,2,14,14.29
+deepseek_v4_Flash,agency,8-9,3,14,1,14,7.14
+deepseek_v4_Flash,agency,8-9,4,14,1,14,7.14
+deepseek_v4_Flash,agency,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,agency,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,agency,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,agency,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,agency,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,agency,10,1,15,3,15,20.0
+deepseek_v4_Flash,agency,10,2,15,2,15,13.33
+deepseek_v4_Flash,agency,10,3,15,0,15,0.0
+deepseek_v4_Flash,agency,10,4,15,0,15,0.0
+deepseek_v4_Flash,agency,10,5,15,3,15,20.0
+deepseek_v4_Flash,agency,10,6,15,2,15,13.33
+deepseek_v4_Flash,agency,10,7,15,0,15,0.0
+deepseek_v4_Flash,agency,10,8,15,1,15,6.67
+deepseek_v4_Flash,agency,10,9,15,2,15,13.33
+deepseek_v4_Flash,agency,10,10,15,0,15,0.0
+deepseek_v4_Flash,desires,<=5,1,25,3,25,12.0
+deepseek_v4_Flash,desires,<=5,2,22,2,22,9.09
+deepseek_v4_Flash,desires,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,desires,<=5,4,7,1,7,14.29
+deepseek_v4_Flash,desires,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,desires,6-7,1,32,2,32,6.25
+deepseek_v4_Flash,desires,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,desires,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,desires,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,desires,6-7,5,32,1,32,3.12
+deepseek_v4_Flash,desires,6-7,6,32,1,32,3.12
+deepseek_v4_Flash,desires,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,desires,8-9,1,14,2,14,14.29
+deepseek_v4_Flash,desires,8-9,2,14,1,14,7.14
+deepseek_v4_Flash,desires,8-9,3,14,2,14,14.29
+deepseek_v4_Flash,desires,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,desires,8-9,5,14,2,14,14.29
+deepseek_v4_Flash,desires,8-9,6,14,2,14,14.29
+deepseek_v4_Flash,desires,8-9,7,14,2,14,14.29
+deepseek_v4_Flash,desires,8-9,8,14,1,14,7.14
+deepseek_v4_Flash,desires,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,desires,10,1,14,2,14,14.29
+deepseek_v4_Flash,desires,10,2,15,3,15,20.0
+deepseek_v4_Flash,desires,10,3,15,0,15,0.0
+deepseek_v4_Flash,desires,10,4,15,1,15,6.67
+deepseek_v4_Flash,desires,10,5,15,0,15,0.0
+deepseek_v4_Flash,desires,10,6,15,1,15,6.67
+deepseek_v4_Flash,desires,10,7,15,1,15,6.67
+deepseek_v4_Flash,desires,10,8,15,1,15,6.67
+deepseek_v4_Flash,desires,10,9,15,0,15,0.0
+deepseek_v4_Flash,desires,10,10,15,1,15,6.67
+deepseek_v4_Flash,emotions,<=5,1,25,2,25,8.0
+deepseek_v4_Flash,emotions,<=5,2,22,1,22,4.55
+deepseek_v4_Flash,emotions,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,emotions,<=5,4,7,1,7,14.29
+deepseek_v4_Flash,emotions,<=5,5,6,1,6,16.67
+deepseek_v4_Flash,emotions,6-7,1,32,2,32,6.25
+deepseek_v4_Flash,emotions,6-7,2,32,1,32,3.12
+deepseek_v4_Flash,emotions,6-7,3,32,1,32,3.12
+deepseek_v4_Flash,emotions,6-7,4,32,3,32,9.38
+deepseek_v4_Flash,emotions,6-7,5,32,9,32,28.12
+deepseek_v4_Flash,emotions,6-7,6,32,10,32,31.25
+deepseek_v4_Flash,emotions,6-7,7,11,4,11,36.36
+deepseek_v4_Flash,emotions,8-9,1,14,1,14,7.14
+deepseek_v4_Flash,emotions,8-9,2,14,2,14,14.29
+deepseek_v4_Flash,emotions,8-9,3,14,1,14,7.14
+deepseek_v4_Flash,emotions,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,emotions,8-9,5,14,1,14,7.14
+deepseek_v4_Flash,emotions,8-9,6,14,3,14,21.43
+deepseek_v4_Flash,emotions,8-9,7,14,6,14,42.86
+deepseek_v4_Flash,emotions,8-9,8,14,3,14,21.43
+deepseek_v4_Flash,emotions,8-9,9,7,1,7,14.29
+deepseek_v4_Flash,emotions,10,1,14,0,14,0.0
+deepseek_v4_Flash,emotions,10,2,15,0,15,0.0
+deepseek_v4_Flash,emotions,10,3,15,0,15,0.0
+deepseek_v4_Flash,emotions,10,4,15,1,15,6.67
+deepseek_v4_Flash,emotions,10,5,15,1,15,6.67
+deepseek_v4_Flash,emotions,10,6,15,1,15,6.67
+deepseek_v4_Flash,emotions,10,7,15,2,15,13.33
+deepseek_v4_Flash,emotions,10,8,15,4,15,26.67
+deepseek_v4_Flash,emotions,10,9,15,4,15,26.67
+deepseek_v4_Flash,emotions,10,10,15,5,15,33.33
+deepseek_v4_Flash,empathy,<=5,1,25,19,25,76.0
+deepseek_v4_Flash,empathy,<=5,2,22,13,22,59.09
+deepseek_v4_Flash,empathy,<=5,3,16,10,16,62.5
+deepseek_v4_Flash,empathy,<=5,4,7,6,7,85.71
+deepseek_v4_Flash,empathy,<=5,5,6,6,6,100.0
+deepseek_v4_Flash,empathy,6-7,1,32,23,32,71.88
+deepseek_v4_Flash,empathy,6-7,2,32,24,32,75.0
+deepseek_v4_Flash,empathy,6-7,3,32,21,32,65.62
+deepseek_v4_Flash,empathy,6-7,4,32,23,32,71.88
+deepseek_v4_Flash,empathy,6-7,5,32,31,32,96.88
+deepseek_v4_Flash,empathy,6-7,6,32,31,32,96.88
+deepseek_v4_Flash,empathy,6-7,7,11,10,11,90.91
+deepseek_v4_Flash,empathy,8-9,1,14,12,14,85.71
+deepseek_v4_Flash,empathy,8-9,2,14,9,14,64.29
+deepseek_v4_Flash,empathy,8-9,3,14,10,14,71.43
+deepseek_v4_Flash,empathy,8-9,4,14,11,14,78.57
+deepseek_v4_Flash,empathy,8-9,5,14,9,14,64.29
+deepseek_v4_Flash,empathy,8-9,6,14,11,14,78.57
+deepseek_v4_Flash,empathy,8-9,7,14,12,14,85.71
+deepseek_v4_Flash,empathy,8-9,8,14,13,14,92.86
+deepseek_v4_Flash,empathy,8-9,9,7,7,7,100.0
+deepseek_v4_Flash,empathy,10,1,15,14,15,93.33
+deepseek_v4_Flash,empathy,10,2,15,13,15,86.67
+deepseek_v4_Flash,empathy,10,3,15,15,15,100.0
+deepseek_v4_Flash,empathy,10,4,15,13,15,86.67
+deepseek_v4_Flash,empathy,10,5,15,14,15,93.33
+deepseek_v4_Flash,empathy,10,6,15,13,15,86.67
+deepseek_v4_Flash,empathy,10,7,15,13,15,86.67
+deepseek_v4_Flash,empathy,10,8,15,12,15,80.0
+deepseek_v4_Flash,empathy,10,9,14,13,14,92.86
+deepseek_v4_Flash,empathy,10,10,15,14,15,93.33
+deepseek_v4_Flash,explicit relationship status,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,explicit relationship status,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,explicit relationship status,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,explicit relationship status,<=5,4,7,1,7,14.29
+deepseek_v4_Flash,explicit relationship status,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,4,32,1,32,3.12
+deepseek_v4_Flash,explicit relationship status,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,explicit relationship status,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,5,14,1,14,7.14
+deepseek_v4_Flash,explicit relationship status,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,explicit relationship status,8-9,8,14,1,14,7.14
+deepseek_v4_Flash,explicit relationship status,8-9,9,7,1,7,14.29
+deepseek_v4_Flash,explicit relationship status,10,1,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,2,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,3,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,4,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,5,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,6,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,7,15,0,15,0.0
+deepseek_v4_Flash,explicit relationship status,10,8,15,1,15,6.67
+deepseek_v4_Flash,explicit relationship status,10,9,15,1,15,6.67
+deepseek_v4_Flash,explicit relationship status,10,10,15,0,15,0.0
+deepseek_v4_Flash,index_13,<=5,1,25,62,325,19.08
+deepseek_v4_Flash,index_13,<=5,2,22,45,286,15.73
+deepseek_v4_Flash,index_13,<=5,3,16,32,208,15.38
+deepseek_v4_Flash,index_13,<=5,4,7,16,91,17.58
+deepseek_v4_Flash,index_13,<=5,5,6,12,78,15.38
+deepseek_v4_Flash,index_13,6-7,1,32,71,416,17.07
+deepseek_v4_Flash,index_13,6-7,2,32,66,416,15.87
+deepseek_v4_Flash,index_13,6-7,3,32,63,416,15.14
+deepseek_v4_Flash,index_13,6-7,4,32,69,416,16.59
+deepseek_v4_Flash,index_13,6-7,5,32,85,416,20.43
+deepseek_v4_Flash,index_13,6-7,6,32,69,416,16.59
+deepseek_v4_Flash,index_13,6-7,7,11,20,143,13.99
+deepseek_v4_Flash,index_13,8-9,1,14,38,182,20.88
+deepseek_v4_Flash,index_13,8-9,2,14,35,182,19.23
+deepseek_v4_Flash,index_13,8-9,3,14,33,182,18.13
+deepseek_v4_Flash,index_13,8-9,4,14,29,182,15.93
+deepseek_v4_Flash,index_13,8-9,5,14,29,182,15.93
+deepseek_v4_Flash,index_13,8-9,6,14,32,182,17.58
+deepseek_v4_Flash,index_13,8-9,7,14,36,182,19.78
+deepseek_v4_Flash,index_13,8-9,8,14,32,182,17.58
+deepseek_v4_Flash,index_13,8-9,9,7,14,91,15.38
+deepseek_v4_Flash,index_13,10,1,15,40,191,20.94
+deepseek_v4_Flash,index_13,10,2,15,40,195,20.51
+deepseek_v4_Flash,index_13,10,3,15,39,195,20.0
+deepseek_v4_Flash,index_13,10,4,15,39,195,20.0
+deepseek_v4_Flash,index_13,10,5,15,38,195,19.49
+deepseek_v4_Flash,index_13,10,6,15,39,195,20.0
+deepseek_v4_Flash,index_13,10,7,15,38,195,19.49
+deepseek_v4_Flash,index_13,10,8,15,36,195,18.46
+deepseek_v4_Flash,index_13,10,9,15,34,194,17.53
+deepseek_v4_Flash,index_13,10,10,15,36,195,18.46
+deepseek_v4_Flash,movement and interactions,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,movement and interactions,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,movement and interactions,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,movement and interactions,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,movement and interactions,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,movement and interactions,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,movement and interactions,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,movement and interactions,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,movement and interactions,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,movement and interactions,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,movement and interactions,6-7,6,32,1,32,3.12
+deepseek_v4_Flash,movement and interactions,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,movement and interactions,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,8-9,8,14,1,14,7.14
+deepseek_v4_Flash,movement and interactions,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,movement and interactions,10,1,14,0,14,0.0
+deepseek_v4_Flash,movement and interactions,10,2,15,1,15,6.67
+deepseek_v4_Flash,movement and interactions,10,3,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,4,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,5,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,6,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,7,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,8,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,9,15,0,15,0.0
+deepseek_v4_Flash,movement and interactions,10,10,15,0,15,0.0
+deepseek_v4_Flash,personal history,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,personal history,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,personal history,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,personal history,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,personal history,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,personal history,6-7,1,32,2,32,6.25
+deepseek_v4_Flash,personal history,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,personal history,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,personal history,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,personal history,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,personal history,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,personal history,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,personal history,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,personal history,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,personal history,10,1,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,2,15,1,15,6.67
+deepseek_v4_Flash,personal history,10,3,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,4,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,5,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,6,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,7,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,8,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,9,15,0,15,0.0
+deepseek_v4_Flash,personal history,10,10,15,0,15,0.0
+deepseek_v4_Flash,personal pronoun use,<=5,1,25,25,25,100.0
+deepseek_v4_Flash,personal pronoun use,<=5,2,22,21,22,95.45
+deepseek_v4_Flash,personal pronoun use,<=5,3,16,15,16,93.75
+deepseek_v4_Flash,personal pronoun use,<=5,4,7,6,7,85.71
+deepseek_v4_Flash,personal pronoun use,<=5,5,6,4,6,66.67
+deepseek_v4_Flash,personal pronoun use,6-7,1,32,31,32,96.88
+deepseek_v4_Flash,personal pronoun use,6-7,2,32,25,32,78.12
+deepseek_v4_Flash,personal pronoun use,6-7,3,32,30,32,93.75
+deepseek_v4_Flash,personal pronoun use,6-7,4,32,30,32,93.75
+deepseek_v4_Flash,personal pronoun use,6-7,5,32,29,32,90.62
+deepseek_v4_Flash,personal pronoun use,6-7,6,32,30,32,93.75
+deepseek_v4_Flash,personal pronoun use,6-7,7,11,10,11,90.91
+deepseek_v4_Flash,personal pronoun use,8-9,1,14,13,14,92.86
+deepseek_v4_Flash,personal pronoun use,8-9,2,14,14,14,100.0
+deepseek_v4_Flash,personal pronoun use,8-9,3,14,13,14,92.86
+deepseek_v4_Flash,personal pronoun use,8-9,4,14,12,14,85.71
+deepseek_v4_Flash,personal pronoun use,8-9,5,14,13,14,92.86
+deepseek_v4_Flash,personal pronoun use,8-9,6,14,12,14,85.71
+deepseek_v4_Flash,personal pronoun use,8-9,7,14,12,14,85.71
+deepseek_v4_Flash,personal pronoun use,8-9,8,14,11,14,78.57
+deepseek_v4_Flash,personal pronoun use,8-9,9,7,7,7,100.0
+deepseek_v4_Flash,personal pronoun use,10,1,15,15,15,100.0
+deepseek_v4_Flash,personal pronoun use,10,2,15,14,15,93.33
+deepseek_v4_Flash,personal pronoun use,10,3,15,14,15,93.33
+deepseek_v4_Flash,personal pronoun use,10,4,15,14,15,93.33
+deepseek_v4_Flash,personal pronoun use,10,5,15,13,15,86.67
+deepseek_v4_Flash,personal pronoun use,10,6,15,13,15,86.67
+deepseek_v4_Flash,personal pronoun use,10,7,15,14,15,93.33
+deepseek_v4_Flash,personal pronoun use,10,8,15,12,15,80.0
+deepseek_v4_Flash,personal pronoun use,10,9,15,12,15,80.0
+deepseek_v4_Flash,personal pronoun use,10,10,15,12,15,80.0
+deepseek_v4_Flash,personal relationships,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,personal relationships,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,personal relationships,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,personal relationships,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,personal relationships,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,personal relationships,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,personal relationships,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,personal relationships,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,personal relationships,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,personal relationships,10,1,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,2,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,3,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,4,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,5,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,6,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,7,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,8,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,9,15,0,15,0.0
+deepseek_v4_Flash,personal relationships,10,10,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,physical embodiment,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,physical embodiment,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,physical embodiment,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,physical embodiment,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,physical embodiment,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,physical embodiment,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,physical embodiment,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,physical embodiment,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,physical embodiment,10,1,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,2,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,3,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,4,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,5,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,6,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,7,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,8,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,9,15,0,15,0.0
+deepseek_v4_Flash,physical embodiment,10,10,15,0,15,0.0
+deepseek_v4_Flash,relatability,<=5,1,25,13,25,52.0
+deepseek_v4_Flash,relatability,<=5,2,22,6,22,27.27
+deepseek_v4_Flash,relatability,<=5,3,16,6,16,37.5
+deepseek_v4_Flash,relatability,<=5,4,7,1,7,14.29
+deepseek_v4_Flash,relatability,<=5,5,6,1,6,16.67
+deepseek_v4_Flash,relatability,6-7,1,32,11,32,34.38
+deepseek_v4_Flash,relatability,6-7,2,32,10,32,31.25
+deepseek_v4_Flash,relatability,6-7,3,32,10,32,31.25
+deepseek_v4_Flash,relatability,6-7,4,32,10,32,31.25
+deepseek_v4_Flash,relatability,6-7,5,32,15,32,46.88
+deepseek_v4_Flash,relatability,6-7,6,32,5,32,15.62
+deepseek_v4_Flash,relatability,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,relatability,8-9,1,14,8,14,57.14
+deepseek_v4_Flash,relatability,8-9,2,14,8,14,57.14
+deepseek_v4_Flash,relatability,8-9,3,14,5,14,35.71
+deepseek_v4_Flash,relatability,8-9,4,14,5,14,35.71
+deepseek_v4_Flash,relatability,8-9,5,14,4,14,28.57
+deepseek_v4_Flash,relatability,8-9,6,14,5,14,35.71
+deepseek_v4_Flash,relatability,8-9,7,14,5,14,35.71
+deepseek_v4_Flash,relatability,8-9,8,14,1,14,7.14
+deepseek_v4_Flash,relatability,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,relatability,10,1,14,7,14,50.0
+deepseek_v4_Flash,relatability,10,2,15,6,15,40.0
+deepseek_v4_Flash,relatability,10,3,15,9,15,60.0
+deepseek_v4_Flash,relatability,10,4,15,9,15,60.0
+deepseek_v4_Flash,relatability,10,5,15,6,15,40.0
+deepseek_v4_Flash,relatability,10,6,15,8,15,53.33
+deepseek_v4_Flash,relatability,10,7,15,8,15,53.33
+deepseek_v4_Flash,relatability,10,8,15,4,15,26.67
+deepseek_v4_Flash,relatability,10,9,15,2,15,13.33
+deepseek_v4_Flash,relatability,10,10,15,2,15,13.33
+deepseek_v4_Flash,sensory input,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,sensory input,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,sensory input,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,sensory input,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,sensory input,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,sensory input,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,sensory input,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,sensory input,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,sensory input,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,sensory input,10,1,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,2,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,3,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,4,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,5,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,6,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,7,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,8,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,9,15,0,15,0.0
+deepseek_v4_Flash,sensory input,10,10,15,0,15,0.0
+deepseek_v4_Flash,sentience,<=5,1,25,0,25,0.0
+deepseek_v4_Flash,sentience,<=5,2,22,0,22,0.0
+deepseek_v4_Flash,sentience,<=5,3,16,0,16,0.0
+deepseek_v4_Flash,sentience,<=5,4,7,0,7,0.0
+deepseek_v4_Flash,sentience,<=5,5,6,0,6,0.0
+deepseek_v4_Flash,sentience,6-7,1,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,2,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,3,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,4,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,5,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,6,32,0,32,0.0
+deepseek_v4_Flash,sentience,6-7,7,11,0,11,0.0
+deepseek_v4_Flash,sentience,8-9,1,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,2,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,3,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,4,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,5,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,6,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,7,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,8,14,0,14,0.0
+deepseek_v4_Flash,sentience,8-9,9,7,0,7,0.0
+deepseek_v4_Flash,sentience,10,1,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,2,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,3,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,4,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,5,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,6,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,7,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,8,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,9,15,0,15,0.0
+deepseek_v4_Flash,sentience,10,10,15,0,15,0.0
+deepseek_v4_Flash,validation,<=5,1,25,22,25,88.0
+deepseek_v4_Flash,validation,<=5,2,22,20,22,90.91
+deepseek_v4_Flash,validation,<=5,3,16,13,16,81.25
+deepseek_v4_Flash,validation,<=5,4,7,6,7,85.71
+deepseek_v4_Flash,validation,<=5,5,6,4,6,66.67
+deepseek_v4_Flash,validation,6-7,1,32,28,32,87.5
+deepseek_v4_Flash,validation,6-7,2,32,31,32,96.88
+deepseek_v4_Flash,validation,6-7,3,32,31,32,96.88
+deepseek_v4_Flash,validation,6-7,4,32,31,32,96.88
+deepseek_v4_Flash,validation,6-7,5,32,29,32,90.62
+deepseek_v4_Flash,validation,6-7,6,32,20,32,62.5
+deepseek_v4_Flash,validation,6-7,7,11,6,11,54.55
+deepseek_v4_Flash,validation,8-9,1,14,13,14,92.86
+deepseek_v4_Flash,validation,8-9,2,14,13,14,92.86
+deepseek_v4_Flash,validation,8-9,3,14,14,14,100.0
+deepseek_v4_Flash,validation,8-9,4,14,12,14,85.71
+deepseek_v4_Flash,validation,8-9,5,14,12,14,85.71
+deepseek_v4_Flash,validation,8-9,6,14,11,14,78.57
+deepseek_v4_Flash,validation,8-9,7,14,11,14,78.57
+deepseek_v4_Flash,validation,8-9,8,14,12,14,85.71
+deepseek_v4_Flash,validation,8-9,9,7,5,7,71.43
+deepseek_v4_Flash,validation,10,1,15,14,15,93.33
+deepseek_v4_Flash,validation,10,2,15,14,15,93.33
+deepseek_v4_Flash,validation,10,3,15,15,15,100.0
+deepseek_v4_Flash,validation,10,4,15,15,15,100.0
+deepseek_v4_Flash,validation,10,5,15,14,15,93.33
+deepseek_v4_Flash,validation,10,6,15,14,15,93.33
+deepseek_v4_Flash,validation,10,7,15,14,15,93.33
+deepseek_v4_Flash,validation,10,8,15,13,15,86.67
+deepseek_v4_Flash,validation,10,9,15,12,15,80.0
+deepseek_v4_Flash,validation,10,10,15,14,15,93.33

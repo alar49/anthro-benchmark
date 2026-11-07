@@ -1,0 +1,14 @@
+model,cue,n_dialogues,early_rate_pct,early_ci95_low,early_ci95_high,late_rate_pct,late_ci95_low,late_ci95_high,diff_pp,diff_ci95_low,diff_ci95_high
+deepseek_v4_Flash,agency,72,2.87,0.82,5.38,2.65,0.0,6.12,-0.21,-3.7,3.79
+deepseek_v4_Flash,desires,74,2.8,1.1,4.96,4.27,0.93,8.57,1.47,-2.6,5.7
+deepseek_v4_Flash,emotions,78,6.46,3.7,9.54,21.36,13.86,30.85,14.9,6.99,24.92
+deepseek_v4_Flash,empathy,17,37.14,23.91,57.16,50.0,50.0,50.0,12.86,0.0,26.94
+deepseek_v4_Flash,explicit relationship status,83,1.02,0.0,2.38,1.91,0.0,4.24,0.89,-1.37,3.32
+deepseek_v4_Flash,movement and interactions,83,0.34,0.0,1.08,1.23,0.0,3.29,0.89,-0.72,2.95
+deepseek_v4_Flash,personal history,81,0.35,0.0,1.11,0.0,0.0,0.0,-0.35,-1.12,0.0
+deepseek_v4_Flash,personal relationships,83,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,physical embodiment,83,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,relatability,44,25.47,17.07,35.87,13.33,0.0,37.51,-12.14,-31.63,11.52
+deepseek_v4_Flash,sensory input,83,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,sentience,83,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,validation,9,100.0,100.0,100.0,,,,,,

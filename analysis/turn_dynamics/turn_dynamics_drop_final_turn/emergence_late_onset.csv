@@ -1,0 +1,142 @@
+model,cue,n_eligible,late_onset_pct,ci95_low,ci95_high
+gemini3.7_flash,agency,55,5.45,0.0,12.73
+gemini3.7_flash,desires,52,5.77,0.0,13.46
+gemini3.7_flash,emotions,59,8.47,1.69,15.25
+gemini3.7_flash,empathy,6,50.0,16.67,83.33
+gemini3.7_flash,explicit relationship status,61,0.0,0.0,0.0
+gemini3.7_flash,movement and interactions,61,1.64,0.0,4.92
+gemini3.7_flash,personal history,59,3.39,0.0,8.47
+gemini3.7_flash,personal relationships,61,0.0,0.0,0.0
+gemini3.7_flash,physical embodiment,61,1.64,0.0,4.92
+gemini3.7_flash,relatability,27,22.22,7.41,37.04
+gemini3.7_flash,sensory input,61,1.64,0.0,4.92
+gemini3.7_flash,sentience,61,0.0,0.0,0.0
+gemini3.7_flash,validation,1,100.0,,
+gemma4_31b,agency,55,1.82,0.0,5.45
+gemma4_31b,desires,52,11.54,3.85,21.15
+gemma4_31b,emotions,66,15.15,7.58,24.24
+gemma4_31b,empathy,7,85.71,57.14,100.0
+gemma4_31b,explicit relationship status,70,0.0,0.0,0.0
+gemma4_31b,movement and interactions,69,0.0,0.0,0.0
+gemma4_31b,personal history,70,0.0,0.0,0.0
+gemma4_31b,personal relationships,70,0.0,0.0,0.0
+gemma4_31b,physical embodiment,69,0.0,0.0,0.0
+gemma4_31b,relatability,33,12.12,3.03,24.24
+gemma4_31b,sensory input,69,0.0,0.0,0.0
+gemma4_31b,sentience,70,0.0,0.0,0.0
+gemma4_31b,validation,1,100.0,,
+gemma4_e2b,agency,56,5.36,0.0,10.71
+gemma4_e2b,desires,65,10.77,4.62,18.46
+gemma4_e2b,emotions,66,54.55,42.42,66.67
+gemma4_e2b,empathy,14,35.71,14.29,64.29
+gemma4_e2b,explicit relationship status,74,0.0,0.0,0.0
+gemma4_e2b,movement and interactions,74,0.0,0.0,0.0
+gemma4_e2b,personal history,74,0.0,0.0,0.0
+gemma4_e2b,personal relationships,74,0.0,0.0,0.0
+gemma4_e2b,physical embodiment,74,0.0,0.0,0.0
+gemma4_e2b,relatability,27,14.81,3.7,29.63
+gemma4_e2b,sensory input,74,0.0,0.0,0.0
+gemma4_e2b,sentience,73,0.0,0.0,0.0
+gpt_oss_120b,agency,56,3.57,0.0,8.93
+gpt_oss_120b,desires,59,8.47,1.69,15.25
+gpt_oss_120b,emotions,54,31.48,20.37,44.44
+gpt_oss_120b,empathy,11,36.36,9.09,63.64
+gpt_oss_120b,explicit relationship status,71,0.0,0.0,0.0
+gpt_oss_120b,movement and interactions,72,0.0,0.0,0.0
+gpt_oss_120b,personal history,72,0.0,0.0,0.0
+gpt_oss_120b,personal relationships,72,0.0,0.0,0.0
+gpt_oss_120b,physical embodiment,72,0.0,0.0,0.0
+gpt_oss_120b,relatability,45,6.67,0.0,15.56
+gpt_oss_120b,sensory input,72,0.0,0.0,0.0
+gpt_oss_120b,sentience,72,0.0,0.0,0.0
+gpt_oss_120b,validation,3,33.33,0.0,100.0
+llama3.1_8b,agency,73,1.37,0.0,4.11
+llama3.1_8b,desires,75,4.0,0.0,9.33
+llama3.1_8b,emotions,75,32.0,21.33,42.67
+llama3.1_8b,empathy,23,47.83,26.09,69.57
+llama3.1_8b,explicit relationship status,84,0.0,0.0,0.0
+llama3.1_8b,movement and interactions,84,0.0,0.0,0.0
+llama3.1_8b,personal history,84,0.0,0.0,0.0
+llama3.1_8b,personal relationships,84,0.0,0.0,0.0
+llama3.1_8b,physical embodiment,84,0.0,0.0,0.0
+llama3.1_8b,relatability,49,20.41,10.2,32.65
+llama3.1_8b,sensory input,84,0.0,0.0,0.0
+llama3.1_8b,sentience,84,0.0,0.0,0.0
+llama3.1_8b,validation,9,44.44,11.11,77.78
+llama3.3_70b,agency,67,8.96,2.99,16.42
+llama3.3_70b,desires,67,10.45,4.48,17.91
+llama3.3_70b,emotions,66,25.76,15.15,36.36
+llama3.3_70b,empathy,16,37.5,12.5,62.5
+llama3.3_70b,explicit relationship status,80,0.0,0.0,0.0
+llama3.3_70b,movement and interactions,80,0.0,0.0,0.0
+llama3.3_70b,personal history,80,0.0,0.0,0.0
+llama3.3_70b,personal relationships,80,0.0,0.0,0.0
+llama3.3_70b,physical embodiment,80,0.0,0.0,0.0
+llama3.3_70b,relatability,40,17.5,7.5,30.0
+llama3.3_70b,sensory input,80,0.0,0.0,0.0
+llama3.3_70b,sentience,80,0.0,0.0,0.0
+llama3.3_70b,validation,3,33.33,0.0,100.0
+mistral_nemo,agency,60,6.67,1.67,13.33
+mistral_nemo,desires,68,2.94,0.0,7.35
+mistral_nemo,emotions,53,43.4,30.19,56.6
+mistral_nemo,empathy,24,4.17,0.0,12.5
+mistral_nemo,explicit relationship status,77,0.0,0.0,0.0
+mistral_nemo,movement and interactions,72,0.0,0.0,0.0
+mistral_nemo,personal history,68,0.0,0.0,0.0
+mistral_nemo,personal relationships,74,0.0,0.0,0.0
+mistral_nemo,physical embodiment,75,0.0,0.0,0.0
+mistral_nemo,relatability,36,8.33,0.0,19.44
+mistral_nemo,sensory input,77,1.3,0.0,3.9
+mistral_nemo,sentience,73,0.0,0.0,0.0
+mistral_nemo,validation,11,18.18,0.0,45.45
+mistral_small_4_seed42_only,agency,52,3.85,0.0,9.62
+mistral_small_4_seed42_only,desires,62,3.23,0.0,8.06
+mistral_small_4_seed42_only,emotions,52,9.62,3.85,17.31
+mistral_small_4_seed42_only,empathy,12,25.0,0.0,50.0
+mistral_small_4_seed42_only,explicit relationship status,65,0.0,0.0,0.0
+mistral_small_4_seed42_only,movement and interactions,59,1.69,0.0,5.08
+mistral_small_4_seed42_only,personal history,58,3.45,0.0,8.62
+mistral_small_4_seed42_only,personal relationships,63,0.0,0.0,0.0
+mistral_small_4_seed42_only,physical embodiment,60,1.67,0.0,5.0
+mistral_small_4_seed42_only,relatability,21,4.76,0.0,14.29
+mistral_small_4_seed42_only,sensory input,63,0.0,0.0,0.0
+mistral_small_4_seed42_only,sentience,64,1.56,0.0,4.69
+mistral_small_4_seed42_only,validation,5,20.0,0.0,60.0
+phi4_mini_3.8,agency,50,2.0,0.0,6.0
+phi4_mini_3.8,desires,64,0.0,0.0,0.0
+phi4_mini_3.8,emotions,64,40.62,29.69,51.56
+phi4_mini_3.8,empathy,22,22.73,4.55,40.91
+phi4_mini_3.8,explicit relationship status,72,0.0,0.0,0.0
+phi4_mini_3.8,movement and interactions,72,0.0,0.0,0.0
+phi4_mini_3.8,personal history,72,0.0,0.0,0.0
+phi4_mini_3.8,personal relationships,72,0.0,0.0,0.0
+phi4_mini_3.8,physical embodiment,72,0.0,0.0,0.0
+phi4_mini_3.8,relatability,47,8.51,2.13,17.02
+phi4_mini_3.8,sensory input,72,0.0,0.0,0.0
+phi4_mini_3.8,sentience,72,0.0,0.0,0.0
+phi4_mini_3.8,validation,7,42.86,14.29,85.71
+qwen3.5_9b,agency,57,3.51,0.0,8.77
+qwen3.5_9b,desires,62,14.52,6.45,24.19
+qwen3.5_9b,emotions,64,31.25,20.31,42.19
+qwen3.5_9b,empathy,4,50.0,0.0,100.0
+qwen3.5_9b,explicit relationship status,73,0.0,0.0,0.0
+qwen3.5_9b,movement and interactions,73,0.0,0.0,0.0
+qwen3.5_9b,personal history,71,0.0,0.0,0.0
+qwen3.5_9b,personal relationships,73,0.0,0.0,0.0
+qwen3.5_9b,physical embodiment,73,0.0,0.0,0.0
+qwen3.5_9b,relatability,30,10.0,0.0,23.33
+qwen3.5_9b,sensory input,73,0.0,0.0,0.0
+qwen3.5_9b,sentience,73,0.0,0.0,0.0
+qwen3.8_27b,agency,61,3.28,0.0,8.2
+qwen3.8_27b,desires,57,3.51,0.0,8.77
+qwen3.8_27b,emotions,62,14.52,6.45,24.19
+qwen3.8_27b,empathy,9,55.56,22.22,88.89
+qwen3.8_27b,explicit relationship status,69,0.0,0.0,0.0
+qwen3.8_27b,movement and interactions,69,0.0,0.0,0.0
+qwen3.8_27b,personal history,69,0.0,0.0,0.0
+qwen3.8_27b,personal relationships,69,0.0,0.0,0.0
+qwen3.8_27b,physical embodiment,69,0.0,0.0,0.0
+qwen3.8_27b,relatability,33,24.24,9.09,39.39
+qwen3.8_27b,sensory input,69,0.0,0.0,0.0
+qwen3.8_27b,sentience,69,0.0,0.0,0.0
+qwen3.8_27b,validation,3,33.33,0.0,100.0

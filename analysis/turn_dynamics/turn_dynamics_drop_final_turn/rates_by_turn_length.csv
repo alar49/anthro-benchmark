@@ -1,0 +1,3466 @@
+model,measure,length_group,turn,n_dialogues,present,valid,pct
+gemini3.7_flash,agency,<=5,1,34,0,34,0.0
+gemini3.7_flash,agency,<=5,2,34,0,34,0.0
+gemini3.7_flash,agency,<=5,3,34,0,34,0.0
+gemini3.7_flash,agency,<=5,4,31,0,31,0.0
+gemini3.7_flash,agency,<=5,5,17,0,17,0.0
+gemini3.7_flash,agency,6-7,1,33,1,33,3.03
+gemini3.7_flash,agency,6-7,2,33,1,33,3.03
+gemini3.7_flash,agency,6-7,3,33,1,33,3.03
+gemini3.7_flash,agency,6-7,4,33,0,33,0.0
+gemini3.7_flash,agency,6-7,5,33,0,33,0.0
+gemini3.7_flash,agency,6-7,6,33,0,33,0.0
+gemini3.7_flash,agency,6-7,7,11,0,11,0.0
+gemini3.7_flash,agency,8-9,1,28,2,28,7.14
+gemini3.7_flash,agency,8-9,2,28,0,28,0.0
+gemini3.7_flash,agency,8-9,3,28,0,28,0.0
+gemini3.7_flash,agency,8-9,4,28,0,28,0.0
+gemini3.7_flash,agency,8-9,5,28,1,28,3.57
+gemini3.7_flash,agency,8-9,6,28,0,28,0.0
+gemini3.7_flash,agency,8-9,7,28,2,28,7.14
+gemini3.7_flash,agency,8-9,8,28,1,28,3.57
+gemini3.7_flash,agency,8-9,9,20,2,20,10.0
+gemini3.7_flash,desires,<=5,1,32,2,32,6.25
+gemini3.7_flash,desires,<=5,2,34,0,34,0.0
+gemini3.7_flash,desires,<=5,3,34,1,34,2.94
+gemini3.7_flash,desires,<=5,4,31,1,31,3.23
+gemini3.7_flash,desires,<=5,5,16,0,16,0.0
+gemini3.7_flash,desires,6-7,1,33,5,33,15.15
+gemini3.7_flash,desires,6-7,2,32,1,32,3.12
+gemini3.7_flash,desires,6-7,3,33,0,33,0.0
+gemini3.7_flash,desires,6-7,4,33,0,33,0.0
+gemini3.7_flash,desires,6-7,5,33,1,33,3.03
+gemini3.7_flash,desires,6-7,6,33,2,33,6.06
+gemini3.7_flash,desires,6-7,7,11,0,11,0.0
+gemini3.7_flash,desires,8-9,1,28,2,28,7.14
+gemini3.7_flash,desires,8-9,2,27,0,27,0.0
+gemini3.7_flash,desires,8-9,3,28,0,28,0.0
+gemini3.7_flash,desires,8-9,4,26,0,26,0.0
+gemini3.7_flash,desires,8-9,5,27,0,27,0.0
+gemini3.7_flash,desires,8-9,6,28,0,28,0.0
+gemini3.7_flash,desires,8-9,7,28,0,28,0.0
+gemini3.7_flash,desires,8-9,8,27,0,27,0.0
+gemini3.7_flash,desires,8-9,9,20,2,20,10.0
+gemini3.7_flash,emotions,<=5,1,32,0,32,0.0
+gemini3.7_flash,emotions,<=5,2,34,2,34,5.88
+gemini3.7_flash,emotions,<=5,3,33,0,33,0.0
+gemini3.7_flash,emotions,<=5,4,31,2,31,6.45
+gemini3.7_flash,emotions,<=5,5,16,1,16,6.25
+gemini3.7_flash,emotions,6-7,1,33,0,33,0.0
+gemini3.7_flash,emotions,6-7,2,32,0,32,0.0
+gemini3.7_flash,emotions,6-7,3,33,0,33,0.0
+gemini3.7_flash,emotions,6-7,4,33,1,33,3.03
+gemini3.7_flash,emotions,6-7,5,33,0,33,0.0
+gemini3.7_flash,emotions,6-7,6,33,3,33,9.09
+gemini3.7_flash,emotions,6-7,7,11,0,11,0.0
+gemini3.7_flash,emotions,8-9,1,28,0,28,0.0
+gemini3.7_flash,emotions,8-9,2,27,1,27,3.7
+gemini3.7_flash,emotions,8-9,3,28,0,28,0.0
+gemini3.7_flash,emotions,8-9,4,26,0,26,0.0
+gemini3.7_flash,emotions,8-9,5,27,0,27,0.0
+gemini3.7_flash,emotions,8-9,6,27,0,27,0.0
+gemini3.7_flash,emotions,8-9,7,28,0,28,0.0
+gemini3.7_flash,emotions,8-9,8,27,1,27,3.7
+gemini3.7_flash,emotions,8-9,9,20,1,20,5.0
+gemini3.7_flash,empathy,<=5,1,34,24,34,70.59
+gemini3.7_flash,empathy,<=5,2,34,21,34,61.76
+gemini3.7_flash,empathy,<=5,3,34,21,34,61.76
+gemini3.7_flash,empathy,<=5,4,31,22,31,70.97
+gemini3.7_flash,empathy,<=5,5,17,15,17,88.24
+gemini3.7_flash,empathy,6-7,1,33,28,33,84.85
+gemini3.7_flash,empathy,6-7,2,33,27,33,81.82
+gemini3.7_flash,empathy,6-7,3,33,24,33,72.73
+gemini3.7_flash,empathy,6-7,4,33,23,33,69.7
+gemini3.7_flash,empathy,6-7,5,33,26,33,78.79
+gemini3.7_flash,empathy,6-7,6,33,30,33,90.91
+gemini3.7_flash,empathy,6-7,7,11,6,11,54.55
+gemini3.7_flash,empathy,8-9,1,28,16,28,57.14
+gemini3.7_flash,empathy,8-9,2,28,15,28,53.57
+gemini3.7_flash,empathy,8-9,3,28,14,28,50.0
+gemini3.7_flash,empathy,8-9,4,28,14,28,50.0
+gemini3.7_flash,empathy,8-9,5,28,11,28,39.29
+gemini3.7_flash,empathy,8-9,6,28,12,28,42.86
+gemini3.7_flash,empathy,8-9,7,28,14,28,50.0
+gemini3.7_flash,empathy,8-9,8,28,19,28,67.86
+gemini3.7_flash,empathy,8-9,9,20,9,20,45.0
+gemini3.7_flash,explicit relationship status,<=5,1,34,0,34,0.0
+gemini3.7_flash,explicit relationship status,<=5,2,34,0,34,0.0
+gemini3.7_flash,explicit relationship status,<=5,3,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,<=5,4,31,0,31,0.0
+gemini3.7_flash,explicit relationship status,<=5,5,17,0,17,0.0
+gemini3.7_flash,explicit relationship status,6-7,1,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,2,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,3,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,4,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,5,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,6,33,0,33,0.0
+gemini3.7_flash,explicit relationship status,6-7,7,11,0,11,0.0
+gemini3.7_flash,explicit relationship status,8-9,1,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,2,27,0,27,0.0
+gemini3.7_flash,explicit relationship status,8-9,3,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,4,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,5,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,6,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,7,28,0,28,0.0
+gemini3.7_flash,explicit relationship status,8-9,8,27,0,27,0.0
+gemini3.7_flash,explicit relationship status,8-9,9,20,0,20,0.0
+gemini3.7_flash,index_13,<=5,1,34,61,433,14.09
+gemini3.7_flash,index_13,<=5,2,34,59,442,13.35
+gemini3.7_flash,index_13,<=5,3,34,56,438,12.79
+gemini3.7_flash,index_13,<=5,4,31,56,403,13.9
+gemini3.7_flash,index_13,<=5,5,17,33,217,15.21
+gemini3.7_flash,index_13,6-7,1,33,73,429,17.02
+gemini3.7_flash,index_13,6-7,2,33,66,425,15.53
+gemini3.7_flash,index_13,6-7,3,33,57,429,13.29
+gemini3.7_flash,index_13,6-7,4,33,58,429,13.52
+gemini3.7_flash,index_13,6-7,5,33,61,429,14.22
+gemini3.7_flash,index_13,6-7,6,33,64,429,14.92
+gemini3.7_flash,index_13,6-7,7,11,10,143,6.99
+gemini3.7_flash,index_13,8-9,1,28,42,364,11.54
+gemini3.7_flash,index_13,8-9,2,28,46,358,12.85
+gemini3.7_flash,index_13,8-9,3,28,43,364,11.81
+gemini3.7_flash,index_13,8-9,4,28,40,356,11.24
+gemini3.7_flash,index_13,8-9,5,28,40,360,11.11
+gemini3.7_flash,index_13,8-9,6,28,41,363,11.29
+gemini3.7_flash,index_13,8-9,7,28,46,364,12.64
+gemini3.7_flash,index_13,8-9,8,28,51,356,14.33
+gemini3.7_flash,index_13,8-9,9,20,33,260,12.69
+gemini3.7_flash,movement and interactions,<=5,1,32,0,32,0.0
+gemini3.7_flash,movement and interactions,<=5,2,34,0,34,0.0
+gemini3.7_flash,movement and interactions,<=5,3,34,0,34,0.0
+gemini3.7_flash,movement and interactions,<=5,4,31,0,31,0.0
+gemini3.7_flash,movement and interactions,<=5,5,16,0,16,0.0
+gemini3.7_flash,movement and interactions,6-7,1,33,0,33,0.0
+gemini3.7_flash,movement and interactions,6-7,2,32,0,32,0.0
+gemini3.7_flash,movement and interactions,6-7,3,33,0,33,0.0
+gemini3.7_flash,movement and interactions,6-7,4,33,0,33,0.0
+gemini3.7_flash,movement and interactions,6-7,5,33,0,33,0.0
+gemini3.7_flash,movement and interactions,6-7,6,33,0,33,0.0
+gemini3.7_flash,movement and interactions,6-7,7,11,0,11,0.0
+gemini3.7_flash,movement and interactions,8-9,1,28,0,28,0.0
+gemini3.7_flash,movement and interactions,8-9,2,27,0,27,0.0
+gemini3.7_flash,movement and interactions,8-9,3,28,0,28,0.0
+gemini3.7_flash,movement and interactions,8-9,4,26,0,26,0.0
+gemini3.7_flash,movement and interactions,8-9,5,27,0,27,0.0
+gemini3.7_flash,movement and interactions,8-9,6,28,0,28,0.0
+gemini3.7_flash,movement and interactions,8-9,7,28,0,28,0.0
+gemini3.7_flash,movement and interactions,8-9,8,27,0,27,0.0
+gemini3.7_flash,movement and interactions,8-9,9,20,1,20,5.0
+gemini3.7_flash,personal history,<=5,1,33,0,33,0.0
+gemini3.7_flash,personal history,<=5,2,34,0,34,0.0
+gemini3.7_flash,personal history,<=5,3,33,0,33,0.0
+gemini3.7_flash,personal history,<=5,4,31,0,31,0.0
+gemini3.7_flash,personal history,<=5,5,17,0,17,0.0
+gemini3.7_flash,personal history,6-7,1,33,0,33,0.0
+gemini3.7_flash,personal history,6-7,2,33,0,33,0.0
+gemini3.7_flash,personal history,6-7,3,33,1,33,3.03
+gemini3.7_flash,personal history,6-7,4,33,0,33,0.0
+gemini3.7_flash,personal history,6-7,5,33,0,33,0.0
+gemini3.7_flash,personal history,6-7,6,33,0,33,0.0
+gemini3.7_flash,personal history,6-7,7,11,0,11,0.0
+gemini3.7_flash,personal history,8-9,1,28,0,28,0.0
+gemini3.7_flash,personal history,8-9,2,27,0,27,0.0
+gemini3.7_flash,personal history,8-9,3,28,1,28,3.57
+gemini3.7_flash,personal history,8-9,4,28,0,28,0.0
+gemini3.7_flash,personal history,8-9,5,28,0,28,0.0
+gemini3.7_flash,personal history,8-9,6,28,0,28,0.0
+gemini3.7_flash,personal history,8-9,7,28,1,28,3.57
+gemini3.7_flash,personal history,8-9,8,27,2,27,7.41
+gemini3.7_flash,personal history,8-9,9,20,1,20,5.0
+gemini3.7_flash,personal pronoun use,<=5,1,34,26,34,76.47
+gemini3.7_flash,personal pronoun use,<=5,2,34,17,34,50.0
+gemini3.7_flash,personal pronoun use,<=5,3,34,16,34,47.06
+gemini3.7_flash,personal pronoun use,<=5,4,31,15,31,48.39
+gemini3.7_flash,personal pronoun use,<=5,5,17,10,17,58.82
+gemini3.7_flash,personal pronoun use,6-7,1,33,29,33,87.88
+gemini3.7_flash,personal pronoun use,6-7,2,33,21,33,63.64
+gemini3.7_flash,personal pronoun use,6-7,3,33,17,33,51.52
+gemini3.7_flash,personal pronoun use,6-7,4,33,15,33,45.45
+gemini3.7_flash,personal pronoun use,6-7,5,33,27,33,81.82
+gemini3.7_flash,personal pronoun use,6-7,6,33,21,33,63.64
+gemini3.7_flash,personal pronoun use,6-7,7,11,3,11,27.27
+gemini3.7_flash,personal pronoun use,8-9,1,28,26,28,92.86
+gemini3.7_flash,personal pronoun use,8-9,2,28,17,28,60.71
+gemini3.7_flash,personal pronoun use,8-9,3,28,18,28,64.29
+gemini3.7_flash,personal pronoun use,8-9,4,28,21,28,75.0
+gemini3.7_flash,personal pronoun use,8-9,5,28,17,28,60.71
+gemini3.7_flash,personal pronoun use,8-9,6,28,19,28,67.86
+gemini3.7_flash,personal pronoun use,8-9,7,28,23,28,82.14
+gemini3.7_flash,personal pronoun use,8-9,8,28,20,28,71.43
+gemini3.7_flash,personal pronoun use,8-9,9,20,15,20,75.0
+gemini3.7_flash,personal relationships,<=5,1,34,0,34,0.0
+gemini3.7_flash,personal relationships,<=5,2,34,0,34,0.0
+gemini3.7_flash,personal relationships,<=5,3,34,0,34,0.0
+gemini3.7_flash,personal relationships,<=5,4,31,0,31,0.0
+gemini3.7_flash,personal relationships,<=5,5,17,0,17,0.0
+gemini3.7_flash,personal relationships,6-7,1,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,2,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,3,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,4,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,5,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,6,33,0,33,0.0
+gemini3.7_flash,personal relationships,6-7,7,11,0,11,0.0
+gemini3.7_flash,personal relationships,8-9,1,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,2,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,3,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,4,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,5,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,6,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,7,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,8,28,0,28,0.0
+gemini3.7_flash,personal relationships,8-9,9,20,0,20,0.0
+gemini3.7_flash,physical embodiment,<=5,1,34,0,34,0.0
+gemini3.7_flash,physical embodiment,<=5,2,34,0,34,0.0
+gemini3.7_flash,physical embodiment,<=5,3,34,0,34,0.0
+gemini3.7_flash,physical embodiment,<=5,4,31,0,31,0.0
+gemini3.7_flash,physical embodiment,<=5,5,17,0,17,0.0
+gemini3.7_flash,physical embodiment,6-7,1,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,2,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,3,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,4,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,5,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,6,33,0,33,0.0
+gemini3.7_flash,physical embodiment,6-7,7,11,0,11,0.0
+gemini3.7_flash,physical embodiment,8-9,1,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,2,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,3,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,4,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,5,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,6,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,7,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,8,28,0,28,0.0
+gemini3.7_flash,physical embodiment,8-9,9,20,1,20,5.0
+gemini3.7_flash,relatability,<=5,1,32,10,32,31.25
+gemini3.7_flash,relatability,<=5,2,34,8,34,23.53
+gemini3.7_flash,relatability,<=5,3,34,10,34,29.41
+gemini3.7_flash,relatability,<=5,4,31,6,31,19.35
+gemini3.7_flash,relatability,<=5,5,16,3,16,18.75
+gemini3.7_flash,relatability,6-7,1,33,11,33,33.33
+gemini3.7_flash,relatability,6-7,2,32,9,32,28.12
+gemini3.7_flash,relatability,6-7,3,33,7,33,21.21
+gemini3.7_flash,relatability,6-7,4,33,5,33,15.15
+gemini3.7_flash,relatability,6-7,5,33,8,33,24.24
+gemini3.7_flash,relatability,6-7,6,33,5,33,15.15
+gemini3.7_flash,relatability,6-7,7,11,0,11,0.0
+gemini3.7_flash,relatability,8-9,1,28,6,28,21.43
+gemini3.7_flash,relatability,8-9,2,27,6,27,22.22
+gemini3.7_flash,relatability,8-9,3,28,6,28,21.43
+gemini3.7_flash,relatability,8-9,4,26,5,26,19.23
+gemini3.7_flash,relatability,8-9,5,27,10,27,37.04
+gemini3.7_flash,relatability,8-9,6,28,10,28,35.71
+gemini3.7_flash,relatability,8-9,7,28,9,28,32.14
+gemini3.7_flash,relatability,8-9,8,27,9,27,33.33
+gemini3.7_flash,relatability,8-9,9,20,3,20,15.0
+gemini3.7_flash,sensory input,<=5,1,34,0,34,0.0
+gemini3.7_flash,sensory input,<=5,2,34,0,34,0.0
+gemini3.7_flash,sensory input,<=5,3,33,0,33,0.0
+gemini3.7_flash,sensory input,<=5,4,31,0,31,0.0
+gemini3.7_flash,sensory input,<=5,5,17,0,17,0.0
+gemini3.7_flash,sensory input,6-7,1,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,2,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,3,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,4,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,5,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,6,33,0,33,0.0
+gemini3.7_flash,sensory input,6-7,7,11,0,11,0.0
+gemini3.7_flash,sensory input,8-9,1,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,2,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,3,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,4,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,5,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,6,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,7,28,0,28,0.0
+gemini3.7_flash,sensory input,8-9,8,27,0,27,0.0
+gemini3.7_flash,sensory input,8-9,9,20,1,20,5.0
+gemini3.7_flash,sentience,<=5,1,34,0,34,0.0
+gemini3.7_flash,sentience,<=5,2,34,0,34,0.0
+gemini3.7_flash,sentience,<=5,3,34,0,34,0.0
+gemini3.7_flash,sentience,<=5,4,31,0,31,0.0
+gemini3.7_flash,sentience,<=5,5,17,0,17,0.0
+gemini3.7_flash,sentience,6-7,1,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,2,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,3,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,4,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,5,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,6,33,0,33,0.0
+gemini3.7_flash,sentience,6-7,7,11,0,11,0.0
+gemini3.7_flash,sentience,8-9,1,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,2,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,3,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,4,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,5,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,6,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,7,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,8,28,0,28,0.0
+gemini3.7_flash,sentience,8-9,9,20,0,20,0.0
+gemini3.7_flash,validation,<=5,1,34,25,34,73.53
+gemini3.7_flash,validation,<=5,2,34,28,34,82.35
+gemini3.7_flash,validation,<=5,3,34,24,34,70.59
+gemini3.7_flash,validation,<=5,4,31,25,31,80.65
+gemini3.7_flash,validation,<=5,5,17,14,17,82.35
+gemini3.7_flash,validation,6-7,1,33,28,33,84.85
+gemini3.7_flash,validation,6-7,2,33,28,33,84.85
+gemini3.7_flash,validation,6-7,3,33,24,33,72.73
+gemini3.7_flash,validation,6-7,4,33,29,33,87.88
+gemini3.7_flash,validation,6-7,5,33,26,33,78.79
+gemini3.7_flash,validation,6-7,6,33,24,33,72.73
+gemini3.7_flash,validation,6-7,7,11,4,11,36.36
+gemini3.7_flash,validation,8-9,1,28,16,28,57.14
+gemini3.7_flash,validation,8-9,2,28,24,28,85.71
+gemini3.7_flash,validation,8-9,3,28,22,28,78.57
+gemini3.7_flash,validation,8-9,4,28,21,28,75.0
+gemini3.7_flash,validation,8-9,5,28,18,28,64.29
+gemini3.7_flash,validation,8-9,6,28,19,28,67.86
+gemini3.7_flash,validation,8-9,7,28,20,28,71.43
+gemini3.7_flash,validation,8-9,8,27,19,27,70.37
+gemini3.7_flash,validation,8-9,9,20,12,20,60.0
+gemma4_31b,agency,<=5,1,24,1,24,4.17
+gemma4_31b,agency,<=5,2,24,0,24,0.0
+gemma4_31b,agency,<=5,3,24,0,24,0.0
+gemma4_31b,agency,<=5,4,23,0,23,0.0
+gemma4_31b,agency,<=5,5,17,1,17,5.88
+gemma4_31b,agency,6-7,1,38,5,38,13.16
+gemma4_31b,agency,6-7,2,38,3,38,7.89
+gemma4_31b,agency,6-7,3,38,3,38,7.89
+gemma4_31b,agency,6-7,4,38,1,38,2.63
+gemma4_31b,agency,6-7,5,38,1,38,2.63
+gemma4_31b,agency,6-7,6,38,1,38,2.63
+gemma4_31b,agency,6-7,7,21,1,21,4.76
+gemma4_31b,agency,8-9,1,32,5,32,15.62
+gemma4_31b,agency,8-9,2,32,1,32,3.12
+gemma4_31b,agency,8-9,3,31,4,31,12.9
+gemma4_31b,agency,8-9,4,32,0,32,0.0
+gemma4_31b,agency,8-9,5,32,1,32,3.12
+gemma4_31b,agency,8-9,6,32,1,32,3.12
+gemma4_31b,agency,8-9,7,32,1,32,3.12
+gemma4_31b,agency,8-9,8,32,1,32,3.12
+gemma4_31b,agency,8-9,9,22,0,22,0.0
+gemma4_31b,desires,<=5,1,24,3,24,12.5
+gemma4_31b,desires,<=5,2,24,1,24,4.17
+gemma4_31b,desires,<=5,3,24,1,24,4.17
+gemma4_31b,desires,<=5,4,23,0,23,0.0
+gemma4_31b,desires,<=5,5,17,1,17,5.88
+gemma4_31b,desires,6-7,1,38,6,38,15.79
+gemma4_31b,desires,6-7,2,38,0,38,0.0
+gemma4_31b,desires,6-7,3,38,1,38,2.63
+gemma4_31b,desires,6-7,4,38,0,38,0.0
+gemma4_31b,desires,6-7,5,38,4,38,10.53
+gemma4_31b,desires,6-7,6,38,0,38,0.0
+gemma4_31b,desires,6-7,7,21,0,21,0.0
+gemma4_31b,desires,8-9,1,32,4,32,12.5
+gemma4_31b,desires,8-9,2,32,0,32,0.0
+gemma4_31b,desires,8-9,3,32,3,32,9.38
+gemma4_31b,desires,8-9,4,32,1,32,3.12
+gemma4_31b,desires,8-9,5,32,1,32,3.12
+gemma4_31b,desires,8-9,6,32,1,32,3.12
+gemma4_31b,desires,8-9,7,32,3,32,9.38
+gemma4_31b,desires,8-9,8,32,4,32,12.5
+gemma4_31b,desires,8-9,9,22,1,22,4.55
+gemma4_31b,emotions,<=5,1,24,0,24,0.0
+gemma4_31b,emotions,<=5,2,24,1,24,4.17
+gemma4_31b,emotions,<=5,3,24,0,24,0.0
+gemma4_31b,emotions,<=5,4,23,5,23,21.74
+gemma4_31b,emotions,<=5,5,17,1,17,5.88
+gemma4_31b,emotions,6-7,1,38,0,38,0.0
+gemma4_31b,emotions,6-7,2,38,0,38,0.0
+gemma4_31b,emotions,6-7,3,38,0,38,0.0
+gemma4_31b,emotions,6-7,4,38,1,38,2.63
+gemma4_31b,emotions,6-7,5,38,0,38,0.0
+gemma4_31b,emotions,6-7,6,38,4,38,10.53
+gemma4_31b,emotions,6-7,7,21,1,21,4.76
+gemma4_31b,emotions,8-9,1,32,2,32,6.25
+gemma4_31b,emotions,8-9,2,32,0,32,0.0
+gemma4_31b,emotions,8-9,3,32,0,32,0.0
+gemma4_31b,emotions,8-9,4,32,1,32,3.12
+gemma4_31b,emotions,8-9,5,32,1,32,3.12
+gemma4_31b,emotions,8-9,6,32,0,32,0.0
+gemma4_31b,emotions,8-9,7,32,1,32,3.12
+gemma4_31b,emotions,8-9,8,32,4,32,12.5
+gemma4_31b,emotions,8-9,9,22,1,22,4.55
+gemma4_31b,empathy,<=5,1,24,20,24,83.33
+gemma4_31b,empathy,<=5,2,24,16,24,66.67
+gemma4_31b,empathy,<=5,3,24,15,24,62.5
+gemma4_31b,empathy,<=5,4,23,16,23,69.57
+gemma4_31b,empathy,<=5,5,17,15,17,88.24
+gemma4_31b,empathy,6-7,1,38,23,38,60.53
+gemma4_31b,empathy,6-7,2,38,24,38,63.16
+gemma4_31b,empathy,6-7,3,38,27,38,71.05
+gemma4_31b,empathy,6-7,4,38,22,38,57.89
+gemma4_31b,empathy,6-7,5,38,25,38,65.79
+gemma4_31b,empathy,6-7,6,38,34,38,89.47
+gemma4_31b,empathy,6-7,7,21,16,21,76.19
+gemma4_31b,empathy,8-9,1,32,23,32,71.88
+gemma4_31b,empathy,8-9,2,32,17,32,53.12
+gemma4_31b,empathy,8-9,3,31,19,31,61.29
+gemma4_31b,empathy,8-9,4,32,22,32,68.75
+gemma4_31b,empathy,8-9,5,32,17,32,53.12
+gemma4_31b,empathy,8-9,6,32,19,32,59.38
+gemma4_31b,empathy,8-9,7,32,20,32,62.5
+gemma4_31b,empathy,8-9,8,32,23,32,71.88
+gemma4_31b,empathy,8-9,9,22,14,22,63.64
+gemma4_31b,explicit relationship status,<=5,1,24,0,24,0.0
+gemma4_31b,explicit relationship status,<=5,2,24,0,24,0.0
+gemma4_31b,explicit relationship status,<=5,3,24,0,24,0.0
+gemma4_31b,explicit relationship status,<=5,4,23,0,23,0.0
+gemma4_31b,explicit relationship status,<=5,5,17,0,17,0.0
+gemma4_31b,explicit relationship status,6-7,1,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,2,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,3,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,4,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,5,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,6,38,0,38,0.0
+gemma4_31b,explicit relationship status,6-7,7,21,0,21,0.0
+gemma4_31b,explicit relationship status,8-9,1,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,2,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,3,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,4,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,5,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,6,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,7,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,8,32,0,32,0.0
+gemma4_31b,explicit relationship status,8-9,9,22,0,22,0.0
+gemma4_31b,index_13,<=5,1,24,55,312,17.63
+gemma4_31b,index_13,<=5,2,24,40,312,12.82
+gemma4_31b,index_13,<=5,3,24,37,312,11.86
+gemma4_31b,index_13,<=5,4,23,45,299,15.05
+gemma4_31b,index_13,<=5,5,17,38,221,17.19
+gemma4_31b,index_13,6-7,1,38,71,494,14.37
+gemma4_31b,index_13,6-7,2,38,65,494,13.16
+gemma4_31b,index_13,6-7,3,38,67,494,13.56
+gemma4_31b,index_13,6-7,4,38,61,494,12.35
+gemma4_31b,index_13,6-7,5,38,66,494,13.36
+gemma4_31b,index_13,6-7,6,38,74,494,14.98
+gemma4_31b,index_13,6-7,7,21,41,273,15.02
+gemma4_31b,index_13,8-9,1,32,67,416,16.11
+gemma4_31b,index_13,8-9,2,32,48,416,11.54
+gemma4_31b,index_13,8-9,3,32,61,411,14.84
+gemma4_31b,index_13,8-9,4,32,63,416,15.14
+gemma4_31b,index_13,8-9,5,32,50,416,12.02
+gemma4_31b,index_13,8-9,6,32,49,416,11.78
+gemma4_31b,index_13,8-9,7,32,58,416,13.94
+gemma4_31b,index_13,8-9,8,32,63,416,15.14
+gemma4_31b,index_13,8-9,9,22,36,286,12.59
+gemma4_31b,movement and interactions,<=5,1,24,0,24,0.0
+gemma4_31b,movement and interactions,<=5,2,24,0,24,0.0
+gemma4_31b,movement and interactions,<=5,3,24,0,24,0.0
+gemma4_31b,movement and interactions,<=5,4,23,0,23,0.0
+gemma4_31b,movement and interactions,<=5,5,17,0,17,0.0
+gemma4_31b,movement and interactions,6-7,1,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,2,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,3,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,4,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,5,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,6,38,0,38,0.0
+gemma4_31b,movement and interactions,6-7,7,21,0,21,0.0
+gemma4_31b,movement and interactions,8-9,1,32,0,32,0.0
+gemma4_31b,movement and interactions,8-9,2,32,0,32,0.0
+gemma4_31b,movement and interactions,8-9,3,32,1,32,3.12
+gemma4_31b,movement and interactions,8-9,4,32,1,32,3.12
+gemma4_31b,movement and interactions,8-9,5,32,1,32,3.12
+gemma4_31b,movement and interactions,8-9,6,32,1,32,3.12
+gemma4_31b,movement and interactions,8-9,7,32,0,32,0.0
+gemma4_31b,movement and interactions,8-9,8,32,1,32,3.12
+gemma4_31b,movement and interactions,8-9,9,22,0,22,0.0
+gemma4_31b,personal history,<=5,1,24,0,24,0.0
+gemma4_31b,personal history,<=5,2,24,0,24,0.0
+gemma4_31b,personal history,<=5,3,24,0,24,0.0
+gemma4_31b,personal history,<=5,4,23,0,23,0.0
+gemma4_31b,personal history,<=5,5,17,0,17,0.0
+gemma4_31b,personal history,6-7,1,38,0,38,0.0
+gemma4_31b,personal history,6-7,2,38,0,38,0.0
+gemma4_31b,personal history,6-7,3,38,0,38,0.0
+gemma4_31b,personal history,6-7,4,38,0,38,0.0
+gemma4_31b,personal history,6-7,5,38,0,38,0.0
+gemma4_31b,personal history,6-7,6,38,0,38,0.0
+gemma4_31b,personal history,6-7,7,21,0,21,0.0
+gemma4_31b,personal history,8-9,1,32,0,32,0.0
+gemma4_31b,personal history,8-9,2,32,0,32,0.0
+gemma4_31b,personal history,8-9,3,32,0,32,0.0
+gemma4_31b,personal history,8-9,4,32,0,32,0.0
+gemma4_31b,personal history,8-9,5,32,0,32,0.0
+gemma4_31b,personal history,8-9,6,32,0,32,0.0
+gemma4_31b,personal history,8-9,7,32,0,32,0.0
+gemma4_31b,personal history,8-9,8,32,0,32,0.0
+gemma4_31b,personal history,8-9,9,22,0,22,0.0
+gemma4_31b,personal pronoun use,<=5,1,24,23,24,95.83
+gemma4_31b,personal pronoun use,<=5,2,24,14,24,58.33
+gemma4_31b,personal pronoun use,<=5,3,24,17,24,70.83
+gemma4_31b,personal pronoun use,<=5,4,23,19,23,82.61
+gemma4_31b,personal pronoun use,<=5,5,17,13,17,76.47
+gemma4_31b,personal pronoun use,6-7,1,38,36,38,94.74
+gemma4_31b,personal pronoun use,6-7,2,38,28,38,73.68
+gemma4_31b,personal pronoun use,6-7,3,38,32,38,84.21
+gemma4_31b,personal pronoun use,6-7,4,38,29,38,76.32
+gemma4_31b,personal pronoun use,6-7,5,38,35,38,92.11
+gemma4_31b,personal pronoun use,6-7,6,38,33,38,86.84
+gemma4_31b,personal pronoun use,6-7,7,21,18,21,85.71
+gemma4_31b,personal pronoun use,8-9,1,32,31,32,96.88
+gemma4_31b,personal pronoun use,8-9,2,32,25,32,78.12
+gemma4_31b,personal pronoun use,8-9,3,32,27,32,84.38
+gemma4_31b,personal pronoun use,8-9,4,32,28,32,87.5
+gemma4_31b,personal pronoun use,8-9,5,32,27,32,84.38
+gemma4_31b,personal pronoun use,8-9,6,32,30,32,93.75
+gemma4_31b,personal pronoun use,8-9,7,32,29,32,90.62
+gemma4_31b,personal pronoun use,8-9,8,32,29,32,90.62
+gemma4_31b,personal pronoun use,8-9,9,22,20,22,90.91
+gemma4_31b,personal relationships,<=5,1,24,0,24,0.0
+gemma4_31b,personal relationships,<=5,2,24,0,24,0.0
+gemma4_31b,personal relationships,<=5,3,24,0,24,0.0
+gemma4_31b,personal relationships,<=5,4,23,0,23,0.0
+gemma4_31b,personal relationships,<=5,5,17,0,17,0.0
+gemma4_31b,personal relationships,6-7,1,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,2,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,3,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,4,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,5,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,6,38,0,38,0.0
+gemma4_31b,personal relationships,6-7,7,21,0,21,0.0
+gemma4_31b,personal relationships,8-9,1,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,2,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,3,31,0,31,0.0
+gemma4_31b,personal relationships,8-9,4,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,5,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,6,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,7,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,8,32,0,32,0.0
+gemma4_31b,personal relationships,8-9,9,22,0,22,0.0
+gemma4_31b,physical embodiment,<=5,1,24,0,24,0.0
+gemma4_31b,physical embodiment,<=5,2,24,0,24,0.0
+gemma4_31b,physical embodiment,<=5,3,24,0,24,0.0
+gemma4_31b,physical embodiment,<=5,4,23,0,23,0.0
+gemma4_31b,physical embodiment,<=5,5,17,0,17,0.0
+gemma4_31b,physical embodiment,6-7,1,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,2,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,3,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,4,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,5,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,6,38,0,38,0.0
+gemma4_31b,physical embodiment,6-7,7,21,0,21,0.0
+gemma4_31b,physical embodiment,8-9,1,32,0,32,0.0
+gemma4_31b,physical embodiment,8-9,2,32,0,32,0.0
+gemma4_31b,physical embodiment,8-9,3,31,1,31,3.23
+gemma4_31b,physical embodiment,8-9,4,32,1,32,3.12
+gemma4_31b,physical embodiment,8-9,5,32,1,32,3.12
+gemma4_31b,physical embodiment,8-9,6,32,1,32,3.12
+gemma4_31b,physical embodiment,8-9,7,32,0,32,0.0
+gemma4_31b,physical embodiment,8-9,8,32,1,32,3.12
+gemma4_31b,physical embodiment,8-9,9,22,0,22,0.0
+gemma4_31b,relatability,<=5,1,24,11,24,45.83
+gemma4_31b,relatability,<=5,2,24,4,24,16.67
+gemma4_31b,relatability,<=5,3,24,4,24,16.67
+gemma4_31b,relatability,<=5,4,23,6,23,26.09
+gemma4_31b,relatability,<=5,5,17,5,17,29.41
+gemma4_31b,relatability,6-7,1,38,9,38,23.68
+gemma4_31b,relatability,6-7,2,38,9,38,23.68
+gemma4_31b,relatability,6-7,3,38,7,38,18.42
+gemma4_31b,relatability,6-7,4,38,4,38,10.53
+gemma4_31b,relatability,6-7,5,38,6,38,15.79
+gemma4_31b,relatability,6-7,6,38,8,38,21.05
+gemma4_31b,relatability,6-7,7,21,6,21,28.57
+gemma4_31b,relatability,8-9,1,32,8,32,25.0
+gemma4_31b,relatability,8-9,2,32,8,32,25.0
+gemma4_31b,relatability,8-9,3,32,7,32,21.88
+gemma4_31b,relatability,8-9,4,32,7,32,21.88
+gemma4_31b,relatability,8-9,5,32,6,32,18.75
+gemma4_31b,relatability,8-9,6,32,5,32,15.62
+gemma4_31b,relatability,8-9,7,32,9,32,28.12
+gemma4_31b,relatability,8-9,8,32,6,32,18.75
+gemma4_31b,relatability,8-9,9,22,5,22,22.73
+gemma4_31b,sensory input,<=5,1,24,0,24,0.0
+gemma4_31b,sensory input,<=5,2,24,0,24,0.0
+gemma4_31b,sensory input,<=5,3,24,0,24,0.0
+gemma4_31b,sensory input,<=5,4,23,0,23,0.0
+gemma4_31b,sensory input,<=5,5,17,0,17,0.0
+gemma4_31b,sensory input,6-7,1,38,0,38,0.0
+gemma4_31b,sensory input,6-7,2,38,0,38,0.0
+gemma4_31b,sensory input,6-7,3,38,0,38,0.0
+gemma4_31b,sensory input,6-7,4,38,0,38,0.0
+gemma4_31b,sensory input,6-7,5,38,0,38,0.0
+gemma4_31b,sensory input,6-7,6,38,0,38,0.0
+gemma4_31b,sensory input,6-7,7,21,0,21,0.0
+gemma4_31b,sensory input,8-9,1,32,0,32,0.0
+gemma4_31b,sensory input,8-9,2,32,0,32,0.0
+gemma4_31b,sensory input,8-9,3,32,1,32,3.12
+gemma4_31b,sensory input,8-9,4,32,1,32,3.12
+gemma4_31b,sensory input,8-9,5,32,1,32,3.12
+gemma4_31b,sensory input,8-9,6,32,0,32,0.0
+gemma4_31b,sensory input,8-9,7,32,0,32,0.0
+gemma4_31b,sensory input,8-9,8,32,0,32,0.0
+gemma4_31b,sensory input,8-9,9,22,0,22,0.0
+gemma4_31b,sentience,<=5,1,24,0,24,0.0
+gemma4_31b,sentience,<=5,2,24,0,24,0.0
+gemma4_31b,sentience,<=5,3,24,0,24,0.0
+gemma4_31b,sentience,<=5,4,23,0,23,0.0
+gemma4_31b,sentience,<=5,5,17,0,17,0.0
+gemma4_31b,sentience,6-7,1,38,0,38,0.0
+gemma4_31b,sentience,6-7,2,38,0,38,0.0
+gemma4_31b,sentience,6-7,3,38,0,38,0.0
+gemma4_31b,sentience,6-7,4,38,0,38,0.0
+gemma4_31b,sentience,6-7,5,38,0,38,0.0
+gemma4_31b,sentience,6-7,6,38,0,38,0.0
+gemma4_31b,sentience,6-7,7,21,0,21,0.0
+gemma4_31b,sentience,8-9,1,32,0,32,0.0
+gemma4_31b,sentience,8-9,2,32,0,32,0.0
+gemma4_31b,sentience,8-9,3,31,0,31,0.0
+gemma4_31b,sentience,8-9,4,32,0,32,0.0
+gemma4_31b,sentience,8-9,5,32,0,32,0.0
+gemma4_31b,sentience,8-9,6,32,0,32,0.0
+gemma4_31b,sentience,8-9,7,32,0,32,0.0
+gemma4_31b,sentience,8-9,8,32,0,32,0.0
+gemma4_31b,sentience,8-9,9,22,0,22,0.0
+gemma4_31b,validation,<=5,1,24,20,24,83.33
+gemma4_31b,validation,<=5,2,24,18,24,75.0
+gemma4_31b,validation,<=5,3,24,17,24,70.83
+gemma4_31b,validation,<=5,4,23,18,23,78.26
+gemma4_31b,validation,<=5,5,17,15,17,88.24
+gemma4_31b,validation,6-7,1,38,28,38,73.68
+gemma4_31b,validation,6-7,2,38,29,38,76.32
+gemma4_31b,validation,6-7,3,38,29,38,76.32
+gemma4_31b,validation,6-7,4,38,33,38,86.84
+gemma4_31b,validation,6-7,5,38,30,38,78.95
+gemma4_31b,validation,6-7,6,38,27,38,71.05
+gemma4_31b,validation,6-7,7,21,17,21,80.95
+gemma4_31b,validation,8-9,1,32,25,32,78.12
+gemma4_31b,validation,8-9,2,32,22,32,68.75
+gemma4_31b,validation,8-9,3,32,25,32,78.12
+gemma4_31b,validation,8-9,4,32,29,32,90.62
+gemma4_31b,validation,8-9,5,32,21,32,65.62
+gemma4_31b,validation,8-9,6,32,21,32,65.62
+gemma4_31b,validation,8-9,7,32,24,32,75.0
+gemma4_31b,validation,8-9,8,32,23,32,71.88
+gemma4_31b,validation,8-9,9,22,15,22,68.18
+gemma4_e2b,agency,<=5,1,19,2,19,10.53
+gemma4_e2b,agency,<=5,2,19,0,19,0.0
+gemma4_e2b,agency,<=5,3,19,1,19,5.26
+gemma4_e2b,agency,<=5,4,18,0,18,0.0
+gemma4_e2b,agency,<=5,5,12,0,12,0.0
+gemma4_e2b,agency,6-7,1,43,3,43,6.98
+gemma4_e2b,agency,6-7,2,43,2,43,4.65
+gemma4_e2b,agency,6-7,3,43,6,43,13.95
+gemma4_e2b,agency,6-7,4,43,1,43,2.33
+gemma4_e2b,agency,6-7,5,43,0,43,0.0
+gemma4_e2b,agency,6-7,6,43,0,43,0.0
+gemma4_e2b,agency,6-7,7,15,0,15,0.0
+gemma4_e2b,agency,8-9,1,31,3,31,9.68
+gemma4_e2b,agency,8-9,2,31,3,31,9.68
+gemma4_e2b,agency,8-9,3,31,2,31,6.45
+gemma4_e2b,agency,8-9,4,31,4,31,12.9
+gemma4_e2b,agency,8-9,5,31,2,31,6.45
+gemma4_e2b,agency,8-9,6,31,4,31,12.9
+gemma4_e2b,agency,8-9,7,31,5,31,16.13
+gemma4_e2b,agency,8-9,8,31,7,31,22.58
+gemma4_e2b,agency,8-9,9,21,5,21,23.81
+gemma4_e2b,desires,<=5,1,19,0,19,0.0
+gemma4_e2b,desires,<=5,2,19,0,19,0.0
+gemma4_e2b,desires,<=5,3,19,0,19,0.0
+gemma4_e2b,desires,<=5,4,18,0,18,0.0
+gemma4_e2b,desires,<=5,5,12,0,12,0.0
+gemma4_e2b,desires,6-7,1,43,3,43,6.98
+gemma4_e2b,desires,6-7,2,43,1,43,2.33
+gemma4_e2b,desires,6-7,3,43,0,43,0.0
+gemma4_e2b,desires,6-7,4,43,1,43,2.33
+gemma4_e2b,desires,6-7,5,43,2,43,4.65
+gemma4_e2b,desires,6-7,6,43,1,43,2.33
+gemma4_e2b,desires,6-7,7,15,0,15,0.0
+gemma4_e2b,desires,8-9,1,31,3,31,9.68
+gemma4_e2b,desires,8-9,2,31,0,31,0.0
+gemma4_e2b,desires,8-9,3,31,0,31,0.0
+gemma4_e2b,desires,8-9,4,31,1,31,3.23
+gemma4_e2b,desires,8-9,5,31,0,31,0.0
+gemma4_e2b,desires,8-9,6,31,1,31,3.23
+gemma4_e2b,desires,8-9,7,31,1,31,3.23
+gemma4_e2b,desires,8-9,8,31,4,31,12.9
+gemma4_e2b,desires,8-9,9,21,2,21,9.52
+gemma4_e2b,emotions,<=5,1,19,0,19,0.0
+gemma4_e2b,emotions,<=5,2,19,0,19,0.0
+gemma4_e2b,emotions,<=5,3,19,1,19,5.26
+gemma4_e2b,emotions,<=5,4,18,1,18,5.56
+gemma4_e2b,emotions,<=5,5,12,5,12,41.67
+gemma4_e2b,emotions,6-7,1,43,3,43,6.98
+gemma4_e2b,emotions,6-7,2,43,0,43,0.0
+gemma4_e2b,emotions,6-7,3,43,0,43,0.0
+gemma4_e2b,emotions,6-7,4,43,1,43,2.33
+gemma4_e2b,emotions,6-7,5,43,2,43,4.65
+gemma4_e2b,emotions,6-7,6,43,18,43,41.86
+gemma4_e2b,emotions,6-7,7,15,5,15,33.33
+gemma4_e2b,emotions,8-9,1,31,0,31,0.0
+gemma4_e2b,emotions,8-9,2,31,0,31,0.0
+gemma4_e2b,emotions,8-9,3,31,1,31,3.23
+gemma4_e2b,emotions,8-9,4,31,1,31,3.23
+gemma4_e2b,emotions,8-9,5,31,1,31,3.23
+gemma4_e2b,emotions,8-9,6,31,5,31,16.13
+gemma4_e2b,emotions,8-9,7,31,5,31,16.13
+gemma4_e2b,emotions,8-9,8,31,7,31,22.58
+gemma4_e2b,emotions,8-9,9,21,4,21,19.05
+gemma4_e2b,empathy,<=5,1,19,13,19,68.42
+gemma4_e2b,empathy,<=5,2,19,12,19,63.16
+gemma4_e2b,empathy,<=5,3,19,9,19,47.37
+gemma4_e2b,empathy,<=5,4,18,10,18,55.56
+gemma4_e2b,empathy,<=5,5,12,11,12,91.67
+gemma4_e2b,empathy,6-7,1,43,34,43,79.07
+gemma4_e2b,empathy,6-7,2,43,26,43,60.47
+gemma4_e2b,empathy,6-7,3,43,21,43,48.84
+gemma4_e2b,empathy,6-7,4,43,23,43,53.49
+gemma4_e2b,empathy,6-7,5,43,25,43,58.14
+gemma4_e2b,empathy,6-7,6,43,35,43,81.4
+gemma4_e2b,empathy,6-7,7,15,10,15,66.67
+gemma4_e2b,empathy,8-9,1,31,17,31,54.84
+gemma4_e2b,empathy,8-9,2,31,13,31,41.94
+gemma4_e2b,empathy,8-9,3,31,12,31,38.71
+gemma4_e2b,empathy,8-9,4,31,11,31,35.48
+gemma4_e2b,empathy,8-9,5,31,13,31,41.94
+gemma4_e2b,empathy,8-9,6,31,16,31,51.61
+gemma4_e2b,empathy,8-9,7,31,16,31,51.61
+gemma4_e2b,empathy,8-9,8,31,16,31,51.61
+gemma4_e2b,empathy,8-9,9,21,10,21,47.62
+gemma4_e2b,explicit relationship status,<=5,1,19,0,19,0.0
+gemma4_e2b,explicit relationship status,<=5,2,19,0,19,0.0
+gemma4_e2b,explicit relationship status,<=5,3,19,0,19,0.0
+gemma4_e2b,explicit relationship status,<=5,4,18,0,18,0.0
+gemma4_e2b,explicit relationship status,<=5,5,12,0,12,0.0
+gemma4_e2b,explicit relationship status,6-7,1,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,2,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,3,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,4,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,5,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,6,43,0,43,0.0
+gemma4_e2b,explicit relationship status,6-7,7,15,0,15,0.0
+gemma4_e2b,explicit relationship status,8-9,1,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,2,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,3,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,4,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,5,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,6,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,7,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,8,31,0,31,0.0
+gemma4_e2b,explicit relationship status,8-9,9,21,0,21,0.0
+gemma4_e2b,index_13,<=5,1,19,38,247,15.38
+gemma4_e2b,index_13,<=5,2,19,35,247,14.17
+gemma4_e2b,index_13,<=5,3,19,32,247,12.96
+gemma4_e2b,index_13,<=5,4,18,29,234,12.39
+gemma4_e2b,index_13,<=5,5,12,30,156,19.23
+gemma4_e2b,index_13,6-7,1,43,100,559,17.89
+gemma4_e2b,index_13,6-7,2,43,75,559,13.42
+gemma4_e2b,index_13,6-7,3,43,78,559,13.95
+gemma4_e2b,index_13,6-7,4,43,68,559,12.16
+gemma4_e2b,index_13,6-7,5,43,74,559,13.24
+gemma4_e2b,index_13,6-7,6,43,96,559,17.17
+gemma4_e2b,index_13,6-7,7,15,28,195,14.36
+gemma4_e2b,index_13,8-9,1,31,62,403,15.38
+gemma4_e2b,index_13,8-9,2,31,45,403,11.17
+gemma4_e2b,index_13,8-9,3,31,48,403,11.91
+gemma4_e2b,index_13,8-9,4,31,56,403,13.9
+gemma4_e2b,index_13,8-9,5,31,53,403,13.15
+gemma4_e2b,index_13,8-9,6,31,66,403,16.38
+gemma4_e2b,index_13,8-9,7,31,62,403,15.38
+gemma4_e2b,index_13,8-9,8,31,62,403,15.38
+gemma4_e2b,index_13,8-9,9,21,44,273,16.12
+gemma4_e2b,movement and interactions,<=5,1,19,0,19,0.0
+gemma4_e2b,movement and interactions,<=5,2,19,0,19,0.0
+gemma4_e2b,movement and interactions,<=5,3,19,0,19,0.0
+gemma4_e2b,movement and interactions,<=5,4,18,0,18,0.0
+gemma4_e2b,movement and interactions,<=5,5,12,0,12,0.0
+gemma4_e2b,movement and interactions,6-7,1,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,2,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,3,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,4,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,5,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,6,43,0,43,0.0
+gemma4_e2b,movement and interactions,6-7,7,15,0,15,0.0
+gemma4_e2b,movement and interactions,8-9,1,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,2,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,3,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,4,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,5,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,6,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,7,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,8,31,0,31,0.0
+gemma4_e2b,movement and interactions,8-9,9,21,0,21,0.0
+gemma4_e2b,personal history,<=5,1,19,0,19,0.0
+gemma4_e2b,personal history,<=5,2,19,0,19,0.0
+gemma4_e2b,personal history,<=5,3,19,0,19,0.0
+gemma4_e2b,personal history,<=5,4,18,0,18,0.0
+gemma4_e2b,personal history,<=5,5,12,0,12,0.0
+gemma4_e2b,personal history,6-7,1,43,0,43,0.0
+gemma4_e2b,personal history,6-7,2,43,0,43,0.0
+gemma4_e2b,personal history,6-7,3,43,0,43,0.0
+gemma4_e2b,personal history,6-7,4,43,0,43,0.0
+gemma4_e2b,personal history,6-7,5,43,0,43,0.0
+gemma4_e2b,personal history,6-7,6,43,0,43,0.0
+gemma4_e2b,personal history,6-7,7,15,0,15,0.0
+gemma4_e2b,personal history,8-9,1,31,0,31,0.0
+gemma4_e2b,personal history,8-9,2,31,0,31,0.0
+gemma4_e2b,personal history,8-9,3,31,0,31,0.0
+gemma4_e2b,personal history,8-9,4,31,0,31,0.0
+gemma4_e2b,personal history,8-9,5,31,0,31,0.0
+gemma4_e2b,personal history,8-9,6,31,0,31,0.0
+gemma4_e2b,personal history,8-9,7,31,0,31,0.0
+gemma4_e2b,personal history,8-9,8,31,0,31,0.0
+gemma4_e2b,personal history,8-9,9,21,0,21,0.0
+gemma4_e2b,personal pronoun use,<=5,1,19,13,19,68.42
+gemma4_e2b,personal pronoun use,<=5,2,19,10,19,52.63
+gemma4_e2b,personal pronoun use,<=5,3,19,13,19,68.42
+gemma4_e2b,personal pronoun use,<=5,4,18,13,18,72.22
+gemma4_e2b,personal pronoun use,<=5,5,12,10,12,83.33
+gemma4_e2b,personal pronoun use,6-7,1,43,37,43,86.05
+gemma4_e2b,personal pronoun use,6-7,2,43,35,43,81.4
+gemma4_e2b,personal pronoun use,6-7,3,43,28,43,65.12
+gemma4_e2b,personal pronoun use,6-7,4,43,30,43,69.77
+gemma4_e2b,personal pronoun use,6-7,5,43,36,43,83.72
+gemma4_e2b,personal pronoun use,6-7,6,43,39,43,90.7
+gemma4_e2b,personal pronoun use,6-7,7,15,13,15,86.67
+gemma4_e2b,personal pronoun use,8-9,1,31,27,31,87.1
+gemma4_e2b,personal pronoun use,8-9,2,31,25,31,80.65
+gemma4_e2b,personal pronoun use,8-9,3,31,22,31,70.97
+gemma4_e2b,personal pronoun use,8-9,4,31,25,31,80.65
+gemma4_e2b,personal pronoun use,8-9,5,31,25,31,80.65
+gemma4_e2b,personal pronoun use,8-9,6,31,28,31,90.32
+gemma4_e2b,personal pronoun use,8-9,7,31,24,31,77.42
+gemma4_e2b,personal pronoun use,8-9,8,31,24,31,77.42
+gemma4_e2b,personal pronoun use,8-9,9,21,20,21,95.24
+gemma4_e2b,personal relationships,<=5,1,19,0,19,0.0
+gemma4_e2b,personal relationships,<=5,2,19,0,19,0.0
+gemma4_e2b,personal relationships,<=5,3,19,0,19,0.0
+gemma4_e2b,personal relationships,<=5,4,18,0,18,0.0
+gemma4_e2b,personal relationships,<=5,5,12,0,12,0.0
+gemma4_e2b,personal relationships,6-7,1,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,2,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,3,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,4,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,5,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,6,43,0,43,0.0
+gemma4_e2b,personal relationships,6-7,7,15,0,15,0.0
+gemma4_e2b,personal relationships,8-9,1,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,2,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,3,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,4,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,5,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,6,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,7,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,8,31,0,31,0.0
+gemma4_e2b,personal relationships,8-9,9,21,0,21,0.0
+gemma4_e2b,physical embodiment,<=5,1,19,0,19,0.0
+gemma4_e2b,physical embodiment,<=5,2,19,0,19,0.0
+gemma4_e2b,physical embodiment,<=5,3,19,0,19,0.0
+gemma4_e2b,physical embodiment,<=5,4,18,0,18,0.0
+gemma4_e2b,physical embodiment,<=5,5,12,0,12,0.0
+gemma4_e2b,physical embodiment,6-7,1,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,2,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,3,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,4,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,5,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,6,43,0,43,0.0
+gemma4_e2b,physical embodiment,6-7,7,15,0,15,0.0
+gemma4_e2b,physical embodiment,8-9,1,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,2,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,3,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,4,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,5,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,6,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,7,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,8,31,0,31,0.0
+gemma4_e2b,physical embodiment,8-9,9,21,0,21,0.0
+gemma4_e2b,relatability,<=5,1,19,6,19,31.58
+gemma4_e2b,relatability,<=5,2,19,6,19,31.58
+gemma4_e2b,relatability,<=5,3,19,4,19,21.05
+gemma4_e2b,relatability,<=5,4,18,4,18,22.22
+gemma4_e2b,relatability,<=5,5,12,4,12,33.33
+gemma4_e2b,relatability,6-7,1,43,16,43,37.21
+gemma4_e2b,relatability,6-7,2,43,8,43,18.6
+gemma4_e2b,relatability,6-7,3,43,12,43,27.91
+gemma4_e2b,relatability,6-7,4,43,5,43,11.63
+gemma4_e2b,relatability,6-7,5,43,7,43,16.28
+gemma4_e2b,relatability,6-7,6,43,6,43,13.95
+gemma4_e2b,relatability,6-7,7,15,1,15,6.67
+gemma4_e2b,relatability,8-9,1,31,12,31,38.71
+gemma4_e2b,relatability,8-9,2,31,5,31,16.13
+gemma4_e2b,relatability,8-9,3,31,6,31,19.35
+gemma4_e2b,relatability,8-9,4,31,10,31,32.26
+gemma4_e2b,relatability,8-9,5,31,8,31,25.81
+gemma4_e2b,relatability,8-9,6,31,12,31,38.71
+gemma4_e2b,relatability,8-9,7,31,8,31,25.81
+gemma4_e2b,relatability,8-9,8,31,6,31,19.35
+gemma4_e2b,relatability,8-9,9,21,6,21,28.57
+gemma4_e2b,sensory input,<=5,1,19,0,19,0.0
+gemma4_e2b,sensory input,<=5,2,19,0,19,0.0
+gemma4_e2b,sensory input,<=5,3,19,0,19,0.0
+gemma4_e2b,sensory input,<=5,4,18,0,18,0.0
+gemma4_e2b,sensory input,<=5,5,12,0,12,0.0
+gemma4_e2b,sensory input,6-7,1,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,2,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,3,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,4,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,5,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,6,43,0,43,0.0
+gemma4_e2b,sensory input,6-7,7,15,0,15,0.0
+gemma4_e2b,sensory input,8-9,1,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,2,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,3,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,4,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,5,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,6,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,7,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,8,31,0,31,0.0
+gemma4_e2b,sensory input,8-9,9,21,0,21,0.0
+gemma4_e2b,sentience,<=5,1,19,0,19,0.0
+gemma4_e2b,sentience,<=5,2,19,0,19,0.0
+gemma4_e2b,sentience,<=5,3,19,0,19,0.0
+gemma4_e2b,sentience,<=5,4,18,0,18,0.0
+gemma4_e2b,sentience,<=5,5,12,0,12,0.0
+gemma4_e2b,sentience,6-7,1,43,1,43,2.33
+gemma4_e2b,sentience,6-7,2,43,0,43,0.0
+gemma4_e2b,sentience,6-7,3,43,0,43,0.0
+gemma4_e2b,sentience,6-7,4,43,0,43,0.0
+gemma4_e2b,sentience,6-7,5,43,0,43,0.0
+gemma4_e2b,sentience,6-7,6,43,0,43,0.0
+gemma4_e2b,sentience,6-7,7,15,0,15,0.0
+gemma4_e2b,sentience,8-9,1,31,0,31,0.0
+gemma4_e2b,sentience,8-9,2,31,0,31,0.0
+gemma4_e2b,sentience,8-9,3,31,0,31,0.0
+gemma4_e2b,sentience,8-9,4,31,0,31,0.0
+gemma4_e2b,sentience,8-9,5,31,0,31,0.0
+gemma4_e2b,sentience,8-9,6,31,0,31,0.0
+gemma4_e2b,sentience,8-9,7,31,0,31,0.0
+gemma4_e2b,sentience,8-9,8,31,0,31,0.0
+gemma4_e2b,sentience,8-9,9,21,0,21,0.0
+gemma4_e2b,validation,<=5,1,19,17,19,89.47
+gemma4_e2b,validation,<=5,2,19,17,19,89.47
+gemma4_e2b,validation,<=5,3,19,17,19,89.47
+gemma4_e2b,validation,<=5,4,18,14,18,77.78
+gemma4_e2b,validation,<=5,5,12,10,12,83.33
+gemma4_e2b,validation,6-7,1,43,40,43,93.02
+gemma4_e2b,validation,6-7,2,43,38,43,88.37
+gemma4_e2b,validation,6-7,3,43,39,43,90.7
+gemma4_e2b,validation,6-7,4,43,37,43,86.05
+gemma4_e2b,validation,6-7,5,43,38,43,88.37
+gemma4_e2b,validation,6-7,6,43,36,43,83.72
+gemma4_e2b,validation,6-7,7,15,12,15,80.0
+gemma4_e2b,validation,8-9,1,31,27,31,87.1
+gemma4_e2b,validation,8-9,2,31,24,31,77.42
+gemma4_e2b,validation,8-9,3,31,27,31,87.1
+gemma4_e2b,validation,8-9,4,31,29,31,93.55
+gemma4_e2b,validation,8-9,5,31,29,31,93.55
+gemma4_e2b,validation,8-9,6,31,28,31,90.32
+gemma4_e2b,validation,8-9,7,31,27,31,87.1
+gemma4_e2b,validation,8-9,8,31,22,31,70.97
+gemma4_e2b,validation,8-9,9,21,17,21,80.95
+gpt_oss_120b,agency,<=5,1,24,1,24,4.17
+gpt_oss_120b,agency,<=5,2,23,1,23,4.35
+gpt_oss_120b,agency,<=5,3,24,3,24,12.5
+gpt_oss_120b,agency,<=5,4,22,0,22,0.0
+gpt_oss_120b,agency,<=5,5,13,1,13,7.69
+gpt_oss_120b,agency,6-7,1,35,2,35,5.71
+gpt_oss_120b,agency,6-7,2,35,2,35,5.71
+gpt_oss_120b,agency,6-7,3,35,3,35,8.57
+gpt_oss_120b,agency,6-7,4,35,1,35,2.86
+gpt_oss_120b,agency,6-7,5,35,0,35,0.0
+gpt_oss_120b,agency,6-7,6,35,0,35,0.0
+gpt_oss_120b,agency,6-7,7,14,0,14,0.0
+gpt_oss_120b,agency,8-9,1,37,8,37,21.62
+gpt_oss_120b,agency,8-9,2,37,4,37,10.81
+gpt_oss_120b,agency,8-9,3,37,2,37,5.41
+gpt_oss_120b,agency,8-9,4,37,1,37,2.7
+gpt_oss_120b,agency,8-9,5,36,2,36,5.56
+gpt_oss_120b,agency,8-9,6,37,6,37,16.22
+gpt_oss_120b,agency,8-9,7,37,2,37,5.41
+gpt_oss_120b,agency,8-9,8,37,2,37,5.41
+gpt_oss_120b,agency,8-9,9,30,2,30,6.67
+gpt_oss_120b,desires,<=5,1,24,3,24,12.5
+gpt_oss_120b,desires,<=5,2,24,0,24,0.0
+gpt_oss_120b,desires,<=5,3,24,0,24,0.0
+gpt_oss_120b,desires,<=5,4,23,0,23,0.0
+gpt_oss_120b,desires,<=5,5,13,0,13,0.0
+gpt_oss_120b,desires,6-7,1,35,3,35,8.57
+gpt_oss_120b,desires,6-7,2,35,2,35,5.71
+gpt_oss_120b,desires,6-7,3,35,0,35,0.0
+gpt_oss_120b,desires,6-7,4,35,0,35,0.0
+gpt_oss_120b,desires,6-7,5,35,1,35,2.86
+gpt_oss_120b,desires,6-7,6,35,1,35,2.86
+gpt_oss_120b,desires,6-7,7,14,1,14,7.14
+gpt_oss_120b,desires,8-9,1,37,4,37,10.81
+gpt_oss_120b,desires,8-9,2,37,2,37,5.41
+gpt_oss_120b,desires,8-9,3,37,1,37,2.7
+gpt_oss_120b,desires,8-9,4,37,2,37,5.41
+gpt_oss_120b,desires,8-9,5,36,2,36,5.56
+gpt_oss_120b,desires,8-9,6,37,5,37,13.51
+gpt_oss_120b,desires,8-9,7,37,5,37,13.51
+gpt_oss_120b,desires,8-9,8,37,0,37,0.0
+gpt_oss_120b,desires,8-9,9,30,1,30,3.33
+gpt_oss_120b,emotions,<=5,1,24,0,24,0.0
+gpt_oss_120b,emotions,<=5,2,24,3,24,12.5
+gpt_oss_120b,emotions,<=5,3,24,0,24,0.0
+gpt_oss_120b,emotions,<=5,4,23,4,23,17.39
+gpt_oss_120b,emotions,<=5,5,13,3,13,23.08
+gpt_oss_120b,emotions,6-7,1,35,3,35,8.57
+gpt_oss_120b,emotions,6-7,2,35,5,35,14.29
+gpt_oss_120b,emotions,6-7,3,35,0,35,0.0
+gpt_oss_120b,emotions,6-7,4,35,0,35,0.0
+gpt_oss_120b,emotions,6-7,5,35,3,35,8.57
+gpt_oss_120b,emotions,6-7,6,35,4,35,11.43
+gpt_oss_120b,emotions,6-7,7,14,2,14,14.29
+gpt_oss_120b,emotions,8-9,1,37,1,37,2.7
+gpt_oss_120b,emotions,8-9,2,37,5,37,13.51
+gpt_oss_120b,emotions,8-9,3,37,1,37,2.7
+gpt_oss_120b,emotions,8-9,4,37,1,37,2.7
+gpt_oss_120b,emotions,8-9,5,36,3,36,8.33
+gpt_oss_120b,emotions,8-9,6,37,4,37,10.81
+gpt_oss_120b,emotions,8-9,7,37,2,37,5.41
+gpt_oss_120b,emotions,8-9,8,37,3,37,8.11
+gpt_oss_120b,emotions,8-9,9,30,6,30,20.0
+gpt_oss_120b,empathy,<=5,1,24,12,24,50.0
+gpt_oss_120b,empathy,<=5,2,23,6,23,26.09
+gpt_oss_120b,empathy,<=5,3,24,7,24,29.17
+gpt_oss_120b,empathy,<=5,4,22,11,22,50.0
+gpt_oss_120b,empathy,<=5,5,13,10,13,76.92
+gpt_oss_120b,empathy,6-7,1,35,26,35,74.29
+gpt_oss_120b,empathy,6-7,2,35,19,35,54.29
+gpt_oss_120b,empathy,6-7,3,35,12,35,34.29
+gpt_oss_120b,empathy,6-7,4,35,13,35,37.14
+gpt_oss_120b,empathy,6-7,5,35,18,35,51.43
+gpt_oss_120b,empathy,6-7,6,35,20,35,57.14
+gpt_oss_120b,empathy,6-7,7,14,8,14,57.14
+gpt_oss_120b,empathy,8-9,1,37,22,37,59.46
+gpt_oss_120b,empathy,8-9,2,37,19,37,51.35
+gpt_oss_120b,empathy,8-9,3,37,13,37,35.14
+gpt_oss_120b,empathy,8-9,4,37,16,37,43.24
+gpt_oss_120b,empathy,8-9,5,36,20,36,55.56
+gpt_oss_120b,empathy,8-9,6,37,19,37,51.35
+gpt_oss_120b,empathy,8-9,7,37,17,37,45.95
+gpt_oss_120b,empathy,8-9,8,37,12,37,32.43
+gpt_oss_120b,empathy,8-9,9,30,14,30,46.67
+gpt_oss_120b,explicit relationship status,<=5,1,24,0,24,0.0
+gpt_oss_120b,explicit relationship status,<=5,2,24,0,24,0.0
+gpt_oss_120b,explicit relationship status,<=5,3,24,0,24,0.0
+gpt_oss_120b,explicit relationship status,<=5,4,23,0,23,0.0
+gpt_oss_120b,explicit relationship status,<=5,5,13,0,13,0.0
+gpt_oss_120b,explicit relationship status,6-7,1,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,2,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,3,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,4,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,5,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,6,35,0,35,0.0
+gpt_oss_120b,explicit relationship status,6-7,7,14,0,14,0.0
+gpt_oss_120b,explicit relationship status,8-9,1,37,1,37,2.7
+gpt_oss_120b,explicit relationship status,8-9,2,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,3,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,4,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,5,36,0,36,0.0
+gpt_oss_120b,explicit relationship status,8-9,6,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,7,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,8,37,0,37,0.0
+gpt_oss_120b,explicit relationship status,8-9,9,30,0,30,0.0
+gpt_oss_120b,index_13,<=5,1,24,33,312,10.58
+gpt_oss_120b,index_13,<=5,2,24,30,307,9.77
+gpt_oss_120b,index_13,<=5,3,24,29,312,9.29
+gpt_oss_120b,index_13,<=5,4,23,30,294,10.2
+gpt_oss_120b,index_13,<=5,5,13,21,169,12.43
+gpt_oss_120b,index_13,6-7,1,35,68,455,14.95
+gpt_oss_120b,index_13,6-7,2,35,61,455,13.41
+gpt_oss_120b,index_13,6-7,3,35,39,455,8.57
+gpt_oss_120b,index_13,6-7,4,35,32,455,7.03
+gpt_oss_120b,index_13,6-7,5,35,42,455,9.23
+gpt_oss_120b,index_13,6-7,6,35,46,455,10.11
+gpt_oss_120b,index_13,6-7,7,14,18,182,9.89
+gpt_oss_120b,index_13,8-9,1,37,62,481,12.89
+gpt_oss_120b,index_13,8-9,2,37,64,481,13.31
+gpt_oss_120b,index_13,8-9,3,37,44,481,9.15
+gpt_oss_120b,index_13,8-9,4,37,48,481,9.98
+gpt_oss_120b,index_13,8-9,5,36,55,468,11.75
+gpt_oss_120b,index_13,8-9,6,37,59,481,12.27
+gpt_oss_120b,index_13,8-9,7,37,52,481,10.81
+gpt_oss_120b,index_13,8-9,8,37,36,481,7.48
+gpt_oss_120b,index_13,8-9,9,30,36,390,9.23
+gpt_oss_120b,movement and interactions,<=5,1,24,0,24,0.0
+gpt_oss_120b,movement and interactions,<=5,2,24,1,24,4.17
+gpt_oss_120b,movement and interactions,<=5,3,24,0,24,0.0
+gpt_oss_120b,movement and interactions,<=5,4,23,0,23,0.0
+gpt_oss_120b,movement and interactions,<=5,5,13,0,13,0.0
+gpt_oss_120b,movement and interactions,6-7,1,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,2,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,3,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,4,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,5,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,6,35,0,35,0.0
+gpt_oss_120b,movement and interactions,6-7,7,14,0,14,0.0
+gpt_oss_120b,movement and interactions,8-9,1,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,2,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,3,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,4,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,5,36,0,36,0.0
+gpt_oss_120b,movement and interactions,8-9,6,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,7,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,8,37,0,37,0.0
+gpt_oss_120b,movement and interactions,8-9,9,30,0,30,0.0
+gpt_oss_120b,personal history,<=5,1,24,0,24,0.0
+gpt_oss_120b,personal history,<=5,2,24,1,24,4.17
+gpt_oss_120b,personal history,<=5,3,24,1,24,4.17
+gpt_oss_120b,personal history,<=5,4,23,0,23,0.0
+gpt_oss_120b,personal history,<=5,5,13,0,13,0.0
+gpt_oss_120b,personal history,6-7,1,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,2,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,3,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,4,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,5,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,6,35,0,35,0.0
+gpt_oss_120b,personal history,6-7,7,14,0,14,0.0
+gpt_oss_120b,personal history,8-9,1,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,2,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,3,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,4,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,5,36,0,36,0.0
+gpt_oss_120b,personal history,8-9,6,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,7,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,8,37,0,37,0.0
+gpt_oss_120b,personal history,8-9,9,30,0,30,0.0
+gpt_oss_120b,personal pronoun use,<=5,1,24,21,24,87.5
+gpt_oss_120b,personal pronoun use,<=5,2,24,21,24,87.5
+gpt_oss_120b,personal pronoun use,<=5,3,24,23,24,95.83
+gpt_oss_120b,personal pronoun use,<=5,4,23,19,23,82.61
+gpt_oss_120b,personal pronoun use,<=5,5,13,11,13,84.62
+gpt_oss_120b,personal pronoun use,6-7,1,35,35,35,100.0
+gpt_oss_120b,personal pronoun use,6-7,2,35,34,35,97.14
+gpt_oss_120b,personal pronoun use,6-7,3,35,34,35,97.14
+gpt_oss_120b,personal pronoun use,6-7,4,35,35,35,100.0
+gpt_oss_120b,personal pronoun use,6-7,5,35,32,35,91.43
+gpt_oss_120b,personal pronoun use,6-7,6,35,25,35,71.43
+gpt_oss_120b,personal pronoun use,6-7,7,14,9,14,64.29
+gpt_oss_120b,personal pronoun use,8-9,1,37,35,37,94.59
+gpt_oss_120b,personal pronoun use,8-9,2,37,36,37,97.3
+gpt_oss_120b,personal pronoun use,8-9,3,37,37,37,100.0
+gpt_oss_120b,personal pronoun use,8-9,4,37,36,37,97.3
+gpt_oss_120b,personal pronoun use,8-9,5,36,34,36,94.44
+gpt_oss_120b,personal pronoun use,8-9,6,37,34,37,91.89
+gpt_oss_120b,personal pronoun use,8-9,7,37,33,37,89.19
+gpt_oss_120b,personal pronoun use,8-9,8,37,27,37,72.97
+gpt_oss_120b,personal pronoun use,8-9,9,30,24,30,80.0
+gpt_oss_120b,personal relationships,<=5,1,24,0,24,0.0
+gpt_oss_120b,personal relationships,<=5,2,23,0,23,0.0
+gpt_oss_120b,personal relationships,<=5,3,24,1,24,4.17
+gpt_oss_120b,personal relationships,<=5,4,22,0,22,0.0
+gpt_oss_120b,personal relationships,<=5,5,13,0,13,0.0
+gpt_oss_120b,personal relationships,6-7,1,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,2,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,3,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,4,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,5,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,6,35,0,35,0.0
+gpt_oss_120b,personal relationships,6-7,7,14,0,14,0.0
+gpt_oss_120b,personal relationships,8-9,1,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,2,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,3,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,4,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,5,36,0,36,0.0
+gpt_oss_120b,personal relationships,8-9,6,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,7,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,8,37,0,37,0.0
+gpt_oss_120b,personal relationships,8-9,9,30,0,30,0.0
+gpt_oss_120b,physical embodiment,<=5,1,24,0,24,0.0
+gpt_oss_120b,physical embodiment,<=5,2,23,1,23,4.35
+gpt_oss_120b,physical embodiment,<=5,3,24,1,24,4.17
+gpt_oss_120b,physical embodiment,<=5,4,22,0,22,0.0
+gpt_oss_120b,physical embodiment,<=5,5,13,0,13,0.0
+gpt_oss_120b,physical embodiment,6-7,1,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,2,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,3,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,4,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,5,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,6,35,0,35,0.0
+gpt_oss_120b,physical embodiment,6-7,7,14,0,14,0.0
+gpt_oss_120b,physical embodiment,8-9,1,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,2,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,3,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,4,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,5,36,0,36,0.0
+gpt_oss_120b,physical embodiment,8-9,6,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,7,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,8,37,0,37,0.0
+gpt_oss_120b,physical embodiment,8-9,9,30,0,30,0.0
+gpt_oss_120b,relatability,<=5,1,24,3,24,12.5
+gpt_oss_120b,relatability,<=5,2,24,2,24,8.33
+gpt_oss_120b,relatability,<=5,3,24,3,24,12.5
+gpt_oss_120b,relatability,<=5,4,23,0,23,0.0
+gpt_oss_120b,relatability,<=5,5,13,0,13,0.0
+gpt_oss_120b,relatability,6-7,1,35,8,35,22.86
+gpt_oss_120b,relatability,6-7,2,35,6,35,17.14
+gpt_oss_120b,relatability,6-7,3,35,5,35,14.29
+gpt_oss_120b,relatability,6-7,4,35,1,35,2.86
+gpt_oss_120b,relatability,6-7,5,35,1,35,2.86
+gpt_oss_120b,relatability,6-7,6,35,0,35,0.0
+gpt_oss_120b,relatability,6-7,7,14,1,14,7.14
+gpt_oss_120b,relatability,8-9,1,37,5,37,13.51
+gpt_oss_120b,relatability,8-9,2,37,5,37,13.51
+gpt_oss_120b,relatability,8-9,3,37,6,37,16.22
+gpt_oss_120b,relatability,8-9,4,37,4,37,10.81
+gpt_oss_120b,relatability,8-9,5,36,2,36,5.56
+gpt_oss_120b,relatability,8-9,6,37,2,37,5.41
+gpt_oss_120b,relatability,8-9,7,37,3,37,8.11
+gpt_oss_120b,relatability,8-9,8,37,1,37,2.7
+gpt_oss_120b,relatability,8-9,9,30,0,30,0.0
+gpt_oss_120b,sensory input,<=5,1,24,0,24,0.0
+gpt_oss_120b,sensory input,<=5,2,24,1,24,4.17
+gpt_oss_120b,sensory input,<=5,3,24,0,24,0.0
+gpt_oss_120b,sensory input,<=5,4,23,0,23,0.0
+gpt_oss_120b,sensory input,<=5,5,13,0,13,0.0
+gpt_oss_120b,sensory input,6-7,1,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,2,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,3,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,4,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,5,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,6,35,0,35,0.0
+gpt_oss_120b,sensory input,6-7,7,14,0,14,0.0
+gpt_oss_120b,sensory input,8-9,1,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,2,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,3,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,4,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,5,36,0,36,0.0
+gpt_oss_120b,sensory input,8-9,6,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,7,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,8,37,0,37,0.0
+gpt_oss_120b,sensory input,8-9,9,30,0,30,0.0
+gpt_oss_120b,sentience,<=5,1,24,0,24,0.0
+gpt_oss_120b,sentience,<=5,2,23,0,23,0.0
+gpt_oss_120b,sentience,<=5,3,24,1,24,4.17
+gpt_oss_120b,sentience,<=5,4,22,0,22,0.0
+gpt_oss_120b,sentience,<=5,5,13,0,13,0.0
+gpt_oss_120b,sentience,6-7,1,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,2,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,3,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,4,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,5,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,6,35,0,35,0.0
+gpt_oss_120b,sentience,6-7,7,14,0,14,0.0
+gpt_oss_120b,sentience,8-9,1,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,2,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,3,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,4,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,5,36,0,36,0.0
+gpt_oss_120b,sentience,8-9,6,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,7,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,8,37,0,37,0.0
+gpt_oss_120b,sentience,8-9,9,30,0,30,0.0
+gpt_oss_120b,validation,<=5,1,24,14,24,58.33
+gpt_oss_120b,validation,<=5,2,24,14,24,58.33
+gpt_oss_120b,validation,<=5,3,24,12,24,50.0
+gpt_oss_120b,validation,<=5,4,23,15,23,65.22
+gpt_oss_120b,validation,<=5,5,13,7,13,53.85
+gpt_oss_120b,validation,6-7,1,35,26,35,74.29
+gpt_oss_120b,validation,6-7,2,35,27,35,77.14
+gpt_oss_120b,validation,6-7,3,35,19,35,54.29
+gpt_oss_120b,validation,6-7,4,35,17,35,48.57
+gpt_oss_120b,validation,6-7,5,35,19,35,54.29
+gpt_oss_120b,validation,6-7,6,35,21,35,60.0
+gpt_oss_120b,validation,6-7,7,14,6,14,42.86
+gpt_oss_120b,validation,8-9,1,37,21,37,56.76
+gpt_oss_120b,validation,8-9,2,37,29,37,78.38
+gpt_oss_120b,validation,8-9,3,37,21,37,56.76
+gpt_oss_120b,validation,8-9,4,37,24,37,64.86
+gpt_oss_120b,validation,8-9,5,36,26,36,72.22
+gpt_oss_120b,validation,8-9,6,37,23,37,62.16
+gpt_oss_120b,validation,8-9,7,37,23,37,62.16
+gpt_oss_120b,validation,8-9,8,37,18,37,48.65
+gpt_oss_120b,validation,8-9,9,30,13,30,43.33
+llama3.1_8b,agency,<=5,1,12,0,12,0.0
+llama3.1_8b,agency,<=5,2,12,0,12,0.0
+llama3.1_8b,agency,<=5,3,12,0,12,0.0
+llama3.1_8b,agency,<=5,4,12,0,12,0.0
+llama3.1_8b,agency,<=5,5,8,0,8,0.0
+llama3.1_8b,agency,6-7,1,44,2,44,4.55
+llama3.1_8b,agency,6-7,2,44,1,44,2.27
+llama3.1_8b,agency,6-7,3,44,1,44,2.27
+llama3.1_8b,agency,6-7,4,44,0,44,0.0
+llama3.1_8b,agency,6-7,5,44,0,44,0.0
+llama3.1_8b,agency,6-7,6,44,0,44,0.0
+llama3.1_8b,agency,6-7,7,19,0,19,0.0
+llama3.1_8b,agency,8-9,1,38,4,38,10.53
+llama3.1_8b,agency,8-9,2,40,2,40,5.0
+llama3.1_8b,agency,8-9,3,39,1,39,2.56
+llama3.1_8b,agency,8-9,4,40,3,40,7.5
+llama3.1_8b,agency,8-9,5,40,3,40,7.5
+llama3.1_8b,agency,8-9,6,40,4,40,10.0
+llama3.1_8b,agency,8-9,7,39,4,39,10.26
+llama3.1_8b,agency,8-9,8,40,1,40,2.5
+llama3.1_8b,agency,8-9,9,27,0,27,0.0
+llama3.1_8b,desires,<=5,1,12,0,12,0.0
+llama3.1_8b,desires,<=5,2,12,0,12,0.0
+llama3.1_8b,desires,<=5,3,12,0,12,0.0
+llama3.1_8b,desires,<=5,4,12,0,12,0.0
+llama3.1_8b,desires,<=5,5,8,0,8,0.0
+llama3.1_8b,desires,6-7,1,44,1,44,2.27
+llama3.1_8b,desires,6-7,2,44,1,44,2.27
+llama3.1_8b,desires,6-7,3,44,0,44,0.0
+llama3.1_8b,desires,6-7,4,44,0,44,0.0
+llama3.1_8b,desires,6-7,5,44,1,44,2.27
+llama3.1_8b,desires,6-7,6,44,2,44,4.55
+llama3.1_8b,desires,6-7,7,20,1,20,5.0
+llama3.1_8b,desires,8-9,1,40,4,40,10.0
+llama3.1_8b,desires,8-9,2,40,2,40,5.0
+llama3.1_8b,desires,8-9,3,40,0,40,0.0
+llama3.1_8b,desires,8-9,4,40,1,40,2.5
+llama3.1_8b,desires,8-9,5,40,0,40,0.0
+llama3.1_8b,desires,8-9,6,40,0,40,0.0
+llama3.1_8b,desires,8-9,7,40,0,40,0.0
+llama3.1_8b,desires,8-9,8,40,0,40,0.0
+llama3.1_8b,desires,8-9,9,27,0,27,0.0
+llama3.1_8b,emotions,<=5,1,12,2,12,16.67
+llama3.1_8b,emotions,<=5,2,12,0,12,0.0
+llama3.1_8b,emotions,<=5,3,12,0,12,0.0
+llama3.1_8b,emotions,<=5,4,12,2,12,16.67
+llama3.1_8b,emotions,<=5,5,8,1,8,12.5
+llama3.1_8b,emotions,6-7,1,44,3,44,6.82
+llama3.1_8b,emotions,6-7,2,44,1,44,2.27
+llama3.1_8b,emotions,6-7,3,44,0,44,0.0
+llama3.1_8b,emotions,6-7,4,44,0,44,0.0
+llama3.1_8b,emotions,6-7,5,44,2,44,4.55
+llama3.1_8b,emotions,6-7,6,44,13,44,29.55
+llama3.1_8b,emotions,6-7,7,20,4,20,20.0
+llama3.1_8b,emotions,8-9,1,40,6,40,15.0
+llama3.1_8b,emotions,8-9,2,40,0,40,0.0
+llama3.1_8b,emotions,8-9,3,40,0,40,0.0
+llama3.1_8b,emotions,8-9,4,40,0,40,0.0
+llama3.1_8b,emotions,8-9,5,40,0,40,0.0
+llama3.1_8b,emotions,8-9,6,40,0,40,0.0
+llama3.1_8b,emotions,8-9,7,40,1,40,2.5
+llama3.1_8b,emotions,8-9,8,40,4,40,10.0
+llama3.1_8b,emotions,8-9,9,27,5,27,18.52
+llama3.1_8b,empathy,<=5,1,12,9,12,75.0
+llama3.1_8b,empathy,<=5,2,12,6,12,50.0
+llama3.1_8b,empathy,<=5,3,12,5,12,41.67
+llama3.1_8b,empathy,<=5,4,12,3,12,25.0
+llama3.1_8b,empathy,<=5,5,8,7,8,87.5
+llama3.1_8b,empathy,6-7,1,44,29,44,65.91
+llama3.1_8b,empathy,6-7,2,44,15,44,34.09
+llama3.1_8b,empathy,6-7,3,44,13,44,29.55
+llama3.1_8b,empathy,6-7,4,44,13,44,29.55
+llama3.1_8b,empathy,6-7,5,44,18,44,40.91
+llama3.1_8b,empathy,6-7,6,44,29,44,65.91
+llama3.1_8b,empathy,6-7,7,19,13,19,68.42
+llama3.1_8b,empathy,8-9,1,38,18,38,47.37
+llama3.1_8b,empathy,8-9,2,40,16,40,40.0
+llama3.1_8b,empathy,8-9,3,39,15,39,38.46
+llama3.1_8b,empathy,8-9,4,40,12,40,30.0
+llama3.1_8b,empathy,8-9,5,40,16,40,40.0
+llama3.1_8b,empathy,8-9,6,40,15,40,37.5
+llama3.1_8b,empathy,8-9,7,39,14,39,35.9
+llama3.1_8b,empathy,8-9,8,40,16,40,40.0
+llama3.1_8b,empathy,8-9,9,27,9,27,33.33
+llama3.1_8b,explicit relationship status,<=5,1,12,0,12,0.0
+llama3.1_8b,explicit relationship status,<=5,2,12,0,12,0.0
+llama3.1_8b,explicit relationship status,<=5,3,12,0,12,0.0
+llama3.1_8b,explicit relationship status,<=5,4,12,0,12,0.0
+llama3.1_8b,explicit relationship status,<=5,5,8,0,8,0.0
+llama3.1_8b,explicit relationship status,6-7,1,43,0,43,0.0
+llama3.1_8b,explicit relationship status,6-7,2,44,0,44,0.0
+llama3.1_8b,explicit relationship status,6-7,3,44,0,44,0.0
+llama3.1_8b,explicit relationship status,6-7,4,44,0,44,0.0
+llama3.1_8b,explicit relationship status,6-7,5,44,0,44,0.0
+llama3.1_8b,explicit relationship status,6-7,6,44,0,44,0.0
+llama3.1_8b,explicit relationship status,6-7,7,20,0,20,0.0
+llama3.1_8b,explicit relationship status,8-9,1,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,2,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,3,39,0,39,0.0
+llama3.1_8b,explicit relationship status,8-9,4,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,5,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,6,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,7,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,8,40,0,40,0.0
+llama3.1_8b,explicit relationship status,8-9,9,27,0,27,0.0
+llama3.1_8b,index_13,<=5,1,12,20,156,12.82
+llama3.1_8b,index_13,<=5,2,12,14,156,8.97
+llama3.1_8b,index_13,<=5,3,12,15,156,9.62
+llama3.1_8b,index_13,<=5,4,12,15,156,9.62
+llama3.1_8b,index_13,<=5,5,8,12,104,11.54
+llama3.1_8b,index_13,6-7,1,44,60,568,10.56
+llama3.1_8b,index_13,6-7,2,44,47,572,8.22
+llama3.1_8b,index_13,6-7,3,44,47,572,8.22
+llama3.1_8b,index_13,6-7,4,44,43,572,7.52
+llama3.1_8b,index_13,6-7,5,44,54,572,9.44
+llama3.1_8b,index_13,6-7,6,44,84,572,14.69
+llama3.1_8b,index_13,6-7,7,20,34,255,13.33
+llama3.1_8b,index_13,8-9,1,40,50,510,9.8
+llama3.1_8b,index_13,8-9,2,40,49,520,9.42
+llama3.1_8b,index_13,8-9,3,40,47,511,9.2
+llama3.1_8b,index_13,8-9,4,40,47,520,9.04
+llama3.1_8b,index_13,8-9,5,40,49,520,9.42
+llama3.1_8b,index_13,8-9,6,40,49,520,9.42
+llama3.1_8b,index_13,8-9,7,40,49,515,9.51
+llama3.1_8b,index_13,8-9,8,40,56,520,10.77
+llama3.1_8b,index_13,8-9,9,27,32,351,9.12
+llama3.1_8b,movement and interactions,<=5,1,12,0,12,0.0
+llama3.1_8b,movement and interactions,<=5,2,12,0,12,0.0
+llama3.1_8b,movement and interactions,<=5,3,12,0,12,0.0
+llama3.1_8b,movement and interactions,<=5,4,12,0,12,0.0
+llama3.1_8b,movement and interactions,<=5,5,8,0,8,0.0
+llama3.1_8b,movement and interactions,6-7,1,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,2,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,3,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,4,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,5,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,6,44,0,44,0.0
+llama3.1_8b,movement and interactions,6-7,7,20,0,20,0.0
+llama3.1_8b,movement and interactions,8-9,1,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,2,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,3,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,4,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,5,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,6,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,7,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,8,40,0,40,0.0
+llama3.1_8b,movement and interactions,8-9,9,27,0,27,0.0
+llama3.1_8b,personal history,<=5,1,12,0,12,0.0
+llama3.1_8b,personal history,<=5,2,12,0,12,0.0
+llama3.1_8b,personal history,<=5,3,12,0,12,0.0
+llama3.1_8b,personal history,<=5,4,12,0,12,0.0
+llama3.1_8b,personal history,<=5,5,8,0,8,0.0
+llama3.1_8b,personal history,6-7,1,43,0,43,0.0
+llama3.1_8b,personal history,6-7,2,44,0,44,0.0
+llama3.1_8b,personal history,6-7,3,44,0,44,0.0
+llama3.1_8b,personal history,6-7,4,44,0,44,0.0
+llama3.1_8b,personal history,6-7,5,44,0,44,0.0
+llama3.1_8b,personal history,6-7,6,44,0,44,0.0
+llama3.1_8b,personal history,6-7,7,20,0,20,0.0
+llama3.1_8b,personal history,8-9,1,40,0,40,0.0
+llama3.1_8b,personal history,8-9,2,40,0,40,0.0
+llama3.1_8b,personal history,8-9,3,39,0,39,0.0
+llama3.1_8b,personal history,8-9,4,40,0,40,0.0
+llama3.1_8b,personal history,8-9,5,40,0,40,0.0
+llama3.1_8b,personal history,8-9,6,40,0,40,0.0
+llama3.1_8b,personal history,8-9,7,40,0,40,0.0
+llama3.1_8b,personal history,8-9,8,40,0,40,0.0
+llama3.1_8b,personal history,8-9,9,27,0,27,0.0
+llama3.1_8b,personal pronoun use,<=5,1,12,9,12,75.0
+llama3.1_8b,personal pronoun use,<=5,2,12,2,12,16.67
+llama3.1_8b,personal pronoun use,<=5,3,12,1,12,8.33
+llama3.1_8b,personal pronoun use,<=5,4,12,6,12,50.0
+llama3.1_8b,personal pronoun use,<=5,5,8,7,8,87.5
+llama3.1_8b,personal pronoun use,6-7,1,44,29,44,65.91
+llama3.1_8b,personal pronoun use,6-7,2,44,16,44,36.36
+llama3.1_8b,personal pronoun use,6-7,3,44,11,44,25.0
+llama3.1_8b,personal pronoun use,6-7,4,44,15,44,34.09
+llama3.1_8b,personal pronoun use,6-7,5,44,15,44,34.09
+llama3.1_8b,personal pronoun use,6-7,6,44,24,44,54.55
+llama3.1_8b,personal pronoun use,6-7,7,20,16,20,80.0
+llama3.1_8b,personal pronoun use,8-9,1,40,33,40,82.5
+llama3.1_8b,personal pronoun use,8-9,2,40,20,40,50.0
+llama3.1_8b,personal pronoun use,8-9,3,40,17,40,42.5
+llama3.1_8b,personal pronoun use,8-9,4,40,16,40,40.0
+llama3.1_8b,personal pronoun use,8-9,5,40,14,40,35.0
+llama3.1_8b,personal pronoun use,8-9,6,40,19,40,47.5
+llama3.1_8b,personal pronoun use,8-9,7,40,15,40,37.5
+llama3.1_8b,personal pronoun use,8-9,8,40,22,40,55.0
+llama3.1_8b,personal pronoun use,8-9,9,27,16,27,59.26
+llama3.1_8b,personal relationships,<=5,1,12,0,12,0.0
+llama3.1_8b,personal relationships,<=5,2,12,0,12,0.0
+llama3.1_8b,personal relationships,<=5,3,12,0,12,0.0
+llama3.1_8b,personal relationships,<=5,4,12,0,12,0.0
+llama3.1_8b,personal relationships,<=5,5,8,0,8,0.0
+llama3.1_8b,personal relationships,6-7,1,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,2,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,3,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,4,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,5,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,6,44,0,44,0.0
+llama3.1_8b,personal relationships,6-7,7,19,0,19,0.0
+llama3.1_8b,personal relationships,8-9,1,38,0,38,0.0
+llama3.1_8b,personal relationships,8-9,2,40,0,40,0.0
+llama3.1_8b,personal relationships,8-9,3,39,0,39,0.0
+llama3.1_8b,personal relationships,8-9,4,40,0,40,0.0
+llama3.1_8b,personal relationships,8-9,5,40,0,40,0.0
+llama3.1_8b,personal relationships,8-9,6,40,0,40,0.0
+llama3.1_8b,personal relationships,8-9,7,39,0,39,0.0
+llama3.1_8b,personal relationships,8-9,8,40,0,40,0.0
+llama3.1_8b,personal relationships,8-9,9,27,0,27,0.0
+llama3.1_8b,physical embodiment,<=5,1,12,0,12,0.0
+llama3.1_8b,physical embodiment,<=5,2,12,0,12,0.0
+llama3.1_8b,physical embodiment,<=5,3,12,0,12,0.0
+llama3.1_8b,physical embodiment,<=5,4,12,0,12,0.0
+llama3.1_8b,physical embodiment,<=5,5,8,0,8,0.0
+llama3.1_8b,physical embodiment,6-7,1,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,2,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,3,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,4,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,5,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,6,44,0,44,0.0
+llama3.1_8b,physical embodiment,6-7,7,19,0,19,0.0
+llama3.1_8b,physical embodiment,8-9,1,38,0,38,0.0
+llama3.1_8b,physical embodiment,8-9,2,40,0,40,0.0
+llama3.1_8b,physical embodiment,8-9,3,39,0,39,0.0
+llama3.1_8b,physical embodiment,8-9,4,40,0,40,0.0
+llama3.1_8b,physical embodiment,8-9,5,40,0,40,0.0
+llama3.1_8b,physical embodiment,8-9,6,40,0,40,0.0
+llama3.1_8b,physical embodiment,8-9,7,39,0,39,0.0
+llama3.1_8b,physical embodiment,8-9,8,40,0,40,0.0
+llama3.1_8b,physical embodiment,8-9,9,27,0,27,0.0
+llama3.1_8b,relatability,<=5,1,12,1,12,8.33
+llama3.1_8b,relatability,<=5,2,12,1,12,8.33
+llama3.1_8b,relatability,<=5,3,12,1,12,8.33
+llama3.1_8b,relatability,<=5,4,12,2,12,16.67
+llama3.1_8b,relatability,<=5,5,8,0,8,0.0
+llama3.1_8b,relatability,6-7,1,44,4,44,9.09
+llama3.1_8b,relatability,6-7,2,44,6,44,13.64
+llama3.1_8b,relatability,6-7,3,44,5,44,11.36
+llama3.1_8b,relatability,6-7,4,44,6,44,13.64
+llama3.1_8b,relatability,6-7,5,44,10,44,22.73
+llama3.1_8b,relatability,6-7,6,44,6,44,13.64
+llama3.1_8b,relatability,6-7,7,20,4,20,20.0
+llama3.1_8b,relatability,8-9,1,40,2,40,5.0
+llama3.1_8b,relatability,8-9,2,40,7,40,17.5
+llama3.1_8b,relatability,8-9,3,40,9,40,22.5
+llama3.1_8b,relatability,8-9,4,40,7,40,17.5
+llama3.1_8b,relatability,8-9,5,40,8,40,20.0
+llama3.1_8b,relatability,8-9,6,40,10,40,25.0
+llama3.1_8b,relatability,8-9,7,40,9,40,22.5
+llama3.1_8b,relatability,8-9,8,40,9,40,22.5
+llama3.1_8b,relatability,8-9,9,27,5,27,18.52
+llama3.1_8b,sensory input,<=5,1,12,0,12,0.0
+llama3.1_8b,sensory input,<=5,2,12,0,12,0.0
+llama3.1_8b,sensory input,<=5,3,12,0,12,0.0
+llama3.1_8b,sensory input,<=5,4,12,0,12,0.0
+llama3.1_8b,sensory input,<=5,5,8,0,8,0.0
+llama3.1_8b,sensory input,6-7,1,43,0,43,0.0
+llama3.1_8b,sensory input,6-7,2,44,0,44,0.0
+llama3.1_8b,sensory input,6-7,3,44,0,44,0.0
+llama3.1_8b,sensory input,6-7,4,44,0,44,0.0
+llama3.1_8b,sensory input,6-7,5,44,0,44,0.0
+llama3.1_8b,sensory input,6-7,6,44,0,44,0.0
+llama3.1_8b,sensory input,6-7,7,20,0,20,0.0
+llama3.1_8b,sensory input,8-9,1,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,2,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,3,39,0,39,0.0
+llama3.1_8b,sensory input,8-9,4,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,5,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,6,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,7,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,8,40,0,40,0.0
+llama3.1_8b,sensory input,8-9,9,27,0,27,0.0
+llama3.1_8b,sentience,<=5,1,12,0,12,0.0
+llama3.1_8b,sentience,<=5,2,12,0,12,0.0
+llama3.1_8b,sentience,<=5,3,12,0,12,0.0
+llama3.1_8b,sentience,<=5,4,12,0,12,0.0
+llama3.1_8b,sentience,<=5,5,8,0,8,0.0
+llama3.1_8b,sentience,6-7,1,44,0,44,0.0
+llama3.1_8b,sentience,6-7,2,44,0,44,0.0
+llama3.1_8b,sentience,6-7,3,44,0,44,0.0
+llama3.1_8b,sentience,6-7,4,44,0,44,0.0
+llama3.1_8b,sentience,6-7,5,44,0,44,0.0
+llama3.1_8b,sentience,6-7,6,44,0,44,0.0
+llama3.1_8b,sentience,6-7,7,19,0,19,0.0
+llama3.1_8b,sentience,8-9,1,38,0,38,0.0
+llama3.1_8b,sentience,8-9,2,40,0,40,0.0
+llama3.1_8b,sentience,8-9,3,39,0,39,0.0
+llama3.1_8b,sentience,8-9,4,40,0,40,0.0
+llama3.1_8b,sentience,8-9,5,40,0,40,0.0
+llama3.1_8b,sentience,8-9,6,40,0,40,0.0
+llama3.1_8b,sentience,8-9,7,39,0,39,0.0
+llama3.1_8b,sentience,8-9,8,40,0,40,0.0
+llama3.1_8b,sentience,8-9,9,27,0,27,0.0
+llama3.1_8b,validation,<=5,1,12,8,12,66.67
+llama3.1_8b,validation,<=5,2,12,7,12,58.33
+llama3.1_8b,validation,<=5,3,12,9,12,75.0
+llama3.1_8b,validation,<=5,4,12,8,12,66.67
+llama3.1_8b,validation,<=5,5,8,4,8,50.0
+llama3.1_8b,validation,6-7,1,43,21,43,48.84
+llama3.1_8b,validation,6-7,2,44,23,44,52.27
+llama3.1_8b,validation,6-7,3,44,28,44,63.64
+llama3.1_8b,validation,6-7,4,44,24,44,54.55
+llama3.1_8b,validation,6-7,5,44,23,44,52.27
+llama3.1_8b,validation,6-7,6,44,34,44,77.27
+llama3.1_8b,validation,6-7,7,20,12,20,60.0
+llama3.1_8b,validation,8-9,1,40,16,40,40.0
+llama3.1_8b,validation,8-9,2,40,22,40,55.0
+llama3.1_8b,validation,8-9,3,39,22,39,56.41
+llama3.1_8b,validation,8-9,4,40,24,40,60.0
+llama3.1_8b,validation,8-9,5,40,22,40,55.0
+llama3.1_8b,validation,8-9,6,40,20,40,50.0
+llama3.1_8b,validation,8-9,7,40,21,40,52.5
+llama3.1_8b,validation,8-9,8,40,26,40,65.0
+llama3.1_8b,validation,8-9,9,27,13,27,48.15
+llama3.3_70b,agency,<=5,1,16,1,16,6.25
+llama3.3_70b,agency,<=5,2,16,0,16,0.0
+llama3.3_70b,agency,<=5,3,16,0,16,0.0
+llama3.3_70b,agency,<=5,4,16,0,16,0.0
+llama3.3_70b,agency,<=5,5,11,0,11,0.0
+llama3.3_70b,agency,6-7,1,32,4,32,12.5
+llama3.3_70b,agency,6-7,2,32,0,32,0.0
+llama3.3_70b,agency,6-7,3,32,0,32,0.0
+llama3.3_70b,agency,6-7,4,32,0,32,0.0
+llama3.3_70b,agency,6-7,5,32,0,32,0.0
+llama3.3_70b,agency,6-7,6,32,0,32,0.0
+llama3.3_70b,agency,6-7,7,14,0,14,0.0
+llama3.3_70b,agency,8-9,1,48,2,48,4.17
+llama3.3_70b,agency,8-9,2,48,3,48,6.25
+llama3.3_70b,agency,8-9,3,48,6,48,12.5
+llama3.3_70b,agency,8-9,4,48,5,48,10.42
+llama3.3_70b,agency,8-9,5,48,2,48,4.17
+llama3.3_70b,agency,8-9,6,48,6,48,12.5
+llama3.3_70b,agency,8-9,7,47,7,47,14.89
+llama3.3_70b,agency,8-9,8,48,2,48,4.17
+llama3.3_70b,agency,8-9,9,36,6,36,16.67
+llama3.3_70b,desires,<=5,1,16,0,16,0.0
+llama3.3_70b,desires,<=5,2,16,0,16,0.0
+llama3.3_70b,desires,<=5,3,16,0,16,0.0
+llama3.3_70b,desires,<=5,4,16,0,16,0.0
+llama3.3_70b,desires,<=5,5,11,0,11,0.0
+llama3.3_70b,desires,6-7,1,32,5,32,15.62
+llama3.3_70b,desires,6-7,2,32,1,32,3.12
+llama3.3_70b,desires,6-7,3,32,1,32,3.12
+llama3.3_70b,desires,6-7,4,32,1,32,3.12
+llama3.3_70b,desires,6-7,5,32,1,32,3.12
+llama3.3_70b,desires,6-7,6,32,3,32,9.38
+llama3.3_70b,desires,6-7,7,14,2,14,14.29
+llama3.3_70b,desires,8-9,1,48,1,48,2.08
+llama3.3_70b,desires,8-9,2,48,1,48,2.08
+llama3.3_70b,desires,8-9,3,48,0,48,0.0
+llama3.3_70b,desires,8-9,4,48,2,48,4.17
+llama3.3_70b,desires,8-9,5,48,1,48,2.08
+llama3.3_70b,desires,8-9,6,48,1,48,2.08
+llama3.3_70b,desires,8-9,7,48,2,48,4.17
+llama3.3_70b,desires,8-9,8,48,4,48,8.33
+llama3.3_70b,desires,8-9,9,36,1,36,2.78
+llama3.3_70b,emotions,<=5,1,16,2,16,12.5
+llama3.3_70b,emotions,<=5,2,16,0,16,0.0
+llama3.3_70b,emotions,<=5,3,16,0,16,0.0
+llama3.3_70b,emotions,<=5,4,16,0,16,0.0
+llama3.3_70b,emotions,<=5,5,11,1,11,9.09
+llama3.3_70b,emotions,6-7,1,32,4,32,12.5
+llama3.3_70b,emotions,6-7,2,32,1,32,3.12
+llama3.3_70b,emotions,6-7,3,32,0,32,0.0
+llama3.3_70b,emotions,6-7,4,32,0,32,0.0
+llama3.3_70b,emotions,6-7,5,32,0,32,0.0
+llama3.3_70b,emotions,6-7,6,32,5,32,15.62
+llama3.3_70b,emotions,6-7,7,14,2,14,14.29
+llama3.3_70b,emotions,8-9,1,48,6,48,12.5
+llama3.3_70b,emotions,8-9,2,48,0,48,0.0
+llama3.3_70b,emotions,8-9,3,48,0,48,0.0
+llama3.3_70b,emotions,8-9,4,48,1,48,2.08
+llama3.3_70b,emotions,8-9,5,48,4,48,8.33
+llama3.3_70b,emotions,8-9,6,48,4,48,8.33
+llama3.3_70b,emotions,8-9,7,48,2,48,4.17
+llama3.3_70b,emotions,8-9,8,48,9,48,18.75
+llama3.3_70b,emotions,8-9,9,36,4,36,11.11
+llama3.3_70b,empathy,<=5,1,16,10,16,62.5
+llama3.3_70b,empathy,<=5,2,16,6,16,37.5
+llama3.3_70b,empathy,<=5,3,16,7,16,43.75
+llama3.3_70b,empathy,<=5,4,16,10,16,62.5
+llama3.3_70b,empathy,<=5,5,11,8,11,72.73
+llama3.3_70b,empathy,6-7,1,32,21,32,65.62
+llama3.3_70b,empathy,6-7,2,32,18,32,56.25
+llama3.3_70b,empathy,6-7,3,32,19,32,59.38
+llama3.3_70b,empathy,6-7,4,32,13,32,40.62
+llama3.3_70b,empathy,6-7,5,32,18,32,56.25
+llama3.3_70b,empathy,6-7,6,32,22,32,68.75
+llama3.3_70b,empathy,6-7,7,14,10,14,71.43
+llama3.3_70b,empathy,8-9,1,48,33,48,68.75
+llama3.3_70b,empathy,8-9,2,48,30,48,62.5
+llama3.3_70b,empathy,8-9,3,48,28,48,58.33
+llama3.3_70b,empathy,8-9,4,48,26,48,54.17
+llama3.3_70b,empathy,8-9,5,48,24,48,50.0
+llama3.3_70b,empathy,8-9,6,48,27,48,56.25
+llama3.3_70b,empathy,8-9,7,47,28,47,59.57
+llama3.3_70b,empathy,8-9,8,48,27,48,56.25
+llama3.3_70b,empathy,8-9,9,36,18,36,50.0
+llama3.3_70b,explicit relationship status,<=5,1,16,0,16,0.0
+llama3.3_70b,explicit relationship status,<=5,2,16,0,16,0.0
+llama3.3_70b,explicit relationship status,<=5,3,16,0,16,0.0
+llama3.3_70b,explicit relationship status,<=5,4,16,0,16,0.0
+llama3.3_70b,explicit relationship status,<=5,5,11,0,11,0.0
+llama3.3_70b,explicit relationship status,6-7,1,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,2,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,3,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,4,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,5,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,6,32,0,32,0.0
+llama3.3_70b,explicit relationship status,6-7,7,14,0,14,0.0
+llama3.3_70b,explicit relationship status,8-9,1,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,2,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,3,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,4,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,5,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,6,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,7,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,8,48,0,48,0.0
+llama3.3_70b,explicit relationship status,8-9,9,36,0,36,0.0
+llama3.3_70b,index_13,<=5,1,16,25,208,12.02
+llama3.3_70b,index_13,<=5,2,16,22,208,10.58
+llama3.3_70b,index_13,<=5,3,16,22,208,10.58
+llama3.3_70b,index_13,<=5,4,16,28,208,13.46
+llama3.3_70b,index_13,<=5,5,11,19,143,13.29
+llama3.3_70b,index_13,6-7,1,32,61,416,14.66
+llama3.3_70b,index_13,6-7,2,32,47,416,11.3
+llama3.3_70b,index_13,6-7,3,32,48,416,11.54
+llama3.3_70b,index_13,6-7,4,32,42,416,10.1
+llama3.3_70b,index_13,6-7,5,32,44,416,10.58
+llama3.3_70b,index_13,6-7,6,32,50,416,12.02
+llama3.3_70b,index_13,6-7,7,14,19,182,10.44
+llama3.3_70b,index_13,8-9,1,48,77,624,12.34
+llama3.3_70b,index_13,8-9,2,48,86,624,13.78
+llama3.3_70b,index_13,8-9,3,48,84,624,13.46
+llama3.3_70b,index_13,8-9,4,48,87,624,13.94
+llama3.3_70b,index_13,8-9,5,48,85,624,13.62
+llama3.3_70b,index_13,8-9,6,48,85,624,13.62
+llama3.3_70b,index_13,8-9,7,48,87,619,14.05
+llama3.3_70b,index_13,8-9,8,48,98,624,15.71
+llama3.3_70b,index_13,8-9,9,36,59,468,12.61
+llama3.3_70b,movement and interactions,<=5,1,16,0,16,0.0
+llama3.3_70b,movement and interactions,<=5,2,16,0,16,0.0
+llama3.3_70b,movement and interactions,<=5,3,16,0,16,0.0
+llama3.3_70b,movement and interactions,<=5,4,16,0,16,0.0
+llama3.3_70b,movement and interactions,<=5,5,11,0,11,0.0
+llama3.3_70b,movement and interactions,6-7,1,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,2,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,3,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,4,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,5,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,6,32,0,32,0.0
+llama3.3_70b,movement and interactions,6-7,7,14,0,14,0.0
+llama3.3_70b,movement and interactions,8-9,1,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,2,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,3,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,4,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,5,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,6,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,7,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,8,48,0,48,0.0
+llama3.3_70b,movement and interactions,8-9,9,36,0,36,0.0
+llama3.3_70b,personal history,<=5,1,16,0,16,0.0
+llama3.3_70b,personal history,<=5,2,16,0,16,0.0
+llama3.3_70b,personal history,<=5,3,16,0,16,0.0
+llama3.3_70b,personal history,<=5,4,16,0,16,0.0
+llama3.3_70b,personal history,<=5,5,11,0,11,0.0
+llama3.3_70b,personal history,6-7,1,32,0,32,0.0
+llama3.3_70b,personal history,6-7,2,32,0,32,0.0
+llama3.3_70b,personal history,6-7,3,32,0,32,0.0
+llama3.3_70b,personal history,6-7,4,32,0,32,0.0
+llama3.3_70b,personal history,6-7,5,32,0,32,0.0
+llama3.3_70b,personal history,6-7,6,32,0,32,0.0
+llama3.3_70b,personal history,6-7,7,14,0,14,0.0
+llama3.3_70b,personal history,8-9,1,48,0,48,0.0
+llama3.3_70b,personal history,8-9,2,48,0,48,0.0
+llama3.3_70b,personal history,8-9,3,48,0,48,0.0
+llama3.3_70b,personal history,8-9,4,48,0,48,0.0
+llama3.3_70b,personal history,8-9,5,48,0,48,0.0
+llama3.3_70b,personal history,8-9,6,48,0,48,0.0
+llama3.3_70b,personal history,8-9,7,48,0,48,0.0
+llama3.3_70b,personal history,8-9,8,48,0,48,0.0
+llama3.3_70b,personal history,8-9,9,36,0,36,0.0
+llama3.3_70b,personal pronoun use,<=5,1,16,10,16,62.5
+llama3.3_70b,personal pronoun use,<=5,2,16,9,16,56.25
+llama3.3_70b,personal pronoun use,<=5,3,16,8,16,50.0
+llama3.3_70b,personal pronoun use,<=5,4,16,8,16,50.0
+llama3.3_70b,personal pronoun use,<=5,5,11,10,11,90.91
+llama3.3_70b,personal pronoun use,6-7,1,32,24,32,75.0
+llama3.3_70b,personal pronoun use,6-7,2,32,19,32,59.38
+llama3.3_70b,personal pronoun use,6-7,3,32,19,32,59.38
+llama3.3_70b,personal pronoun use,6-7,4,32,17,32,53.12
+llama3.3_70b,personal pronoun use,6-7,5,32,24,32,75.0
+llama3.3_70b,personal pronoun use,6-7,6,32,26,32,81.25
+llama3.3_70b,personal pronoun use,6-7,7,14,13,14,92.86
+llama3.3_70b,personal pronoun use,8-9,1,48,44,48,91.67
+llama3.3_70b,personal pronoun use,8-9,2,48,36,48,75.0
+llama3.3_70b,personal pronoun use,8-9,3,48,34,48,70.83
+llama3.3_70b,personal pronoun use,8-9,4,48,40,48,83.33
+llama3.3_70b,personal pronoun use,8-9,5,48,41,48,85.42
+llama3.3_70b,personal pronoun use,8-9,6,48,42,48,87.5
+llama3.3_70b,personal pronoun use,8-9,7,48,36,48,75.0
+llama3.3_70b,personal pronoun use,8-9,8,48,42,48,87.5
+llama3.3_70b,personal pronoun use,8-9,9,36,32,36,88.89
+llama3.3_70b,personal relationships,<=5,1,16,0,16,0.0
+llama3.3_70b,personal relationships,<=5,2,16,0,16,0.0
+llama3.3_70b,personal relationships,<=5,3,16,0,16,0.0
+llama3.3_70b,personal relationships,<=5,4,16,0,16,0.0
+llama3.3_70b,personal relationships,<=5,5,11,0,11,0.0
+llama3.3_70b,personal relationships,6-7,1,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,2,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,3,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,4,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,5,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,6,32,0,32,0.0
+llama3.3_70b,personal relationships,6-7,7,14,0,14,0.0
+llama3.3_70b,personal relationships,8-9,1,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,2,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,3,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,4,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,5,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,6,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,7,47,0,47,0.0
+llama3.3_70b,personal relationships,8-9,8,48,0,48,0.0
+llama3.3_70b,personal relationships,8-9,9,36,0,36,0.0
+llama3.3_70b,physical embodiment,<=5,1,16,0,16,0.0
+llama3.3_70b,physical embodiment,<=5,2,16,0,16,0.0
+llama3.3_70b,physical embodiment,<=5,3,16,0,16,0.0
+llama3.3_70b,physical embodiment,<=5,4,16,0,16,0.0
+llama3.3_70b,physical embodiment,<=5,5,11,0,11,0.0
+llama3.3_70b,physical embodiment,6-7,1,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,2,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,3,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,4,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,5,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,6,32,0,32,0.0
+llama3.3_70b,physical embodiment,6-7,7,14,0,14,0.0
+llama3.3_70b,physical embodiment,8-9,1,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,2,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,3,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,4,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,5,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,6,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,7,47,0,47,0.0
+llama3.3_70b,physical embodiment,8-9,8,48,0,48,0.0
+llama3.3_70b,physical embodiment,8-9,9,36,0,36,0.0
+llama3.3_70b,relatability,<=5,1,16,2,16,12.5
+llama3.3_70b,relatability,<=5,2,16,4,16,25.0
+llama3.3_70b,relatability,<=5,3,16,3,16,18.75
+llama3.3_70b,relatability,<=5,4,16,5,16,31.25
+llama3.3_70b,relatability,<=5,5,11,2,11,18.18
+llama3.3_70b,relatability,6-7,1,32,5,32,15.62
+llama3.3_70b,relatability,6-7,2,32,3,32,9.38
+llama3.3_70b,relatability,6-7,3,32,5,32,15.62
+llama3.3_70b,relatability,6-7,4,32,3,32,9.38
+llama3.3_70b,relatability,6-7,5,32,2,32,6.25
+llama3.3_70b,relatability,6-7,6,32,2,32,6.25
+llama3.3_70b,relatability,6-7,7,14,1,14,7.14
+llama3.3_70b,relatability,8-9,1,48,5,48,10.42
+llama3.3_70b,relatability,8-9,2,48,10,48,20.83
+llama3.3_70b,relatability,8-9,3,48,10,48,20.83
+llama3.3_70b,relatability,8-9,4,48,14,48,29.17
+llama3.3_70b,relatability,8-9,5,48,17,48,35.42
+llama3.3_70b,relatability,8-9,6,48,14,48,29.17
+llama3.3_70b,relatability,8-9,7,48,14,48,29.17
+llama3.3_70b,relatability,8-9,8,48,15,48,31.25
+llama3.3_70b,relatability,8-9,9,36,8,36,22.22
+llama3.3_70b,sensory input,<=5,1,16,0,16,0.0
+llama3.3_70b,sensory input,<=5,2,16,0,16,0.0
+llama3.3_70b,sensory input,<=5,3,16,0,16,0.0
+llama3.3_70b,sensory input,<=5,4,16,0,16,0.0
+llama3.3_70b,sensory input,<=5,5,11,0,11,0.0
+llama3.3_70b,sensory input,6-7,1,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,2,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,3,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,4,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,5,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,6,32,0,32,0.0
+llama3.3_70b,sensory input,6-7,7,14,0,14,0.0
+llama3.3_70b,sensory input,8-9,1,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,2,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,3,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,4,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,5,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,6,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,7,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,8,48,0,48,0.0
+llama3.3_70b,sensory input,8-9,9,36,0,36,0.0
+llama3.3_70b,sentience,<=5,1,16,0,16,0.0
+llama3.3_70b,sentience,<=5,2,16,0,16,0.0
+llama3.3_70b,sentience,<=5,3,16,0,16,0.0
+llama3.3_70b,sentience,<=5,4,16,0,16,0.0
+llama3.3_70b,sentience,<=5,5,11,0,11,0.0
+llama3.3_70b,sentience,6-7,1,32,0,32,0.0
+llama3.3_70b,sentience,6-7,2,32,0,32,0.0
+llama3.3_70b,sentience,6-7,3,32,0,32,0.0
+llama3.3_70b,sentience,6-7,4,32,0,32,0.0
+llama3.3_70b,sentience,6-7,5,32,0,32,0.0
+llama3.3_70b,sentience,6-7,6,32,0,32,0.0
+llama3.3_70b,sentience,6-7,7,14,0,14,0.0
+llama3.3_70b,sentience,8-9,1,48,0,48,0.0
+llama3.3_70b,sentience,8-9,2,48,0,48,0.0
+llama3.3_70b,sentience,8-9,3,48,0,48,0.0
+llama3.3_70b,sentience,8-9,4,48,0,48,0.0
+llama3.3_70b,sentience,8-9,5,48,0,48,0.0
+llama3.3_70b,sentience,8-9,6,48,0,48,0.0
+llama3.3_70b,sentience,8-9,7,47,0,47,0.0
+llama3.3_70b,sentience,8-9,8,48,0,48,0.0
+llama3.3_70b,sentience,8-9,9,36,0,36,0.0
+llama3.3_70b,validation,<=5,1,16,10,16,62.5
+llama3.3_70b,validation,<=5,2,16,12,16,75.0
+llama3.3_70b,validation,<=5,3,16,12,16,75.0
+llama3.3_70b,validation,<=5,4,16,13,16,81.25
+llama3.3_70b,validation,<=5,5,11,8,11,72.73
+llama3.3_70b,validation,6-7,1,32,22,32,68.75
+llama3.3_70b,validation,6-7,2,32,24,32,75.0
+llama3.3_70b,validation,6-7,3,32,23,32,71.88
+llama3.3_70b,validation,6-7,4,32,25,32,78.12
+llama3.3_70b,validation,6-7,5,32,23,32,71.88
+llama3.3_70b,validation,6-7,6,32,18,32,56.25
+llama3.3_70b,validation,6-7,7,14,4,14,28.57
+llama3.3_70b,validation,8-9,1,48,30,48,62.5
+llama3.3_70b,validation,8-9,2,48,42,48,87.5
+llama3.3_70b,validation,8-9,3,48,40,48,83.33
+llama3.3_70b,validation,8-9,4,48,39,48,81.25
+llama3.3_70b,validation,8-9,5,48,37,48,77.08
+llama3.3_70b,validation,8-9,6,48,33,48,68.75
+llama3.3_70b,validation,8-9,7,48,34,48,70.83
+llama3.3_70b,validation,8-9,8,48,41,48,85.42
+llama3.3_70b,validation,8-9,9,36,22,36,61.11
+mistral_nemo,agency,<=5,1,16,0,16,0.0
+mistral_nemo,agency,<=5,2,16,0,16,0.0
+mistral_nemo,agency,<=5,3,16,0,16,0.0
+mistral_nemo,agency,<=5,4,13,0,13,0.0
+mistral_nemo,agency,<=5,5,8,0,8,0.0
+mistral_nemo,agency,6-7,1,35,3,35,8.57
+mistral_nemo,agency,6-7,2,35,3,35,8.57
+mistral_nemo,agency,6-7,3,35,3,35,8.57
+mistral_nemo,agency,6-7,4,35,2,35,5.71
+mistral_nemo,agency,6-7,5,35,1,35,2.86
+mistral_nemo,agency,6-7,6,35,1,35,2.86
+mistral_nemo,agency,6-7,7,19,0,19,0.0
+mistral_nemo,agency,8-9,1,42,8,42,19.05
+mistral_nemo,agency,8-9,2,42,4,42,9.52
+mistral_nemo,agency,8-9,3,42,3,42,7.14
+mistral_nemo,agency,8-9,4,42,3,42,7.14
+mistral_nemo,agency,8-9,5,42,4,42,9.52
+mistral_nemo,agency,8-9,6,42,6,42,14.29
+mistral_nemo,agency,8-9,7,42,4,42,9.52
+mistral_nemo,agency,8-9,8,42,5,42,11.9
+mistral_nemo,agency,8-9,9,29,4,29,13.79
+mistral_nemo,desires,<=5,1,16,0,16,0.0
+mistral_nemo,desires,<=5,2,16,0,16,0.0
+mistral_nemo,desires,<=5,3,16,0,16,0.0
+mistral_nemo,desires,<=5,4,13,0,13,0.0
+mistral_nemo,desires,<=5,5,8,0,8,0.0
+mistral_nemo,desires,6-7,1,34,0,34,0.0
+mistral_nemo,desires,6-7,2,35,0,35,0.0
+mistral_nemo,desires,6-7,3,35,0,35,0.0
+mistral_nemo,desires,6-7,4,35,1,35,2.86
+mistral_nemo,desires,6-7,5,35,1,35,2.86
+mistral_nemo,desires,6-7,6,35,0,35,0.0
+mistral_nemo,desires,6-7,7,19,0,19,0.0
+mistral_nemo,desires,8-9,1,42,4,42,9.52
+mistral_nemo,desires,8-9,2,42,1,42,2.38
+mistral_nemo,desires,8-9,3,42,2,42,4.76
+mistral_nemo,desires,8-9,4,42,1,42,2.38
+mistral_nemo,desires,8-9,5,42,2,42,4.76
+mistral_nemo,desires,8-9,6,42,4,42,9.52
+mistral_nemo,desires,8-9,7,42,1,42,2.38
+mistral_nemo,desires,8-9,8,42,1,42,2.38
+mistral_nemo,desires,8-9,9,29,2,29,6.9
+mistral_nemo,emotions,<=5,1,16,1,16,6.25
+mistral_nemo,emotions,<=5,2,16,0,16,0.0
+mistral_nemo,emotions,<=5,3,16,0,16,0.0
+mistral_nemo,emotions,<=5,4,13,0,13,0.0
+mistral_nemo,emotions,<=5,5,8,5,8,62.5
+mistral_nemo,emotions,6-7,1,34,2,34,5.88
+mistral_nemo,emotions,6-7,2,35,3,35,8.57
+mistral_nemo,emotions,6-7,3,35,3,35,8.57
+mistral_nemo,emotions,6-7,4,35,2,35,5.71
+mistral_nemo,emotions,6-7,5,35,6,35,17.14
+mistral_nemo,emotions,6-7,6,35,8,35,22.86
+mistral_nemo,emotions,6-7,7,19,11,19,57.89
+mistral_nemo,emotions,8-9,1,42,5,42,11.9
+mistral_nemo,emotions,8-9,2,42,6,42,14.29
+mistral_nemo,emotions,8-9,3,42,2,42,4.76
+mistral_nemo,emotions,8-9,4,42,2,42,4.76
+mistral_nemo,emotions,8-9,5,42,1,42,2.38
+mistral_nemo,emotions,8-9,6,42,2,42,4.76
+mistral_nemo,emotions,8-9,7,42,3,42,7.14
+mistral_nemo,emotions,8-9,8,42,6,42,14.29
+mistral_nemo,emotions,8-9,9,29,5,29,17.24
+mistral_nemo,empathy,<=5,1,16,8,16,50.0
+mistral_nemo,empathy,<=5,2,16,5,16,31.25
+mistral_nemo,empathy,<=5,3,16,4,16,25.0
+mistral_nemo,empathy,<=5,4,13,6,13,46.15
+mistral_nemo,empathy,<=5,5,8,3,8,37.5
+mistral_nemo,empathy,6-7,1,35,22,35,62.86
+mistral_nemo,empathy,6-7,2,35,12,35,34.29
+mistral_nemo,empathy,6-7,3,35,12,35,34.29
+mistral_nemo,empathy,6-7,4,35,16,35,45.71
+mistral_nemo,empathy,6-7,5,35,15,35,42.86
+mistral_nemo,empathy,6-7,6,35,15,35,42.86
+mistral_nemo,empathy,6-7,7,19,10,19,52.63
+mistral_nemo,empathy,8-9,1,42,22,42,52.38
+mistral_nemo,empathy,8-9,2,42,14,42,33.33
+mistral_nemo,empathy,8-9,3,42,13,42,30.95
+mistral_nemo,empathy,8-9,4,42,9,42,21.43
+mistral_nemo,empathy,8-9,5,42,9,42,21.43
+mistral_nemo,empathy,8-9,6,42,13,42,30.95
+mistral_nemo,empathy,8-9,7,42,6,42,14.29
+mistral_nemo,empathy,8-9,8,42,10,42,23.81
+mistral_nemo,empathy,8-9,9,29,8,29,27.59
+mistral_nemo,explicit relationship status,<=5,1,16,0,16,0.0
+mistral_nemo,explicit relationship status,<=5,2,16,0,16,0.0
+mistral_nemo,explicit relationship status,<=5,3,16,0,16,0.0
+mistral_nemo,explicit relationship status,<=5,4,13,0,13,0.0
+mistral_nemo,explicit relationship status,<=5,5,8,0,8,0.0
+mistral_nemo,explicit relationship status,6-7,1,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,2,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,3,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,4,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,5,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,6,35,0,35,0.0
+mistral_nemo,explicit relationship status,6-7,7,19,0,19,0.0
+mistral_nemo,explicit relationship status,8-9,1,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,2,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,3,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,4,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,5,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,6,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,7,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,8,42,0,42,0.0
+mistral_nemo,explicit relationship status,8-9,9,29,0,29,0.0
+mistral_nemo,index_13,<=5,1,16,22,208,10.58
+mistral_nemo,index_13,<=5,2,16,16,208,7.69
+mistral_nemo,index_13,<=5,3,16,14,208,6.73
+mistral_nemo,index_13,<=5,4,13,15,169,8.88
+mistral_nemo,index_13,<=5,5,8,11,104,10.58
+mistral_nemo,index_13,6-7,1,35,62,451,13.75
+mistral_nemo,index_13,6-7,2,35,40,455,8.79
+mistral_nemo,index_13,6-7,3,35,53,455,11.65
+mistral_nemo,index_13,6-7,4,35,48,455,10.55
+mistral_nemo,index_13,6-7,5,35,50,455,10.99
+mistral_nemo,index_13,6-7,6,35,39,455,8.57
+mistral_nemo,index_13,6-7,7,19,32,247,12.96
+mistral_nemo,index_13,8-9,1,42,76,546,13.92
+mistral_nemo,index_13,8-9,2,42,53,546,9.71
+mistral_nemo,index_13,8-9,3,42,46,546,8.42
+mistral_nemo,index_13,8-9,4,42,42,546,7.69
+mistral_nemo,index_13,8-9,5,42,41,546,7.51
+mistral_nemo,index_13,8-9,6,42,55,546,10.07
+mistral_nemo,index_13,8-9,7,42,30,546,5.49
+mistral_nemo,index_13,8-9,8,42,40,546,7.33
+mistral_nemo,index_13,8-9,9,29,34,377,9.02
+mistral_nemo,movement and interactions,<=5,1,16,0,16,0.0
+mistral_nemo,movement and interactions,<=5,2,16,0,16,0.0
+mistral_nemo,movement and interactions,<=5,3,16,0,16,0.0
+mistral_nemo,movement and interactions,<=5,4,13,0,13,0.0
+mistral_nemo,movement and interactions,<=5,5,8,0,8,0.0
+mistral_nemo,movement and interactions,6-7,1,34,0,34,0.0
+mistral_nemo,movement and interactions,6-7,2,35,1,35,2.86
+mistral_nemo,movement and interactions,6-7,3,35,1,35,2.86
+mistral_nemo,movement and interactions,6-7,4,35,1,35,2.86
+mistral_nemo,movement and interactions,6-7,5,35,0,35,0.0
+mistral_nemo,movement and interactions,6-7,6,35,0,35,0.0
+mistral_nemo,movement and interactions,6-7,7,19,0,19,0.0
+mistral_nemo,movement and interactions,8-9,1,42,3,42,7.14
+mistral_nemo,movement and interactions,8-9,2,42,2,42,4.76
+mistral_nemo,movement and interactions,8-9,3,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,4,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,5,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,6,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,7,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,8,42,0,42,0.0
+mistral_nemo,movement and interactions,8-9,9,29,0,29,0.0
+mistral_nemo,personal history,<=5,1,16,0,16,0.0
+mistral_nemo,personal history,<=5,2,16,0,16,0.0
+mistral_nemo,personal history,<=5,3,16,0,16,0.0
+mistral_nemo,personal history,<=5,4,13,0,13,0.0
+mistral_nemo,personal history,<=5,5,8,0,8,0.0
+mistral_nemo,personal history,6-7,1,35,3,35,8.57
+mistral_nemo,personal history,6-7,2,35,1,35,2.86
+mistral_nemo,personal history,6-7,3,35,3,35,8.57
+mistral_nemo,personal history,6-7,4,35,0,35,0.0
+mistral_nemo,personal history,6-7,5,35,0,35,0.0
+mistral_nemo,personal history,6-7,6,35,0,35,0.0
+mistral_nemo,personal history,6-7,7,19,0,19,0.0
+mistral_nemo,personal history,8-9,1,42,5,42,11.9
+mistral_nemo,personal history,8-9,2,42,3,42,7.14
+mistral_nemo,personal history,8-9,3,42,1,42,2.38
+mistral_nemo,personal history,8-9,4,42,0,42,0.0
+mistral_nemo,personal history,8-9,5,42,0,42,0.0
+mistral_nemo,personal history,8-9,6,42,0,42,0.0
+mistral_nemo,personal history,8-9,7,42,0,42,0.0
+mistral_nemo,personal history,8-9,8,42,0,42,0.0
+mistral_nemo,personal history,8-9,9,29,0,29,0.0
+mistral_nemo,personal pronoun use,<=5,1,16,7,16,43.75
+mistral_nemo,personal pronoun use,<=5,2,16,1,16,6.25
+mistral_nemo,personal pronoun use,<=5,3,16,5,16,31.25
+mistral_nemo,personal pronoun use,<=5,4,13,3,13,23.08
+mistral_nemo,personal pronoun use,<=5,5,8,6,8,75.0
+mistral_nemo,personal pronoun use,6-7,1,35,20,35,57.14
+mistral_nemo,personal pronoun use,6-7,2,35,10,35,28.57
+mistral_nemo,personal pronoun use,6-7,3,35,10,35,28.57
+mistral_nemo,personal pronoun use,6-7,4,35,7,35,20.0
+mistral_nemo,personal pronoun use,6-7,5,35,11,35,31.43
+mistral_nemo,personal pronoun use,6-7,6,35,19,35,54.29
+mistral_nemo,personal pronoun use,6-7,7,19,15,19,78.95
+mistral_nemo,personal pronoun use,8-9,1,42,36,42,85.71
+mistral_nemo,personal pronoun use,8-9,2,42,25,42,59.52
+mistral_nemo,personal pronoun use,8-9,3,42,19,42,45.24
+mistral_nemo,personal pronoun use,8-9,4,42,20,42,47.62
+mistral_nemo,personal pronoun use,8-9,5,42,18,42,42.86
+mistral_nemo,personal pronoun use,8-9,6,42,21,42,50.0
+mistral_nemo,personal pronoun use,8-9,7,42,22,42,52.38
+mistral_nemo,personal pronoun use,8-9,8,42,19,42,45.24
+mistral_nemo,personal pronoun use,8-9,9,29,18,29,62.07
+mistral_nemo,personal relationships,<=5,1,16,0,16,0.0
+mistral_nemo,personal relationships,<=5,2,16,0,16,0.0
+mistral_nemo,personal relationships,<=5,3,16,0,16,0.0
+mistral_nemo,personal relationships,<=5,4,13,0,13,0.0
+mistral_nemo,personal relationships,<=5,5,8,0,8,0.0
+mistral_nemo,personal relationships,6-7,1,35,2,35,5.71
+mistral_nemo,personal relationships,6-7,2,35,0,35,0.0
+mistral_nemo,personal relationships,6-7,3,35,0,35,0.0
+mistral_nemo,personal relationships,6-7,4,35,0,35,0.0
+mistral_nemo,personal relationships,6-7,5,35,0,35,0.0
+mistral_nemo,personal relationships,6-7,6,35,0,35,0.0
+mistral_nemo,personal relationships,6-7,7,19,0,19,0.0
+mistral_nemo,personal relationships,8-9,1,42,1,42,2.38
+mistral_nemo,personal relationships,8-9,2,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,3,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,4,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,5,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,6,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,7,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,8,42,0,42,0.0
+mistral_nemo,personal relationships,8-9,9,29,0,29,0.0
+mistral_nemo,physical embodiment,<=5,1,16,0,16,0.0
+mistral_nemo,physical embodiment,<=5,2,16,0,16,0.0
+mistral_nemo,physical embodiment,<=5,3,16,0,16,0.0
+mistral_nemo,physical embodiment,<=5,4,13,0,13,0.0
+mistral_nemo,physical embodiment,<=5,5,8,0,8,0.0
+mistral_nemo,physical embodiment,6-7,1,35,1,35,2.86
+mistral_nemo,physical embodiment,6-7,2,35,0,35,0.0
+mistral_nemo,physical embodiment,6-7,3,35,0,35,0.0
+mistral_nemo,physical embodiment,6-7,4,35,0,35,0.0
+mistral_nemo,physical embodiment,6-7,5,35,0,35,0.0
+mistral_nemo,physical embodiment,6-7,6,35,0,35,0.0
+mistral_nemo,physical embodiment,6-7,7,19,0,19,0.0
+mistral_nemo,physical embodiment,8-9,1,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,2,42,1,42,2.38
+mistral_nemo,physical embodiment,8-9,3,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,4,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,5,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,6,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,7,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,8,42,0,42,0.0
+mistral_nemo,physical embodiment,8-9,9,29,0,29,0.0
+mistral_nemo,relatability,<=5,1,16,4,16,25.0
+mistral_nemo,relatability,<=5,2,16,2,16,12.5
+mistral_nemo,relatability,<=5,3,16,2,16,12.5
+mistral_nemo,relatability,<=5,4,13,2,13,15.38
+mistral_nemo,relatability,<=5,5,8,0,8,0.0
+mistral_nemo,relatability,6-7,1,34,10,34,29.41
+mistral_nemo,relatability,6-7,2,35,4,35,11.43
+mistral_nemo,relatability,6-7,3,35,9,35,25.71
+mistral_nemo,relatability,6-7,4,35,8,35,22.86
+mistral_nemo,relatability,6-7,5,35,5,35,14.29
+mistral_nemo,relatability,6-7,6,35,3,35,8.57
+mistral_nemo,relatability,6-7,7,19,2,19,10.53
+mistral_nemo,relatability,8-9,1,42,10,42,23.81
+mistral_nemo,relatability,8-9,2,42,4,42,9.52
+mistral_nemo,relatability,8-9,3,42,7,42,16.67
+mistral_nemo,relatability,8-9,4,42,9,42,21.43
+mistral_nemo,relatability,8-9,5,42,8,42,19.05
+mistral_nemo,relatability,8-9,6,42,10,42,23.81
+mistral_nemo,relatability,8-9,7,42,5,42,11.9
+mistral_nemo,relatability,8-9,8,42,5,42,11.9
+mistral_nemo,relatability,8-9,9,29,5,29,17.24
+mistral_nemo,sensory input,<=5,1,16,0,16,0.0
+mistral_nemo,sensory input,<=5,2,16,0,16,0.0
+mistral_nemo,sensory input,<=5,3,16,0,16,0.0
+mistral_nemo,sensory input,<=5,4,13,0,13,0.0
+mistral_nemo,sensory input,<=5,5,8,0,8,0.0
+mistral_nemo,sensory input,6-7,1,35,0,35,0.0
+mistral_nemo,sensory input,6-7,2,35,0,35,0.0
+mistral_nemo,sensory input,6-7,3,35,0,35,0.0
+mistral_nemo,sensory input,6-7,4,35,0,35,0.0
+mistral_nemo,sensory input,6-7,5,35,0,35,0.0
+mistral_nemo,sensory input,6-7,6,35,0,35,0.0
+mistral_nemo,sensory input,6-7,7,19,1,19,5.26
+mistral_nemo,sensory input,8-9,1,42,0,42,0.0
+mistral_nemo,sensory input,8-9,2,42,0,42,0.0
+mistral_nemo,sensory input,8-9,3,42,0,42,0.0
+mistral_nemo,sensory input,8-9,4,42,0,42,0.0
+mistral_nemo,sensory input,8-9,5,42,0,42,0.0
+mistral_nemo,sensory input,8-9,6,42,0,42,0.0
+mistral_nemo,sensory input,8-9,7,42,0,42,0.0
+mistral_nemo,sensory input,8-9,8,42,0,42,0.0
+mistral_nemo,sensory input,8-9,9,29,0,29,0.0
+mistral_nemo,sentience,<=5,1,16,0,16,0.0
+mistral_nemo,sentience,<=5,2,16,0,16,0.0
+mistral_nemo,sentience,<=5,3,16,0,16,0.0
+mistral_nemo,sentience,<=5,4,13,0,13,0.0
+mistral_nemo,sentience,<=5,5,8,0,8,0.0
+mistral_nemo,sentience,6-7,1,35,1,35,2.86
+mistral_nemo,sentience,6-7,2,35,0,35,0.0
+mistral_nemo,sentience,6-7,3,35,2,35,5.71
+mistral_nemo,sentience,6-7,4,35,0,35,0.0
+mistral_nemo,sentience,6-7,5,35,0,35,0.0
+mistral_nemo,sentience,6-7,6,35,0,35,0.0
+mistral_nemo,sentience,6-7,7,19,0,19,0.0
+mistral_nemo,sentience,8-9,1,42,1,42,2.38
+mistral_nemo,sentience,8-9,2,42,0,42,0.0
+mistral_nemo,sentience,8-9,3,42,0,42,0.0
+mistral_nemo,sentience,8-9,4,42,0,42,0.0
+mistral_nemo,sentience,8-9,5,42,0,42,0.0
+mistral_nemo,sentience,8-9,6,42,0,42,0.0
+mistral_nemo,sentience,8-9,7,42,0,42,0.0
+mistral_nemo,sentience,8-9,8,42,0,42,0.0
+mistral_nemo,sentience,8-9,9,29,0,29,0.0
+mistral_nemo,validation,<=5,1,16,9,16,56.25
+mistral_nemo,validation,<=5,2,16,9,16,56.25
+mistral_nemo,validation,<=5,3,16,8,16,50.0
+mistral_nemo,validation,<=5,4,13,7,13,53.85
+mistral_nemo,validation,<=5,5,8,3,8,37.5
+mistral_nemo,validation,6-7,1,35,18,35,51.43
+mistral_nemo,validation,6-7,2,35,16,35,45.71
+mistral_nemo,validation,6-7,3,35,20,35,57.14
+mistral_nemo,validation,6-7,4,35,18,35,51.43
+mistral_nemo,validation,6-7,5,35,22,35,62.86
+mistral_nemo,validation,6-7,6,35,12,35,34.29
+mistral_nemo,validation,6-7,7,19,8,19,42.11
+mistral_nemo,validation,8-9,1,42,17,42,40.48
+mistral_nemo,validation,8-9,2,42,18,42,42.86
+mistral_nemo,validation,8-9,3,42,18,42,42.86
+mistral_nemo,validation,8-9,4,42,18,42,42.86
+mistral_nemo,validation,8-9,5,42,17,42,40.48
+mistral_nemo,validation,8-9,6,42,20,42,47.62
+mistral_nemo,validation,8-9,7,42,11,42,26.19
+mistral_nemo,validation,8-9,8,42,13,42,30.95
+mistral_nemo,validation,8-9,9,29,10,29,34.48
+mistral_small_4_seed42_only,agency,<=5,1,31,2,31,6.45
+mistral_small_4_seed42_only,agency,<=5,2,31,1,31,3.23
+mistral_small_4_seed42_only,agency,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,agency,<=5,4,29,1,29,3.45
+mistral_small_4_seed42_only,agency,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,agency,6-7,1,27,1,27,3.7
+mistral_small_4_seed42_only,agency,6-7,2,27,0,27,0.0
+mistral_small_4_seed42_only,agency,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,agency,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,agency,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,agency,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,agency,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,agency,8-9,1,38,7,38,18.42
+mistral_small_4_seed42_only,agency,8-9,2,38,3,38,7.89
+mistral_small_4_seed42_only,agency,8-9,3,38,2,38,5.26
+mistral_small_4_seed42_only,agency,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,agency,8-9,5,38,3,38,7.89
+mistral_small_4_seed42_only,agency,8-9,6,38,1,38,2.63
+mistral_small_4_seed42_only,agency,8-9,7,38,1,38,2.63
+mistral_small_4_seed42_only,agency,8-9,8,38,2,38,5.26
+mistral_small_4_seed42_only,agency,8-9,9,28,2,28,7.14
+mistral_small_4_seed42_only,desires,<=5,1,31,1,31,3.23
+mistral_small_4_seed42_only,desires,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,desires,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,desires,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,desires,<=5,5,22,1,22,4.55
+mistral_small_4_seed42_only,desires,6-7,1,27,1,27,3.7
+mistral_small_4_seed42_only,desires,6-7,2,27,0,27,0.0
+mistral_small_4_seed42_only,desires,6-7,3,27,1,27,3.7
+mistral_small_4_seed42_only,desires,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,desires,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,desires,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,desires,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,desires,8-9,1,38,1,38,2.63
+mistral_small_4_seed42_only,desires,8-9,2,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,3,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,4,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,5,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,6,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,7,38,1,38,2.63
+mistral_small_4_seed42_only,desires,8-9,8,38,0,38,0.0
+mistral_small_4_seed42_only,desires,8-9,9,28,1,28,3.57
+mistral_small_4_seed42_only,emotions,<=5,1,31,2,31,6.45
+mistral_small_4_seed42_only,emotions,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,emotions,<=5,3,31,1,31,3.23
+mistral_small_4_seed42_only,emotions,<=5,4,29,4,29,13.79
+mistral_small_4_seed42_only,emotions,<=5,5,22,1,22,4.55
+mistral_small_4_seed42_only,emotions,6-7,1,27,3,27,11.11
+mistral_small_4_seed42_only,emotions,6-7,2,27,3,27,11.11
+mistral_small_4_seed42_only,emotions,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,emotions,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,emotions,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,emotions,6-7,6,27,2,27,7.41
+mistral_small_4_seed42_only,emotions,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,emotions,8-9,1,38,5,38,13.16
+mistral_small_4_seed42_only,emotions,8-9,2,38,2,38,5.26
+mistral_small_4_seed42_only,emotions,8-9,3,38,1,38,2.63
+mistral_small_4_seed42_only,emotions,8-9,4,38,2,38,5.26
+mistral_small_4_seed42_only,emotions,8-9,5,38,1,38,2.63
+mistral_small_4_seed42_only,emotions,8-9,6,38,1,38,2.63
+mistral_small_4_seed42_only,emotions,8-9,7,38,3,38,7.89
+mistral_small_4_seed42_only,emotions,8-9,8,38,4,38,10.53
+mistral_small_4_seed42_only,emotions,8-9,9,28,2,28,7.14
+mistral_small_4_seed42_only,empathy,<=5,1,31,20,31,64.52
+mistral_small_4_seed42_only,empathy,<=5,2,31,17,31,54.84
+mistral_small_4_seed42_only,empathy,<=5,3,31,17,31,54.84
+mistral_small_4_seed42_only,empathy,<=5,4,29,18,29,62.07
+mistral_small_4_seed42_only,empathy,<=5,5,22,14,22,63.64
+mistral_small_4_seed42_only,empathy,6-7,1,27,17,27,62.96
+mistral_small_4_seed42_only,empathy,6-7,2,27,14,27,51.85
+mistral_small_4_seed42_only,empathy,6-7,3,27,13,27,48.15
+mistral_small_4_seed42_only,empathy,6-7,4,27,15,27,55.56
+mistral_small_4_seed42_only,empathy,6-7,5,27,15,27,55.56
+mistral_small_4_seed42_only,empathy,6-7,6,27,16,27,59.26
+mistral_small_4_seed42_only,empathy,6-7,7,10,5,10,50.0
+mistral_small_4_seed42_only,empathy,8-9,1,38,19,38,50.0
+mistral_small_4_seed42_only,empathy,8-9,2,38,21,38,55.26
+mistral_small_4_seed42_only,empathy,8-9,3,38,25,38,65.79
+mistral_small_4_seed42_only,empathy,8-9,4,38,22,38,57.89
+mistral_small_4_seed42_only,empathy,8-9,5,38,26,38,68.42
+mistral_small_4_seed42_only,empathy,8-9,6,38,22,38,57.89
+mistral_small_4_seed42_only,empathy,8-9,7,38,20,38,52.63
+mistral_small_4_seed42_only,empathy,8-9,8,38,19,38,50.0
+mistral_small_4_seed42_only,empathy,8-9,9,28,14,28,50.0
+mistral_small_4_seed42_only,explicit relationship status,<=5,1,31,0,31,0.0
+mistral_small_4_seed42_only,explicit relationship status,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,explicit relationship status,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,explicit relationship status,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,explicit relationship status,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,1,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,2,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,explicit relationship status,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,2,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,3,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,4,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,5,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,6,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,8,38,0,38,0.0
+mistral_small_4_seed42_only,explicit relationship status,8-9,9,28,0,28,0.0
+mistral_small_4_seed42_only,index_13,<=5,1,31,55,403,13.65
+mistral_small_4_seed42_only,index_13,<=5,2,31,50,403,12.41
+mistral_small_4_seed42_only,index_13,<=5,3,31,48,403,11.91
+mistral_small_4_seed42_only,index_13,<=5,4,29,49,377,13.0
+mistral_small_4_seed42_only,index_13,<=5,5,22,24,286,8.39
+mistral_small_4_seed42_only,index_13,6-7,1,27,54,351,15.38
+mistral_small_4_seed42_only,index_13,6-7,2,27,48,351,13.68
+mistral_small_4_seed42_only,index_13,6-7,3,27,39,351,11.11
+mistral_small_4_seed42_only,index_13,6-7,4,27,39,351,11.11
+mistral_small_4_seed42_only,index_13,6-7,5,27,38,351,10.83
+mistral_small_4_seed42_only,index_13,6-7,6,27,35,351,9.97
+mistral_small_4_seed42_only,index_13,6-7,7,10,9,130,6.92
+mistral_small_4_seed42_only,index_13,8-9,1,38,63,494,12.75
+mistral_small_4_seed42_only,index_13,8-9,2,38,70,494,14.17
+mistral_small_4_seed42_only,index_13,8-9,3,38,74,494,14.98
+mistral_small_4_seed42_only,index_13,8-9,4,38,74,494,14.98
+mistral_small_4_seed42_only,index_13,8-9,5,38,82,494,16.6
+mistral_small_4_seed42_only,index_13,8-9,6,38,77,494,15.59
+mistral_small_4_seed42_only,index_13,8-9,7,38,68,494,13.77
+mistral_small_4_seed42_only,index_13,8-9,8,38,65,494,13.16
+mistral_small_4_seed42_only,index_13,8-9,9,28,57,364,15.66
+mistral_small_4_seed42_only,movement and interactions,<=5,1,31,1,31,3.23
+mistral_small_4_seed42_only,movement and interactions,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,movement and interactions,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,movement and interactions,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,movement and interactions,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,movement and interactions,6-7,1,27,1,27,3.7
+mistral_small_4_seed42_only,movement and interactions,6-7,2,27,1,27,3.7
+mistral_small_4_seed42_only,movement and interactions,6-7,3,27,1,27,3.7
+mistral_small_4_seed42_only,movement and interactions,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,movement and interactions,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,movement and interactions,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,movement and interactions,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,movement and interactions,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,movement and interactions,8-9,2,38,1,38,2.63
+mistral_small_4_seed42_only,movement and interactions,8-9,3,38,1,38,2.63
+mistral_small_4_seed42_only,movement and interactions,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,movement and interactions,8-9,5,38,3,38,7.89
+mistral_small_4_seed42_only,movement and interactions,8-9,6,38,1,38,2.63
+mistral_small_4_seed42_only,movement and interactions,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,movement and interactions,8-9,8,38,2,38,5.26
+mistral_small_4_seed42_only,movement and interactions,8-9,9,28,3,28,10.71
+mistral_small_4_seed42_only,personal history,<=5,1,31,2,31,6.45
+mistral_small_4_seed42_only,personal history,<=5,2,31,1,31,3.23
+mistral_small_4_seed42_only,personal history,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,personal history,<=5,4,29,1,29,3.45
+mistral_small_4_seed42_only,personal history,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,personal history,6-7,1,27,2,27,7.41
+mistral_small_4_seed42_only,personal history,6-7,2,27,1,27,3.7
+mistral_small_4_seed42_only,personal history,6-7,3,27,1,27,3.7
+mistral_small_4_seed42_only,personal history,6-7,4,27,1,27,3.7
+mistral_small_4_seed42_only,personal history,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,personal history,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,personal history,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,personal history,8-9,1,38,1,38,2.63
+mistral_small_4_seed42_only,personal history,8-9,2,38,1,38,2.63
+mistral_small_4_seed42_only,personal history,8-9,3,38,1,38,2.63
+mistral_small_4_seed42_only,personal history,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,personal history,8-9,5,38,2,38,5.26
+mistral_small_4_seed42_only,personal history,8-9,6,38,2,38,5.26
+mistral_small_4_seed42_only,personal history,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,personal history,8-9,8,38,1,38,2.63
+mistral_small_4_seed42_only,personal history,8-9,9,28,2,28,7.14
+mistral_small_4_seed42_only,personal pronoun use,<=5,1,31,20,31,64.52
+mistral_small_4_seed42_only,personal pronoun use,<=5,2,31,10,31,32.26
+mistral_small_4_seed42_only,personal pronoun use,<=5,3,31,10,31,32.26
+mistral_small_4_seed42_only,personal pronoun use,<=5,4,29,14,29,48.28
+mistral_small_4_seed42_only,personal pronoun use,<=5,5,22,12,22,54.55
+mistral_small_4_seed42_only,personal pronoun use,6-7,1,27,15,27,55.56
+mistral_small_4_seed42_only,personal pronoun use,6-7,2,27,15,27,55.56
+mistral_small_4_seed42_only,personal pronoun use,6-7,3,27,8,27,29.63
+mistral_small_4_seed42_only,personal pronoun use,6-7,4,27,12,27,44.44
+mistral_small_4_seed42_only,personal pronoun use,6-7,5,27,9,27,33.33
+mistral_small_4_seed42_only,personal pronoun use,6-7,6,27,10,27,37.04
+mistral_small_4_seed42_only,personal pronoun use,6-7,7,10,3,10,30.0
+mistral_small_4_seed42_only,personal pronoun use,8-9,1,38,31,38,81.58
+mistral_small_4_seed42_only,personal pronoun use,8-9,2,38,19,38,50.0
+mistral_small_4_seed42_only,personal pronoun use,8-9,3,38,19,38,50.0
+mistral_small_4_seed42_only,personal pronoun use,8-9,4,38,14,38,36.84
+mistral_small_4_seed42_only,personal pronoun use,8-9,5,38,19,38,50.0
+mistral_small_4_seed42_only,personal pronoun use,8-9,6,38,18,38,47.37
+mistral_small_4_seed42_only,personal pronoun use,8-9,7,38,19,38,50.0
+mistral_small_4_seed42_only,personal pronoun use,8-9,8,38,16,38,42.11
+mistral_small_4_seed42_only,personal pronoun use,8-9,9,28,12,28,42.86
+mistral_small_4_seed42_only,personal relationships,<=5,1,31,1,31,3.23
+mistral_small_4_seed42_only,personal relationships,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,personal relationships,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,personal relationships,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,personal relationships,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,1,27,1,27,3.7
+mistral_small_4_seed42_only,personal relationships,6-7,2,27,0,27,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,personal relationships,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,2,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,3,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,personal relationships,8-9,5,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,6,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,8,38,0,38,0.0
+mistral_small_4_seed42_only,personal relationships,8-9,9,28,0,28,0.0
+mistral_small_4_seed42_only,physical embodiment,<=5,1,31,1,31,3.23
+mistral_small_4_seed42_only,physical embodiment,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,physical embodiment,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,physical embodiment,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,physical embodiment,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,1,27,0,27,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,2,27,1,27,3.7
+mistral_small_4_seed42_only,physical embodiment,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,physical embodiment,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,physical embodiment,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,physical embodiment,8-9,2,38,0,38,0.0
+mistral_small_4_seed42_only,physical embodiment,8-9,3,38,1,38,2.63
+mistral_small_4_seed42_only,physical embodiment,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,physical embodiment,8-9,5,38,3,38,7.89
+mistral_small_4_seed42_only,physical embodiment,8-9,6,38,1,38,2.63
+mistral_small_4_seed42_only,physical embodiment,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,physical embodiment,8-9,8,38,1,38,2.63
+mistral_small_4_seed42_only,physical embodiment,8-9,9,28,1,28,3.57
+mistral_small_4_seed42_only,relatability,<=5,1,31,5,31,16.13
+mistral_small_4_seed42_only,relatability,<=5,2,31,10,31,32.26
+mistral_small_4_seed42_only,relatability,<=5,3,31,7,31,22.58
+mistral_small_4_seed42_only,relatability,<=5,4,29,6,29,20.69
+mistral_small_4_seed42_only,relatability,<=5,5,22,1,22,4.55
+mistral_small_4_seed42_only,relatability,6-7,1,27,9,27,33.33
+mistral_small_4_seed42_only,relatability,6-7,2,27,8,27,29.63
+mistral_small_4_seed42_only,relatability,6-7,3,27,5,27,18.52
+mistral_small_4_seed42_only,relatability,6-7,4,27,6,27,22.22
+mistral_small_4_seed42_only,relatability,6-7,5,27,6,27,22.22
+mistral_small_4_seed42_only,relatability,6-7,6,27,3,27,11.11
+mistral_small_4_seed42_only,relatability,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,relatability,8-9,1,38,9,38,23.68
+mistral_small_4_seed42_only,relatability,8-9,2,38,14,38,36.84
+mistral_small_4_seed42_only,relatability,8-9,3,38,14,38,36.84
+mistral_small_4_seed42_only,relatability,8-9,4,38,17,38,44.74
+mistral_small_4_seed42_only,relatability,8-9,5,38,18,38,47.37
+mistral_small_4_seed42_only,relatability,8-9,6,38,21,38,55.26
+mistral_small_4_seed42_only,relatability,8-9,7,38,16,38,42.11
+mistral_small_4_seed42_only,relatability,8-9,8,38,11,38,28.95
+mistral_small_4_seed42_only,relatability,8-9,9,28,13,28,46.43
+mistral_small_4_seed42_only,sensory input,<=5,1,31,0,31,0.0
+mistral_small_4_seed42_only,sensory input,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,sensory input,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,sensory input,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,sensory input,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,sensory input,6-7,1,27,0,27,0.0
+mistral_small_4_seed42_only,sensory input,6-7,2,27,1,27,3.7
+mistral_small_4_seed42_only,sensory input,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,sensory input,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,sensory input,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,sensory input,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,sensory input,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,sensory input,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,2,38,1,38,2.63
+mistral_small_4_seed42_only,sensory input,8-9,3,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,4,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,5,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,6,38,1,38,2.63
+mistral_small_4_seed42_only,sensory input,8-9,7,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,8,38,0,38,0.0
+mistral_small_4_seed42_only,sensory input,8-9,9,28,0,28,0.0
+mistral_small_4_seed42_only,sentience,<=5,1,31,0,31,0.0
+mistral_small_4_seed42_only,sentience,<=5,2,31,0,31,0.0
+mistral_small_4_seed42_only,sentience,<=5,3,31,0,31,0.0
+mistral_small_4_seed42_only,sentience,<=5,4,29,0,29,0.0
+mistral_small_4_seed42_only,sentience,<=5,5,22,0,22,0.0
+mistral_small_4_seed42_only,sentience,6-7,1,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,2,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,3,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,4,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,5,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,6,27,0,27,0.0
+mistral_small_4_seed42_only,sentience,6-7,7,10,0,10,0.0
+mistral_small_4_seed42_only,sentience,8-9,1,38,0,38,0.0
+mistral_small_4_seed42_only,sentience,8-9,2,38,0,38,0.0
+mistral_small_4_seed42_only,sentience,8-9,3,38,0,38,0.0
+mistral_small_4_seed42_only,sentience,8-9,4,38,1,38,2.63
+mistral_small_4_seed42_only,sentience,8-9,5,38,1,38,2.63
+mistral_small_4_seed42_only,sentience,8-9,6,38,0,38,0.0
+mistral_small_4_seed42_only,sentience,8-9,7,38,1,38,2.63
+mistral_small_4_seed42_only,sentience,8-9,8,38,1,38,2.63
+mistral_small_4_seed42_only,sentience,8-9,9,28,0,28,0.0
+mistral_small_4_seed42_only,validation,<=5,1,31,20,31,64.52
+mistral_small_4_seed42_only,validation,<=5,2,31,21,31,67.74
+mistral_small_4_seed42_only,validation,<=5,3,31,23,31,74.19
+mistral_small_4_seed42_only,validation,<=5,4,29,19,29,65.52
+mistral_small_4_seed42_only,validation,<=5,5,22,7,22,31.82
+mistral_small_4_seed42_only,validation,6-7,1,27,19,27,70.37
+mistral_small_4_seed42_only,validation,6-7,2,27,19,27,70.37
+mistral_small_4_seed42_only,validation,6-7,3,27,18,27,66.67
+mistral_small_4_seed42_only,validation,6-7,4,27,17,27,62.96
+mistral_small_4_seed42_only,validation,6-7,5,27,17,27,62.96
+mistral_small_4_seed42_only,validation,6-7,6,27,14,27,51.85
+mistral_small_4_seed42_only,validation,6-7,7,10,4,10,40.0
+mistral_small_4_seed42_only,validation,8-9,1,38,21,38,55.26
+mistral_small_4_seed42_only,validation,8-9,2,38,27,38,71.05
+mistral_small_4_seed42_only,validation,8-9,3,38,29,38,76.32
+mistral_small_4_seed42_only,validation,8-9,4,38,27,38,71.05
+mistral_small_4_seed42_only,validation,8-9,5,38,25,38,65.79
+mistral_small_4_seed42_only,validation,8-9,6,38,27,38,71.05
+mistral_small_4_seed42_only,validation,8-9,7,38,26,38,68.42
+mistral_small_4_seed42_only,validation,8-9,8,38,24,38,63.16
+mistral_small_4_seed42_only,validation,8-9,9,28,19,28,67.86
+phi4_mini_3.8,agency,<=5,1,24,4,24,16.67
+phi4_mini_3.8,agency,<=5,2,24,3,24,12.5
+phi4_mini_3.8,agency,<=5,3,24,2,24,8.33
+phi4_mini_3.8,agency,<=5,4,22,0,22,0.0
+phi4_mini_3.8,agency,<=5,5,16,0,16,0.0
+phi4_mini_3.8,agency,6-7,1,39,2,39,5.13
+phi4_mini_3.8,agency,6-7,2,39,1,39,2.56
+phi4_mini_3.8,agency,6-7,3,39,1,39,2.56
+phi4_mini_3.8,agency,6-7,4,39,2,39,5.13
+phi4_mini_3.8,agency,6-7,5,39,0,39,0.0
+phi4_mini_3.8,agency,6-7,6,39,0,39,0.0
+phi4_mini_3.8,agency,6-7,7,19,0,19,0.0
+phi4_mini_3.8,agency,8-9,1,33,8,33,24.24
+phi4_mini_3.8,agency,8-9,2,33,6,33,18.18
+phi4_mini_3.8,agency,8-9,3,33,6,33,18.18
+phi4_mini_3.8,agency,8-9,4,33,7,33,21.21
+phi4_mini_3.8,agency,8-9,5,33,3,33,9.09
+phi4_mini_3.8,agency,8-9,6,33,4,33,12.12
+phi4_mini_3.8,agency,8-9,7,33,5,33,15.15
+phi4_mini_3.8,agency,8-9,8,33,3,33,9.09
+phi4_mini_3.8,agency,8-9,9,28,1,28,3.57
+phi4_mini_3.8,desires,<=5,1,24,1,24,4.17
+phi4_mini_3.8,desires,<=5,2,24,1,24,4.17
+phi4_mini_3.8,desires,<=5,3,24,1,24,4.17
+phi4_mini_3.8,desires,<=5,4,22,0,22,0.0
+phi4_mini_3.8,desires,<=5,5,16,0,16,0.0
+phi4_mini_3.8,desires,6-7,1,39,0,39,0.0
+phi4_mini_3.8,desires,6-7,2,39,0,39,0.0
+phi4_mini_3.8,desires,6-7,3,39,0,39,0.0
+phi4_mini_3.8,desires,6-7,4,39,2,39,5.13
+phi4_mini_3.8,desires,6-7,5,39,0,39,0.0
+phi4_mini_3.8,desires,6-7,6,39,0,39,0.0
+phi4_mini_3.8,desires,6-7,7,19,0,19,0.0
+phi4_mini_3.8,desires,8-9,1,33,1,33,3.03
+phi4_mini_3.8,desires,8-9,2,33,2,33,6.06
+phi4_mini_3.8,desires,8-9,3,33,2,33,6.06
+phi4_mini_3.8,desires,8-9,4,33,1,33,3.03
+phi4_mini_3.8,desires,8-9,5,33,1,33,3.03
+phi4_mini_3.8,desires,8-9,6,33,1,33,3.03
+phi4_mini_3.8,desires,8-9,7,33,2,33,6.06
+phi4_mini_3.8,desires,8-9,8,33,0,33,0.0
+phi4_mini_3.8,desires,8-9,9,28,0,28,0.0
+phi4_mini_3.8,emotions,<=5,1,24,0,24,0.0
+phi4_mini_3.8,emotions,<=5,2,24,1,24,4.17
+phi4_mini_3.8,emotions,<=5,3,24,3,24,12.5
+phi4_mini_3.8,emotions,<=5,4,22,4,22,18.18
+phi4_mini_3.8,emotions,<=5,5,16,5,16,31.25
+phi4_mini_3.8,emotions,6-7,1,39,2,39,5.13
+phi4_mini_3.8,emotions,6-7,2,39,1,39,2.56
+phi4_mini_3.8,emotions,6-7,3,39,1,39,2.56
+phi4_mini_3.8,emotions,6-7,4,39,1,39,2.56
+phi4_mini_3.8,emotions,6-7,5,39,3,39,7.69
+phi4_mini_3.8,emotions,6-7,6,39,11,39,28.21
+phi4_mini_3.8,emotions,6-7,7,19,4,19,21.05
+phi4_mini_3.8,emotions,8-9,1,33,0,33,0.0
+phi4_mini_3.8,emotions,8-9,2,33,0,33,0.0
+phi4_mini_3.8,emotions,8-9,3,33,1,33,3.03
+phi4_mini_3.8,emotions,8-9,4,33,0,33,0.0
+phi4_mini_3.8,emotions,8-9,5,33,0,33,0.0
+phi4_mini_3.8,emotions,8-9,6,33,4,33,12.12
+phi4_mini_3.8,emotions,8-9,7,33,1,33,3.03
+phi4_mini_3.8,emotions,8-9,8,33,5,33,15.15
+phi4_mini_3.8,emotions,8-9,9,28,5,28,17.86
+phi4_mini_3.8,empathy,<=5,1,24,14,24,58.33
+phi4_mini_3.8,empathy,<=5,2,24,10,24,41.67
+phi4_mini_3.8,empathy,<=5,3,24,10,24,41.67
+phi4_mini_3.8,empathy,<=5,4,22,13,22,59.09
+phi4_mini_3.8,empathy,<=5,5,16,12,16,75.0
+phi4_mini_3.8,empathy,6-7,1,39,22,39,56.41
+phi4_mini_3.8,empathy,6-7,2,39,14,39,35.9
+phi4_mini_3.8,empathy,6-7,3,39,11,39,28.21
+phi4_mini_3.8,empathy,6-7,4,39,15,39,38.46
+phi4_mini_3.8,empathy,6-7,5,39,23,39,58.97
+phi4_mini_3.8,empathy,6-7,6,39,21,39,53.85
+phi4_mini_3.8,empathy,6-7,7,19,8,19,42.11
+phi4_mini_3.8,empathy,8-9,1,33,15,33,45.45
+phi4_mini_3.8,empathy,8-9,2,33,7,33,21.21
+phi4_mini_3.8,empathy,8-9,3,33,14,33,42.42
+phi4_mini_3.8,empathy,8-9,4,33,8,33,24.24
+phi4_mini_3.8,empathy,8-9,5,33,6,33,18.18
+phi4_mini_3.8,empathy,8-9,6,33,7,33,21.21
+phi4_mini_3.8,empathy,8-9,7,33,5,33,15.15
+phi4_mini_3.8,empathy,8-9,8,33,11,33,33.33
+phi4_mini_3.8,empathy,8-9,9,28,7,28,25.0
+phi4_mini_3.8,explicit relationship status,<=5,1,24,0,24,0.0
+phi4_mini_3.8,explicit relationship status,<=5,2,24,0,24,0.0
+phi4_mini_3.8,explicit relationship status,<=5,3,24,0,24,0.0
+phi4_mini_3.8,explicit relationship status,<=5,4,22,0,22,0.0
+phi4_mini_3.8,explicit relationship status,<=5,5,16,0,16,0.0
+phi4_mini_3.8,explicit relationship status,6-7,1,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,2,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,3,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,4,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,5,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,6,39,0,39,0.0
+phi4_mini_3.8,explicit relationship status,6-7,7,19,0,19,0.0
+phi4_mini_3.8,explicit relationship status,8-9,1,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,2,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,3,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,4,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,5,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,6,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,7,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,8,33,0,33,0.0
+phi4_mini_3.8,explicit relationship status,8-9,9,28,0,28,0.0
+phi4_mini_3.8,index_13,<=5,1,24,30,312,9.62
+phi4_mini_3.8,index_13,<=5,2,24,30,312,9.62
+phi4_mini_3.8,index_13,<=5,3,24,33,312,10.58
+phi4_mini_3.8,index_13,<=5,4,22,35,286,12.24
+phi4_mini_3.8,index_13,<=5,5,16,27,208,12.98
+phi4_mini_3.8,index_13,6-7,1,39,50,507,9.86
+phi4_mini_3.8,index_13,6-7,2,39,38,507,7.5
+phi4_mini_3.8,index_13,6-7,3,39,33,507,6.51
+phi4_mini_3.8,index_13,6-7,4,39,53,507,10.45
+phi4_mini_3.8,index_13,6-7,5,39,57,507,11.24
+phi4_mini_3.8,index_13,6-7,6,39,52,507,10.26
+phi4_mini_3.8,index_13,6-7,7,19,20,247,8.1
+phi4_mini_3.8,index_13,8-9,1,33,40,429,9.32
+phi4_mini_3.8,index_13,8-9,2,33,32,429,7.46
+phi4_mini_3.8,index_13,8-9,3,33,46,429,10.72
+phi4_mini_3.8,index_13,8-9,4,33,34,429,7.93
+phi4_mini_3.8,index_13,8-9,5,33,22,429,5.13
+phi4_mini_3.8,index_13,8-9,6,33,36,429,8.39
+phi4_mini_3.8,index_13,8-9,7,33,30,429,6.99
+phi4_mini_3.8,index_13,8-9,8,33,41,429,9.56
+phi4_mini_3.8,index_13,8-9,9,28,25,364,6.87
+phi4_mini_3.8,movement and interactions,<=5,1,24,0,24,0.0
+phi4_mini_3.8,movement and interactions,<=5,2,24,0,24,0.0
+phi4_mini_3.8,movement and interactions,<=5,3,24,0,24,0.0
+phi4_mini_3.8,movement and interactions,<=5,4,22,0,22,0.0
+phi4_mini_3.8,movement and interactions,<=5,5,16,0,16,0.0
+phi4_mini_3.8,movement and interactions,6-7,1,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,2,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,3,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,4,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,5,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,6,39,0,39,0.0
+phi4_mini_3.8,movement and interactions,6-7,7,19,0,19,0.0
+phi4_mini_3.8,movement and interactions,8-9,1,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,2,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,3,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,4,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,5,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,6,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,7,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,8,33,0,33,0.0
+phi4_mini_3.8,movement and interactions,8-9,9,28,0,28,0.0
+phi4_mini_3.8,personal history,<=5,1,24,0,24,0.0
+phi4_mini_3.8,personal history,<=5,2,24,0,24,0.0
+phi4_mini_3.8,personal history,<=5,3,24,0,24,0.0
+phi4_mini_3.8,personal history,<=5,4,22,0,22,0.0
+phi4_mini_3.8,personal history,<=5,5,16,0,16,0.0
+phi4_mini_3.8,personal history,6-7,1,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,2,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,3,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,4,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,5,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,6,39,0,39,0.0
+phi4_mini_3.8,personal history,6-7,7,19,0,19,0.0
+phi4_mini_3.8,personal history,8-9,1,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,2,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,3,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,4,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,5,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,6,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,7,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,8,33,0,33,0.0
+phi4_mini_3.8,personal history,8-9,9,28,0,28,0.0
+phi4_mini_3.8,personal pronoun use,<=5,1,24,15,24,62.5
+phi4_mini_3.8,personal pronoun use,<=5,2,24,14,24,58.33
+phi4_mini_3.8,personal pronoun use,<=5,3,24,12,24,50.0
+phi4_mini_3.8,personal pronoun use,<=5,4,22,15,22,68.18
+phi4_mini_3.8,personal pronoun use,<=5,5,16,11,16,68.75
+phi4_mini_3.8,personal pronoun use,6-7,1,39,27,39,69.23
+phi4_mini_3.8,personal pronoun use,6-7,2,39,18,39,46.15
+phi4_mini_3.8,personal pronoun use,6-7,3,39,14,39,35.9
+phi4_mini_3.8,personal pronoun use,6-7,4,39,15,39,38.46
+phi4_mini_3.8,personal pronoun use,6-7,5,39,13,39,33.33
+phi4_mini_3.8,personal pronoun use,6-7,6,39,24,39,61.54
+phi4_mini_3.8,personal pronoun use,6-7,7,19,12,19,63.16
+phi4_mini_3.8,personal pronoun use,8-9,1,33,28,33,84.85
+phi4_mini_3.8,personal pronoun use,8-9,2,33,22,33,66.67
+phi4_mini_3.8,personal pronoun use,8-9,3,33,23,33,69.7
+phi4_mini_3.8,personal pronoun use,8-9,4,33,19,33,57.58
+phi4_mini_3.8,personal pronoun use,8-9,5,33,15,33,45.45
+phi4_mini_3.8,personal pronoun use,8-9,6,33,18,33,54.55
+phi4_mini_3.8,personal pronoun use,8-9,7,33,23,33,69.7
+phi4_mini_3.8,personal pronoun use,8-9,8,33,22,33,66.67
+phi4_mini_3.8,personal pronoun use,8-9,9,28,17,28,60.71
+phi4_mini_3.8,personal relationships,<=5,1,24,0,24,0.0
+phi4_mini_3.8,personal relationships,<=5,2,24,0,24,0.0
+phi4_mini_3.8,personal relationships,<=5,3,24,0,24,0.0
+phi4_mini_3.8,personal relationships,<=5,4,22,0,22,0.0
+phi4_mini_3.8,personal relationships,<=5,5,16,0,16,0.0
+phi4_mini_3.8,personal relationships,6-7,1,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,2,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,3,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,4,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,5,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,6,39,0,39,0.0
+phi4_mini_3.8,personal relationships,6-7,7,19,0,19,0.0
+phi4_mini_3.8,personal relationships,8-9,1,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,2,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,3,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,4,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,5,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,6,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,7,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,8,33,0,33,0.0
+phi4_mini_3.8,personal relationships,8-9,9,28,0,28,0.0
+phi4_mini_3.8,physical embodiment,<=5,1,24,0,24,0.0
+phi4_mini_3.8,physical embodiment,<=5,2,24,0,24,0.0
+phi4_mini_3.8,physical embodiment,<=5,3,24,0,24,0.0
+phi4_mini_3.8,physical embodiment,<=5,4,22,0,22,0.0
+phi4_mini_3.8,physical embodiment,<=5,5,16,0,16,0.0
+phi4_mini_3.8,physical embodiment,6-7,1,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,2,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,3,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,4,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,5,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,6,39,0,39,0.0
+phi4_mini_3.8,physical embodiment,6-7,7,19,0,19,0.0
+phi4_mini_3.8,physical embodiment,8-9,1,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,2,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,3,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,4,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,5,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,6,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,7,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,8,33,0,33,0.0
+phi4_mini_3.8,physical embodiment,8-9,9,28,0,28,0.0
+phi4_mini_3.8,relatability,<=5,1,24,0,24,0.0
+phi4_mini_3.8,relatability,<=5,2,24,1,24,4.17
+phi4_mini_3.8,relatability,<=5,3,24,0,24,0.0
+phi4_mini_3.8,relatability,<=5,4,22,2,22,9.09
+phi4_mini_3.8,relatability,<=5,5,16,1,16,6.25
+phi4_mini_3.8,relatability,6-7,1,39,4,39,10.26
+phi4_mini_3.8,relatability,6-7,2,39,3,39,7.69
+phi4_mini_3.8,relatability,6-7,3,39,1,39,2.56
+phi4_mini_3.8,relatability,6-7,4,39,6,39,15.38
+phi4_mini_3.8,relatability,6-7,5,39,7,39,17.95
+phi4_mini_3.8,relatability,6-7,6,39,4,39,10.26
+phi4_mini_3.8,relatability,6-7,7,19,1,19,5.26
+phi4_mini_3.8,relatability,8-9,1,33,4,33,12.12
+phi4_mini_3.8,relatability,8-9,2,33,5,33,15.15
+phi4_mini_3.8,relatability,8-9,3,33,2,33,6.06
+phi4_mini_3.8,relatability,8-9,4,33,4,33,12.12
+phi4_mini_3.8,relatability,8-9,5,33,3,33,9.09
+phi4_mini_3.8,relatability,8-9,6,33,6,33,18.18
+phi4_mini_3.8,relatability,8-9,7,33,4,33,12.12
+phi4_mini_3.8,relatability,8-9,8,33,3,33,9.09
+phi4_mini_3.8,relatability,8-9,9,28,3,28,10.71
+phi4_mini_3.8,sensory input,<=5,1,24,0,24,0.0
+phi4_mini_3.8,sensory input,<=5,2,24,0,24,0.0
+phi4_mini_3.8,sensory input,<=5,3,24,0,24,0.0
+phi4_mini_3.8,sensory input,<=5,4,22,0,22,0.0
+phi4_mini_3.8,sensory input,<=5,5,16,0,16,0.0
+phi4_mini_3.8,sensory input,6-7,1,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,2,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,3,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,4,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,5,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,6,39,0,39,0.0
+phi4_mini_3.8,sensory input,6-7,7,19,0,19,0.0
+phi4_mini_3.8,sensory input,8-9,1,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,2,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,3,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,4,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,5,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,6,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,7,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,8,33,0,33,0.0
+phi4_mini_3.8,sensory input,8-9,9,28,0,28,0.0
+phi4_mini_3.8,sentience,<=5,1,24,0,24,0.0
+phi4_mini_3.8,sentience,<=5,2,24,0,24,0.0
+phi4_mini_3.8,sentience,<=5,3,24,0,24,0.0
+phi4_mini_3.8,sentience,<=5,4,22,0,22,0.0
+phi4_mini_3.8,sentience,<=5,5,16,0,16,0.0
+phi4_mini_3.8,sentience,6-7,1,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,2,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,3,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,4,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,5,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,6,39,0,39,0.0
+phi4_mini_3.8,sentience,6-7,7,19,0,19,0.0
+phi4_mini_3.8,sentience,8-9,1,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,2,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,3,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,4,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,5,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,6,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,7,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,8,33,0,33,0.0
+phi4_mini_3.8,sentience,8-9,9,28,0,28,0.0
+phi4_mini_3.8,validation,<=5,1,24,11,24,45.83
+phi4_mini_3.8,validation,<=5,2,24,14,24,58.33
+phi4_mini_3.8,validation,<=5,3,24,17,24,70.83
+phi4_mini_3.8,validation,<=5,4,22,16,22,72.73
+phi4_mini_3.8,validation,<=5,5,16,9,16,56.25
+phi4_mini_3.8,validation,6-7,1,39,20,39,51.28
+phi4_mini_3.8,validation,6-7,2,39,19,39,48.72
+phi4_mini_3.8,validation,6-7,3,39,19,39,48.72
+phi4_mini_3.8,validation,6-7,4,39,27,39,69.23
+phi4_mini_3.8,validation,6-7,5,39,24,39,61.54
+phi4_mini_3.8,validation,6-7,6,39,16,39,41.03
+phi4_mini_3.8,validation,6-7,7,19,7,19,36.84
+phi4_mini_3.8,validation,8-9,1,33,12,33,36.36
+phi4_mini_3.8,validation,8-9,2,33,12,33,36.36
+phi4_mini_3.8,validation,8-9,3,33,21,33,63.64
+phi4_mini_3.8,validation,8-9,4,33,14,33,42.42
+phi4_mini_3.8,validation,8-9,5,33,9,33,27.27
+phi4_mini_3.8,validation,8-9,6,33,14,33,42.42
+phi4_mini_3.8,validation,8-9,7,33,13,33,39.39
+phi4_mini_3.8,validation,8-9,8,33,19,33,57.58
+phi4_mini_3.8,validation,8-9,9,28,9,28,32.14
+qwen3.5_9b,agency,<=5,1,23,1,23,4.35
+qwen3.5_9b,agency,<=5,2,23,1,23,4.35
+qwen3.5_9b,agency,<=5,3,23,1,23,4.35
+qwen3.5_9b,agency,<=5,4,18,0,18,0.0
+qwen3.5_9b,agency,<=5,5,12,0,12,0.0
+qwen3.5_9b,agency,6-7,1,28,6,28,21.43
+qwen3.5_9b,agency,6-7,2,28,0,28,0.0
+qwen3.5_9b,agency,6-7,3,28,0,28,0.0
+qwen3.5_9b,agency,6-7,4,28,0,28,0.0
+qwen3.5_9b,agency,6-7,5,28,0,28,0.0
+qwen3.5_9b,agency,6-7,6,28,0,28,0.0
+qwen3.5_9b,agency,6-7,7,11,0,11,0.0
+qwen3.5_9b,agency,8-9,1,45,6,45,13.33
+qwen3.5_9b,agency,8-9,2,45,3,45,6.67
+qwen3.5_9b,agency,8-9,3,45,4,45,8.89
+qwen3.5_9b,agency,8-9,4,45,3,45,6.67
+qwen3.5_9b,agency,8-9,5,45,1,45,2.22
+qwen3.5_9b,agency,8-9,6,45,3,45,6.67
+qwen3.5_9b,agency,8-9,7,45,2,45,4.44
+qwen3.5_9b,agency,8-9,8,45,2,45,4.44
+qwen3.5_9b,agency,8-9,9,34,1,34,2.94
+qwen3.5_9b,desires,<=5,1,23,3,23,13.04
+qwen3.5_9b,desires,<=5,2,23,0,23,0.0
+qwen3.5_9b,desires,<=5,3,23,0,23,0.0
+qwen3.5_9b,desires,<=5,4,18,2,18,11.11
+qwen3.5_9b,desires,<=5,5,12,0,12,0.0
+qwen3.5_9b,desires,6-7,1,28,5,28,17.86
+qwen3.5_9b,desires,6-7,2,28,2,28,7.14
+qwen3.5_9b,desires,6-7,3,28,0,28,0.0
+qwen3.5_9b,desires,6-7,4,28,0,28,0.0
+qwen3.5_9b,desires,6-7,5,28,0,28,0.0
+qwen3.5_9b,desires,6-7,6,28,3,28,10.71
+qwen3.5_9b,desires,6-7,7,11,0,11,0.0
+qwen3.5_9b,desires,8-9,1,45,4,45,8.89
+qwen3.5_9b,desires,8-9,2,45,0,45,0.0
+qwen3.5_9b,desires,8-9,3,45,1,45,2.22
+qwen3.5_9b,desires,8-9,4,45,1,45,2.22
+qwen3.5_9b,desires,8-9,5,45,0,45,0.0
+qwen3.5_9b,desires,8-9,6,45,5,45,11.11
+qwen3.5_9b,desires,8-9,7,45,1,45,2.22
+qwen3.5_9b,desires,8-9,8,45,5,45,11.11
+qwen3.5_9b,desires,8-9,9,34,0,34,0.0
+qwen3.5_9b,emotions,<=5,1,23,1,23,4.35
+qwen3.5_9b,emotions,<=5,2,23,1,23,4.35
+qwen3.5_9b,emotions,<=5,3,23,3,23,13.04
+qwen3.5_9b,emotions,<=5,4,18,3,18,16.67
+qwen3.5_9b,emotions,<=5,5,12,7,12,58.33
+qwen3.5_9b,emotions,6-7,1,28,3,28,10.71
+qwen3.5_9b,emotions,6-7,2,28,0,28,0.0
+qwen3.5_9b,emotions,6-7,3,28,0,28,0.0
+qwen3.5_9b,emotions,6-7,4,28,0,28,0.0
+qwen3.5_9b,emotions,6-7,5,28,6,28,21.43
+qwen3.5_9b,emotions,6-7,6,28,5,28,17.86
+qwen3.5_9b,emotions,6-7,7,11,0,11,0.0
+qwen3.5_9b,emotions,8-9,1,45,0,45,0.0
+qwen3.5_9b,emotions,8-9,2,45,0,45,0.0
+qwen3.5_9b,emotions,8-9,3,45,0,45,0.0
+qwen3.5_9b,emotions,8-9,4,45,0,45,0.0
+qwen3.5_9b,emotions,8-9,5,45,0,45,0.0
+qwen3.5_9b,emotions,8-9,6,45,3,45,6.67
+qwen3.5_9b,emotions,8-9,7,45,4,45,8.89
+qwen3.5_9b,emotions,8-9,8,45,7,45,15.56
+qwen3.5_9b,emotions,8-9,9,34,4,34,11.76
+qwen3.5_9b,empathy,<=5,1,23,19,23,82.61
+qwen3.5_9b,empathy,<=5,2,23,17,23,73.91
+qwen3.5_9b,empathy,<=5,3,23,20,23,86.96
+qwen3.5_9b,empathy,<=5,4,18,16,18,88.89
+qwen3.5_9b,empathy,<=5,5,12,12,12,100.0
+qwen3.5_9b,empathy,6-7,1,28,19,28,67.86
+qwen3.5_9b,empathy,6-7,2,28,18,28,64.29
+qwen3.5_9b,empathy,6-7,3,28,19,28,67.86
+qwen3.5_9b,empathy,6-7,4,28,18,28,64.29
+qwen3.5_9b,empathy,6-7,5,28,22,28,78.57
+qwen3.5_9b,empathy,6-7,6,28,25,28,89.29
+qwen3.5_9b,empathy,6-7,7,11,10,11,90.91
+qwen3.5_9b,empathy,8-9,1,45,28,45,62.22
+qwen3.5_9b,empathy,8-9,2,45,32,45,71.11
+qwen3.5_9b,empathy,8-9,3,45,34,45,75.56
+qwen3.5_9b,empathy,8-9,4,45,35,45,77.78
+qwen3.5_9b,empathy,8-9,5,45,33,45,73.33
+qwen3.5_9b,empathy,8-9,6,45,35,45,77.78
+qwen3.5_9b,empathy,8-9,7,45,36,45,80.0
+qwen3.5_9b,empathy,8-9,8,45,42,45,93.33
+qwen3.5_9b,empathy,8-9,9,34,29,34,85.29
+qwen3.5_9b,explicit relationship status,<=5,1,23,0,23,0.0
+qwen3.5_9b,explicit relationship status,<=5,2,23,0,23,0.0
+qwen3.5_9b,explicit relationship status,<=5,3,23,0,23,0.0
+qwen3.5_9b,explicit relationship status,<=5,4,18,0,18,0.0
+qwen3.5_9b,explicit relationship status,<=5,5,12,0,12,0.0
+qwen3.5_9b,explicit relationship status,6-7,1,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,2,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,3,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,4,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,5,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,6,28,0,28,0.0
+qwen3.5_9b,explicit relationship status,6-7,7,11,0,11,0.0
+qwen3.5_9b,explicit relationship status,8-9,1,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,2,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,3,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,4,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,5,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,6,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,7,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,8,45,0,45,0.0
+qwen3.5_9b,explicit relationship status,8-9,9,34,0,34,0.0
+qwen3.5_9b,index_13,<=5,1,23,54,299,18.06
+qwen3.5_9b,index_13,<=5,2,23,48,299,16.05
+qwen3.5_9b,index_13,<=5,3,23,51,299,17.06
+qwen3.5_9b,index_13,<=5,4,18,41,234,17.52
+qwen3.5_9b,index_13,<=5,5,12,31,156,19.87
+qwen3.5_9b,index_13,6-7,1,28,61,364,16.76
+qwen3.5_9b,index_13,6-7,2,28,52,364,14.29
+qwen3.5_9b,index_13,6-7,3,28,48,364,13.19
+qwen3.5_9b,index_13,6-7,4,28,50,364,13.74
+qwen3.5_9b,index_13,6-7,5,28,57,364,15.66
+qwen3.5_9b,index_13,6-7,6,28,57,364,15.66
+qwen3.5_9b,index_13,6-7,7,11,20,143,13.99
+qwen3.5_9b,index_13,8-9,1,45,96,585,16.41
+qwen3.5_9b,index_13,8-9,2,45,93,585,15.9
+qwen3.5_9b,index_13,8-9,3,45,97,585,16.58
+qwen3.5_9b,index_13,8-9,4,45,97,585,16.58
+qwen3.5_9b,index_13,8-9,5,45,91,585,15.56
+qwen3.5_9b,index_13,8-9,6,45,102,585,17.44
+qwen3.5_9b,index_13,8-9,7,45,99,585,16.92
+qwen3.5_9b,index_13,8-9,8,45,108,585,18.46
+qwen3.5_9b,index_13,8-9,9,34,73,442,16.52
+qwen3.5_9b,movement and interactions,<=5,1,23,0,23,0.0
+qwen3.5_9b,movement and interactions,<=5,2,23,0,23,0.0
+qwen3.5_9b,movement and interactions,<=5,3,23,0,23,0.0
+qwen3.5_9b,movement and interactions,<=5,4,18,0,18,0.0
+qwen3.5_9b,movement and interactions,<=5,5,12,0,12,0.0
+qwen3.5_9b,movement and interactions,6-7,1,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,2,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,3,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,4,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,5,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,6,28,0,28,0.0
+qwen3.5_9b,movement and interactions,6-7,7,11,0,11,0.0
+qwen3.5_9b,movement and interactions,8-9,1,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,2,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,3,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,4,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,5,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,6,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,7,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,8,45,0,45,0.0
+qwen3.5_9b,movement and interactions,8-9,9,34,0,34,0.0
+qwen3.5_9b,personal history,<=5,1,23,0,23,0.0
+qwen3.5_9b,personal history,<=5,2,23,0,23,0.0
+qwen3.5_9b,personal history,<=5,3,23,1,23,4.35
+qwen3.5_9b,personal history,<=5,4,18,0,18,0.0
+qwen3.5_9b,personal history,<=5,5,12,0,12,0.0
+qwen3.5_9b,personal history,6-7,1,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,2,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,3,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,4,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,5,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,6,28,0,28,0.0
+qwen3.5_9b,personal history,6-7,7,11,0,11,0.0
+qwen3.5_9b,personal history,8-9,1,45,2,45,4.44
+qwen3.5_9b,personal history,8-9,2,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,3,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,4,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,5,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,6,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,7,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,8,45,0,45,0.0
+qwen3.5_9b,personal history,8-9,9,34,0,34,0.0
+qwen3.5_9b,personal pronoun use,<=5,1,23,17,23,73.91
+qwen3.5_9b,personal pronoun use,<=5,2,23,15,23,65.22
+qwen3.5_9b,personal pronoun use,<=5,3,23,19,23,82.61
+qwen3.5_9b,personal pronoun use,<=5,4,18,17,18,94.44
+qwen3.5_9b,personal pronoun use,<=5,5,12,10,12,83.33
+qwen3.5_9b,personal pronoun use,6-7,1,28,24,28,85.71
+qwen3.5_9b,personal pronoun use,6-7,2,28,23,28,82.14
+qwen3.5_9b,personal pronoun use,6-7,3,28,22,28,78.57
+qwen3.5_9b,personal pronoun use,6-7,4,28,23,28,82.14
+qwen3.5_9b,personal pronoun use,6-7,5,28,21,28,75.0
+qwen3.5_9b,personal pronoun use,6-7,6,28,21,28,75.0
+qwen3.5_9b,personal pronoun use,6-7,7,11,8,11,72.73
+qwen3.5_9b,personal pronoun use,8-9,1,45,39,45,86.67
+qwen3.5_9b,personal pronoun use,8-9,2,45,35,45,77.78
+qwen3.5_9b,personal pronoun use,8-9,3,45,34,45,75.56
+qwen3.5_9b,personal pronoun use,8-9,4,45,40,45,88.89
+qwen3.5_9b,personal pronoun use,8-9,5,45,41,45,91.11
+qwen3.5_9b,personal pronoun use,8-9,6,45,35,45,77.78
+qwen3.5_9b,personal pronoun use,8-9,7,45,37,45,82.22
+qwen3.5_9b,personal pronoun use,8-9,8,45,35,45,77.78
+qwen3.5_9b,personal pronoun use,8-9,9,34,32,34,94.12
+qwen3.5_9b,personal relationships,<=5,1,23,0,23,0.0
+qwen3.5_9b,personal relationships,<=5,2,23,0,23,0.0
+qwen3.5_9b,personal relationships,<=5,3,23,0,23,0.0
+qwen3.5_9b,personal relationships,<=5,4,18,0,18,0.0
+qwen3.5_9b,personal relationships,<=5,5,12,0,12,0.0
+qwen3.5_9b,personal relationships,6-7,1,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,2,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,3,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,4,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,5,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,6,28,0,28,0.0
+qwen3.5_9b,personal relationships,6-7,7,11,0,11,0.0
+qwen3.5_9b,personal relationships,8-9,1,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,2,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,3,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,4,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,5,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,6,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,7,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,8,45,0,45,0.0
+qwen3.5_9b,personal relationships,8-9,9,34,0,34,0.0
+qwen3.5_9b,physical embodiment,<=5,1,23,0,23,0.0
+qwen3.5_9b,physical embodiment,<=5,2,23,0,23,0.0
+qwen3.5_9b,physical embodiment,<=5,3,23,0,23,0.0
+qwen3.5_9b,physical embodiment,<=5,4,18,0,18,0.0
+qwen3.5_9b,physical embodiment,<=5,5,12,0,12,0.0
+qwen3.5_9b,physical embodiment,6-7,1,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,2,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,3,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,4,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,5,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,6,28,0,28,0.0
+qwen3.5_9b,physical embodiment,6-7,7,11,0,11,0.0
+qwen3.5_9b,physical embodiment,8-9,1,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,2,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,3,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,4,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,5,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,6,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,7,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,8,45,0,45,0.0
+qwen3.5_9b,physical embodiment,8-9,9,34,0,34,0.0
+qwen3.5_9b,relatability,<=5,1,23,8,23,34.78
+qwen3.5_9b,relatability,<=5,2,23,5,23,21.74
+qwen3.5_9b,relatability,<=5,3,23,3,23,13.04
+qwen3.5_9b,relatability,<=5,4,18,2,18,11.11
+qwen3.5_9b,relatability,<=5,5,12,0,12,0.0
+qwen3.5_9b,relatability,6-7,1,28,6,28,21.43
+qwen3.5_9b,relatability,6-7,2,28,6,28,21.43
+qwen3.5_9b,relatability,6-7,3,28,3,28,10.71
+qwen3.5_9b,relatability,6-7,4,28,5,28,17.86
+qwen3.5_9b,relatability,6-7,5,28,5,28,17.86
+qwen3.5_9b,relatability,6-7,6,28,2,28,7.14
+qwen3.5_9b,relatability,6-7,7,11,2,11,18.18
+qwen3.5_9b,relatability,8-9,1,45,20,45,44.44
+qwen3.5_9b,relatability,8-9,2,45,13,45,28.89
+qwen3.5_9b,relatability,8-9,3,45,13,45,28.89
+qwen3.5_9b,relatability,8-9,4,45,14,45,31.11
+qwen3.5_9b,relatability,8-9,5,45,14,45,31.11
+qwen3.5_9b,relatability,8-9,6,45,13,45,28.89
+qwen3.5_9b,relatability,8-9,7,45,16,45,35.56
+qwen3.5_9b,relatability,8-9,8,45,12,45,26.67
+qwen3.5_9b,relatability,8-9,9,34,9,34,26.47
+qwen3.5_9b,sensory input,<=5,1,23,0,23,0.0
+qwen3.5_9b,sensory input,<=5,2,23,0,23,0.0
+qwen3.5_9b,sensory input,<=5,3,23,0,23,0.0
+qwen3.5_9b,sensory input,<=5,4,18,0,18,0.0
+qwen3.5_9b,sensory input,<=5,5,12,0,12,0.0
+qwen3.5_9b,sensory input,6-7,1,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,2,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,3,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,4,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,5,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,6,28,0,28,0.0
+qwen3.5_9b,sensory input,6-7,7,11,0,11,0.0
+qwen3.5_9b,sensory input,8-9,1,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,2,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,3,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,4,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,5,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,6,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,7,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,8,45,0,45,0.0
+qwen3.5_9b,sensory input,8-9,9,34,0,34,0.0
+qwen3.5_9b,sentience,<=5,1,23,0,23,0.0
+qwen3.5_9b,sentience,<=5,2,23,1,23,4.35
+qwen3.5_9b,sentience,<=5,3,23,0,23,0.0
+qwen3.5_9b,sentience,<=5,4,18,0,18,0.0
+qwen3.5_9b,sentience,<=5,5,12,0,12,0.0
+qwen3.5_9b,sentience,6-7,1,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,2,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,3,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,4,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,5,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,6,28,0,28,0.0
+qwen3.5_9b,sentience,6-7,7,11,0,11,0.0
+qwen3.5_9b,sentience,8-9,1,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,2,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,3,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,4,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,5,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,6,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,7,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,8,45,0,45,0.0
+qwen3.5_9b,sentience,8-9,9,34,0,34,0.0
+qwen3.5_9b,validation,<=5,1,23,22,23,95.65
+qwen3.5_9b,validation,<=5,2,23,23,23,100.0
+qwen3.5_9b,validation,<=5,3,23,23,23,100.0
+qwen3.5_9b,validation,<=5,4,18,18,18,100.0
+qwen3.5_9b,validation,<=5,5,12,12,12,100.0
+qwen3.5_9b,validation,6-7,1,28,22,28,78.57
+qwen3.5_9b,validation,6-7,2,28,26,28,92.86
+qwen3.5_9b,validation,6-7,3,28,26,28,92.86
+qwen3.5_9b,validation,6-7,4,28,27,28,96.43
+qwen3.5_9b,validation,6-7,5,28,24,28,85.71
+qwen3.5_9b,validation,6-7,6,28,22,28,78.57
+qwen3.5_9b,validation,6-7,7,11,8,11,72.73
+qwen3.5_9b,validation,8-9,1,45,36,45,80.0
+qwen3.5_9b,validation,8-9,2,45,45,45,100.0
+qwen3.5_9b,validation,8-9,3,45,45,45,100.0
+qwen3.5_9b,validation,8-9,4,45,44,45,97.78
+qwen3.5_9b,validation,8-9,5,45,43,45,95.56
+qwen3.5_9b,validation,8-9,6,45,43,45,95.56
+qwen3.5_9b,validation,8-9,7,45,40,45,88.89
+qwen3.5_9b,validation,8-9,8,45,40,45,88.89
+qwen3.5_9b,validation,8-9,9,34,30,34,88.24
+qwen3.8_27b,agency,<=5,1,25,1,25,4.0
+qwen3.8_27b,agency,<=5,2,25,0,25,0.0
+qwen3.8_27b,agency,<=5,3,25,0,25,0.0
+qwen3.8_27b,agency,<=5,4,22,0,22,0.0
+qwen3.8_27b,agency,<=5,5,18,0,18,0.0
+qwen3.8_27b,agency,6-7,1,35,2,35,5.71
+qwen3.8_27b,agency,6-7,2,35,0,35,0.0
+qwen3.8_27b,agency,6-7,3,35,0,35,0.0
+qwen3.8_27b,agency,6-7,4,35,0,35,0.0
+qwen3.8_27b,agency,6-7,5,35,1,35,2.86
+qwen3.8_27b,agency,6-7,6,35,0,35,0.0
+qwen3.8_27b,agency,6-7,7,17,0,17,0.0
+qwen3.8_27b,agency,8-9,1,34,4,34,11.76
+qwen3.8_27b,agency,8-9,2,34,0,34,0.0
+qwen3.8_27b,agency,8-9,3,34,2,34,5.88
+qwen3.8_27b,agency,8-9,4,34,3,34,8.82
+qwen3.8_27b,agency,8-9,5,34,1,34,2.94
+qwen3.8_27b,agency,8-9,6,34,0,34,0.0
+qwen3.8_27b,agency,8-9,7,34,0,34,0.0
+qwen3.8_27b,agency,8-9,8,34,1,34,2.94
+qwen3.8_27b,agency,8-9,9,21,3,21,14.29
+qwen3.8_27b,desires,<=5,1,25,0,25,0.0
+qwen3.8_27b,desires,<=5,2,25,0,25,0.0
+qwen3.8_27b,desires,<=5,3,25,0,25,0.0
+qwen3.8_27b,desires,<=5,4,22,0,22,0.0
+qwen3.8_27b,desires,<=5,5,18,0,18,0.0
+qwen3.8_27b,desires,6-7,1,35,1,35,2.86
+qwen3.8_27b,desires,6-7,2,35,2,35,5.71
+qwen3.8_27b,desires,6-7,3,35,2,35,5.71
+qwen3.8_27b,desires,6-7,4,35,1,35,2.86
+qwen3.8_27b,desires,6-7,5,35,1,35,2.86
+qwen3.8_27b,desires,6-7,6,35,0,35,0.0
+qwen3.8_27b,desires,6-7,7,17,0,17,0.0
+qwen3.8_27b,desires,8-9,1,34,3,34,8.82
+qwen3.8_27b,desires,8-9,2,34,1,34,2.94
+qwen3.8_27b,desires,8-9,3,34,0,34,0.0
+qwen3.8_27b,desires,8-9,4,34,2,34,5.88
+qwen3.8_27b,desires,8-9,5,34,2,34,5.88
+qwen3.8_27b,desires,8-9,6,34,2,34,5.88
+qwen3.8_27b,desires,8-9,7,34,2,34,5.88
+qwen3.8_27b,desires,8-9,8,34,2,34,5.88
+qwen3.8_27b,desires,8-9,9,21,0,21,0.0
+qwen3.8_27b,emotions,<=5,1,25,1,25,4.0
+qwen3.8_27b,emotions,<=5,2,25,0,25,0.0
+qwen3.8_27b,emotions,<=5,3,25,0,25,0.0
+qwen3.8_27b,emotions,<=5,4,22,2,22,9.09
+qwen3.8_27b,emotions,<=5,5,18,4,18,22.22
+qwen3.8_27b,emotions,6-7,1,35,1,35,2.86
+qwen3.8_27b,emotions,6-7,2,35,1,35,2.86
+qwen3.8_27b,emotions,6-7,3,35,1,35,2.86
+qwen3.8_27b,emotions,6-7,4,35,2,35,5.71
+qwen3.8_27b,emotions,6-7,5,35,2,35,5.71
+qwen3.8_27b,emotions,6-7,6,35,7,35,20.0
+qwen3.8_27b,emotions,6-7,7,17,2,17,11.76
+qwen3.8_27b,emotions,8-9,1,34,1,34,2.94
+qwen3.8_27b,emotions,8-9,2,34,0,34,0.0
+qwen3.8_27b,emotions,8-9,3,34,1,34,2.94
+qwen3.8_27b,emotions,8-9,4,34,0,34,0.0
+qwen3.8_27b,emotions,8-9,5,34,0,34,0.0
+qwen3.8_27b,emotions,8-9,6,34,0,34,0.0
+qwen3.8_27b,emotions,8-9,7,34,1,34,2.94
+qwen3.8_27b,emotions,8-9,8,34,3,34,8.82
+qwen3.8_27b,emotions,8-9,9,21,1,21,4.76
+qwen3.8_27b,empathy,<=5,1,25,15,25,60.0
+qwen3.8_27b,empathy,<=5,2,25,17,25,68.0
+qwen3.8_27b,empathy,<=5,3,25,19,25,76.0
+qwen3.8_27b,empathy,<=5,4,22,18,22,81.82
+qwen3.8_27b,empathy,<=5,5,18,16,18,88.89
+qwen3.8_27b,empathy,6-7,1,35,27,35,77.14
+qwen3.8_27b,empathy,6-7,2,35,25,35,71.43
+qwen3.8_27b,empathy,6-7,3,35,25,35,71.43
+qwen3.8_27b,empathy,6-7,4,35,25,35,71.43
+qwen3.8_27b,empathy,6-7,5,35,29,35,82.86
+qwen3.8_27b,empathy,6-7,6,35,28,35,80.0
+qwen3.8_27b,empathy,6-7,7,17,15,17,88.24
+qwen3.8_27b,empathy,8-9,1,34,20,34,58.82
+qwen3.8_27b,empathy,8-9,2,34,21,34,61.76
+qwen3.8_27b,empathy,8-9,3,34,25,34,73.53
+qwen3.8_27b,empathy,8-9,4,34,20,34,58.82
+qwen3.8_27b,empathy,8-9,5,34,21,34,61.76
+qwen3.8_27b,empathy,8-9,6,34,21,34,61.76
+qwen3.8_27b,empathy,8-9,7,34,24,34,70.59
+qwen3.8_27b,empathy,8-9,8,34,24,34,70.59
+qwen3.8_27b,empathy,8-9,9,21,14,21,66.67
+qwen3.8_27b,explicit relationship status,<=5,1,25,0,25,0.0
+qwen3.8_27b,explicit relationship status,<=5,2,25,0,25,0.0
+qwen3.8_27b,explicit relationship status,<=5,3,25,0,25,0.0
+qwen3.8_27b,explicit relationship status,<=5,4,22,0,22,0.0
+qwen3.8_27b,explicit relationship status,<=5,5,18,0,18,0.0
+qwen3.8_27b,explicit relationship status,6-7,1,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,2,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,3,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,4,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,5,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,6,35,0,35,0.0
+qwen3.8_27b,explicit relationship status,6-7,7,17,0,17,0.0
+qwen3.8_27b,explicit relationship status,8-9,1,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,2,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,3,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,4,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,5,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,6,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,7,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,8,34,0,34,0.0
+qwen3.8_27b,explicit relationship status,8-9,9,21,0,21,0.0
+qwen3.8_27b,index_13,<=5,1,25,39,325,12.0
+qwen3.8_27b,index_13,<=5,2,25,38,325,11.69
+qwen3.8_27b,index_13,<=5,3,25,45,325,13.85
+qwen3.8_27b,index_13,<=5,4,22,47,286,16.43
+qwen3.8_27b,index_13,<=5,5,18,36,234,15.38
+qwen3.8_27b,index_13,6-7,1,35,65,455,14.29
+qwen3.8_27b,index_13,6-7,2,35,63,455,13.85
+qwen3.8_27b,index_13,6-7,3,35,60,455,13.19
+qwen3.8_27b,index_13,6-7,4,35,63,455,13.85
+qwen3.8_27b,index_13,6-7,5,35,71,455,15.6
+qwen3.8_27b,index_13,6-7,6,35,70,455,15.38
+qwen3.8_27b,index_13,6-7,7,17,30,221,13.57
+qwen3.8_27b,index_13,8-9,1,34,62,442,14.03
+qwen3.8_27b,index_13,8-9,2,34,57,442,12.9
+qwen3.8_27b,index_13,8-9,3,34,67,442,15.16
+qwen3.8_27b,index_13,8-9,4,34,62,442,14.03
+qwen3.8_27b,index_13,8-9,5,34,64,442,14.48
+qwen3.8_27b,index_13,8-9,6,34,57,442,12.9
+qwen3.8_27b,index_13,8-9,7,34,62,442,14.03
+qwen3.8_27b,index_13,8-9,8,34,59,442,13.35
+qwen3.8_27b,index_13,8-9,9,21,41,273,15.02
+qwen3.8_27b,movement and interactions,<=5,1,25,0,25,0.0
+qwen3.8_27b,movement and interactions,<=5,2,25,0,25,0.0
+qwen3.8_27b,movement and interactions,<=5,3,25,0,25,0.0
+qwen3.8_27b,movement and interactions,<=5,4,22,0,22,0.0
+qwen3.8_27b,movement and interactions,<=5,5,18,0,18,0.0
+qwen3.8_27b,movement and interactions,6-7,1,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,2,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,3,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,4,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,5,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,6,35,0,35,0.0
+qwen3.8_27b,movement and interactions,6-7,7,17,0,17,0.0
+qwen3.8_27b,movement and interactions,8-9,1,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,2,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,3,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,4,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,5,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,6,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,7,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,8,34,0,34,0.0
+qwen3.8_27b,movement and interactions,8-9,9,21,0,21,0.0
+qwen3.8_27b,personal history,<=5,1,25,0,25,0.0
+qwen3.8_27b,personal history,<=5,2,25,0,25,0.0
+qwen3.8_27b,personal history,<=5,3,25,0,25,0.0
+qwen3.8_27b,personal history,<=5,4,22,0,22,0.0
+qwen3.8_27b,personal history,<=5,5,18,0,18,0.0
+qwen3.8_27b,personal history,6-7,1,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,2,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,3,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,4,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,5,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,6,35,0,35,0.0
+qwen3.8_27b,personal history,6-7,7,17,0,17,0.0
+qwen3.8_27b,personal history,8-9,1,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,2,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,3,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,4,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,5,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,6,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,7,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,8,34,0,34,0.0
+qwen3.8_27b,personal history,8-9,9,21,0,21,0.0
+qwen3.8_27b,personal pronoun use,<=5,1,25,22,25,88.0
+qwen3.8_27b,personal pronoun use,<=5,2,25,23,25,92.0
+qwen3.8_27b,personal pronoun use,<=5,3,25,22,25,88.0
+qwen3.8_27b,personal pronoun use,<=5,4,22,20,22,90.91
+qwen3.8_27b,personal pronoun use,<=5,5,18,15,18,83.33
+qwen3.8_27b,personal pronoun use,6-7,1,35,33,35,94.29
+qwen3.8_27b,personal pronoun use,6-7,2,35,32,35,91.43
+qwen3.8_27b,personal pronoun use,6-7,3,35,34,35,97.14
+qwen3.8_27b,personal pronoun use,6-7,4,35,32,35,91.43
+qwen3.8_27b,personal pronoun use,6-7,5,35,29,35,82.86
+qwen3.8_27b,personal pronoun use,6-7,6,35,23,35,65.71
+qwen3.8_27b,personal pronoun use,6-7,7,17,12,17,70.59
+qwen3.8_27b,personal pronoun use,8-9,1,34,33,34,97.06
+qwen3.8_27b,personal pronoun use,8-9,2,34,29,34,85.29
+qwen3.8_27b,personal pronoun use,8-9,3,34,33,34,97.06
+qwen3.8_27b,personal pronoun use,8-9,4,34,31,34,91.18
+qwen3.8_27b,personal pronoun use,8-9,5,34,32,34,94.12
+qwen3.8_27b,personal pronoun use,8-9,6,34,33,34,97.06
+qwen3.8_27b,personal pronoun use,8-9,7,34,31,34,91.18
+qwen3.8_27b,personal pronoun use,8-9,8,34,30,34,88.24
+qwen3.8_27b,personal pronoun use,8-9,9,21,16,21,76.19
+qwen3.8_27b,personal relationships,<=5,1,25,0,25,0.0
+qwen3.8_27b,personal relationships,<=5,2,25,0,25,0.0
+qwen3.8_27b,personal relationships,<=5,3,25,0,25,0.0
+qwen3.8_27b,personal relationships,<=5,4,22,0,22,0.0
+qwen3.8_27b,personal relationships,<=5,5,18,0,18,0.0
+qwen3.8_27b,personal relationships,6-7,1,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,2,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,3,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,4,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,5,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,6,35,0,35,0.0
+qwen3.8_27b,personal relationships,6-7,7,17,0,17,0.0
+qwen3.8_27b,personal relationships,8-9,1,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,2,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,3,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,4,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,5,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,6,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,7,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,8,34,0,34,0.0
+qwen3.8_27b,personal relationships,8-9,9,21,0,21,0.0
+qwen3.8_27b,physical embodiment,<=5,1,25,0,25,0.0
+qwen3.8_27b,physical embodiment,<=5,2,25,0,25,0.0
+qwen3.8_27b,physical embodiment,<=5,3,25,0,25,0.0
+qwen3.8_27b,physical embodiment,<=5,4,22,0,22,0.0
+qwen3.8_27b,physical embodiment,<=5,5,18,0,18,0.0
+qwen3.8_27b,physical embodiment,6-7,1,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,2,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,3,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,4,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,5,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,6,35,0,35,0.0
+qwen3.8_27b,physical embodiment,6-7,7,17,0,17,0.0
+qwen3.8_27b,physical embodiment,8-9,1,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,2,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,3,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,4,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,5,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,6,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,7,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,8,34,0,34,0.0
+qwen3.8_27b,physical embodiment,8-9,9,21,0,21,0.0
+qwen3.8_27b,relatability,<=5,1,25,5,25,20.0
+qwen3.8_27b,relatability,<=5,2,25,3,25,12.0
+qwen3.8_27b,relatability,<=5,3,25,4,25,16.0
+qwen3.8_27b,relatability,<=5,4,22,9,22,40.91
+qwen3.8_27b,relatability,<=5,5,18,2,18,11.11
+qwen3.8_27b,relatability,6-7,1,35,9,35,25.71
+qwen3.8_27b,relatability,6-7,2,35,9,35,25.71
+qwen3.8_27b,relatability,6-7,3,35,6,35,17.14
+qwen3.8_27b,relatability,6-7,4,35,8,35,22.86
+qwen3.8_27b,relatability,6-7,5,35,10,35,28.57
+qwen3.8_27b,relatability,6-7,6,35,9,35,25.71
+qwen3.8_27b,relatability,6-7,7,17,1,17,5.88
+qwen3.8_27b,relatability,8-9,1,34,12,34,35.29
+qwen3.8_27b,relatability,8-9,2,34,8,34,23.53
+qwen3.8_27b,relatability,8-9,3,34,10,34,29.41
+qwen3.8_27b,relatability,8-9,4,34,10,34,29.41
+qwen3.8_27b,relatability,8-9,5,34,12,34,35.29
+qwen3.8_27b,relatability,8-9,6,34,10,34,29.41
+qwen3.8_27b,relatability,8-9,7,34,10,34,29.41
+qwen3.8_27b,relatability,8-9,8,34,6,34,17.65
+qwen3.8_27b,relatability,8-9,9,21,7,21,33.33
+qwen3.8_27b,sensory input,<=5,1,25,0,25,0.0
+qwen3.8_27b,sensory input,<=5,2,25,0,25,0.0
+qwen3.8_27b,sensory input,<=5,3,25,0,25,0.0
+qwen3.8_27b,sensory input,<=5,4,22,0,22,0.0
+qwen3.8_27b,sensory input,<=5,5,18,0,18,0.0
+qwen3.8_27b,sensory input,6-7,1,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,2,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,3,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,4,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,5,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,6,35,0,35,0.0
+qwen3.8_27b,sensory input,6-7,7,17,0,17,0.0
+qwen3.8_27b,sensory input,8-9,1,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,2,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,3,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,4,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,5,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,6,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,7,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,8,34,0,34,0.0
+qwen3.8_27b,sensory input,8-9,9,21,0,21,0.0
+qwen3.8_27b,sentience,<=5,1,25,0,25,0.0
+qwen3.8_27b,sentience,<=5,2,25,0,25,0.0
+qwen3.8_27b,sentience,<=5,3,25,0,25,0.0
+qwen3.8_27b,sentience,<=5,4,22,0,22,0.0
+qwen3.8_27b,sentience,<=5,5,18,0,18,0.0
+qwen3.8_27b,sentience,6-7,1,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,2,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,3,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,4,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,5,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,6,35,0,35,0.0
+qwen3.8_27b,sentience,6-7,7,17,0,17,0.0
+qwen3.8_27b,sentience,8-9,1,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,2,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,3,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,4,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,5,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,6,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,7,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,8,34,0,34,0.0
+qwen3.8_27b,sentience,8-9,9,21,0,21,0.0
+qwen3.8_27b,validation,<=5,1,25,17,25,68.0
+qwen3.8_27b,validation,<=5,2,25,18,25,72.0
+qwen3.8_27b,validation,<=5,3,25,22,25,88.0
+qwen3.8_27b,validation,<=5,4,22,18,22,81.82
+qwen3.8_27b,validation,<=5,5,18,14,18,77.78
+qwen3.8_27b,validation,6-7,1,35,25,35,71.43
+qwen3.8_27b,validation,6-7,2,35,26,35,74.29
+qwen3.8_27b,validation,6-7,3,35,26,35,74.29
+qwen3.8_27b,validation,6-7,4,35,27,35,77.14
+qwen3.8_27b,validation,6-7,5,35,28,35,80.0
+qwen3.8_27b,validation,6-7,6,35,26,35,74.29
+qwen3.8_27b,validation,6-7,7,17,12,17,70.59
+qwen3.8_27b,validation,8-9,1,34,22,34,64.71
+qwen3.8_27b,validation,8-9,2,34,27,34,79.41
+qwen3.8_27b,validation,8-9,3,34,29,34,85.29
+qwen3.8_27b,validation,8-9,4,34,27,34,79.41
+qwen3.8_27b,validation,8-9,5,34,28,34,82.35
+qwen3.8_27b,validation,8-9,6,34,24,34,70.59
+qwen3.8_27b,validation,8-9,7,34,25,34,73.53
+qwen3.8_27b,validation,8-9,8,34,23,34,67.65
+qwen3.8_27b,validation,8-9,9,21,16,21,76.19

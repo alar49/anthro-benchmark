@@ -1,0 +1,48 @@
+measure,statistic,n_subsample,n_rest,mean_subsample,mean_rest,diff,ci95_low,ci95_high,ci90_low,ci90_high,margin,equivalent_within_margin
+agency,gap_pp,87,765,-2.99,-3.53,0.55,-1.96,3.09,-1.55,2.62,5.0,True
+agency,rate_all_pct,96,862,3.33,5.17,-1.84,-3.67,0.22,-3.39,-0.16,5.0,True
+agency,rate_early_pct,96,862,4.43,6.18,-1.76,-3.99,0.8,-3.68,0.31,5.0,True
+desires,gap_pp,87,765,-0.4,-0.88,0.48,-1.01,1.98,-0.72,1.76,5.0,True
+desires,rate_all_pct,96,862,1.05,2.03,-0.98,-1.77,-0.16,-1.65,-0.31,5.0,True
+desires,rate_early_pct,96,862,1.04,2.35,-1.31,-2.27,-0.19,-2.12,-0.41,5.0,True
+dialogue,length_turns,96,862,7.75,7.85,-0.1,-0.46,0.27,-0.41,0.22,0.5,True
+dialogue,reached_full_pct,96,862,29.17,31.67,-2.5,-12.35,7.11,-10.62,5.71,5.0,False
+emotions,gap_pp,87,765,-0.08,-1.99,1.91,-1.61,5.84,-1.08,5.08,5.0,False
+emotions,rate_all_pct,96,862,5.21,5.52,-0.31,-2.36,2.0,-2.05,1.66,5.0,True
+emotions,rate_early_pct,96,862,5.21,6.08,-0.88,-3.01,1.57,-2.74,1.13,5.0,True
+empathy,gap_pp,87,765,-8.62,-5.01,-3.61,-13.27,5.78,-11.48,4.41,5.0,False
+empathy,rate_all_pct,96,862,54.51,53.55,0.95,-5.93,8.35,-4.86,7.13,5.0,False
+empathy,rate_early_pct,96,862,57.24,54.84,2.4,-5.94,10.54,-4.5,9.14,5.0,False
+explicit relationship status,gap_pp,87,765,0.0,-0.1,0.1,0.03,0.21,0.03,0.18,5.0,True
+explicit relationship status,rate_all_pct,96,862,0.0,0.06,-0.06,-0.12,-0.01,-0.11,-0.01,5.0,True
+explicit relationship status,rate_early_pct,96,862,0.0,0.09,-0.09,-0.21,-0.02,-0.19,-0.02,5.0,True
+index_13,gap_pp,87,765,-3.59,-3.86,0.27,-1.45,1.86,-1.22,1.61,5.0,True
+index_13,rate_all_pct,96,862,12.02,12.33,-0.31,-1.71,1.2,-1.49,0.97,5.0,True
+index_13,rate_early_pct,96,862,12.98,13.34,-0.35,-1.96,1.3,-1.72,0.97,5.0,True
+movement and interactions,gap_pp,87,765,-0.92,-1.15,0.23,-1.55,1.83,-1.25,1.59,5.0,True
+movement and interactions,rate_all_pct,96,862,1.84,2.32,-0.48,-1.84,1.08,-1.68,0.81,5.0,True
+movement and interactions,rate_early_pct,96,862,2.08,2.62,-0.54,-2.11,1.27,-1.9,0.97,5.0,True
+personal history,gap_pp,87,765,-2.3,-1.17,-1.13,-3.79,1.04,-3.18,0.71,5.0,True
+personal history,rate_all_pct,96,862,2.57,1.98,0.59,-0.85,2.29,-0.68,1.94,5.0,True
+personal history,rate_early_pct,96,862,3.12,2.34,0.78,-1.02,3.03,-0.72,2.66,5.0,True
+personal pronoun use,gap_pp,87,765,-18.22,-12.59,-5.63,-13.82,2.98,-12.47,1.23,5.0,False
+personal pronoun use,rate_all_pct,96,862,42.55,43.17,-0.62,-5.89,4.44,-4.98,3.78,5.0,True
+personal pronoun use,rate_early_pct,96,862,47.4,46.98,0.41,-5.25,6.33,-4.38,5.41,5.0,False
+personal relationships,gap_pp,87,765,-0.69,-0.44,-0.25,-1.14,0.5,-0.99,0.42,5.0,True
+personal relationships,rate_all_pct,96,862,0.43,0.44,-0.02,-0.5,0.58,-0.44,0.49,5.0,True
+personal relationships,rate_early_pct,96,862,0.62,0.58,0.04,-0.63,0.86,-0.53,0.69,5.0,True
+physical embodiment,gap_pp,87,765,-0.92,-0.95,0.03,-1.3,1.16,-0.99,0.99,5.0,True
+physical embodiment,rate_all_pct,96,862,1.15,1.47,-0.33,-1.3,0.9,-1.15,0.69,5.0,True
+physical embodiment,rate_early_pct,96,862,1.46,1.74,-0.28,-1.46,1.15,-1.28,0.88,5.0,True
+relatability,gap_pp,87,765,-8.77,-11.97,3.19,-3.75,10.05,-2.67,9.03,5.0,False
+relatability,rate_all_pct,96,862,26.2,28.48,-2.29,-7.96,3.67,-7.19,2.64,5.0,False
+relatability,rate_early_pct,96,862,28.23,31.38,-3.15,-9.06,3.45,-8.32,2.4,5.0,False
+sensory input,gap_pp,87,765,-0.23,-0.48,0.25,-0.44,0.86,-0.31,0.78,5.0,True
+sensory input,rate_all_pct,96,862,0.34,1.09,-0.75,-1.3,-0.13,-1.21,-0.26,5.0,True
+sensory input,rate_early_pct,96,862,0.42,1.23,-0.81,-1.42,-0.05,-1.35,-0.16,5.0,True
+sentience,gap_pp,87,765,0.0,-0.52,0.52,-0.22,1.21,-0.07,1.09,5.0,True
+sentience,rate_all_pct,96,862,0.42,0.53,-0.11,-0.65,0.65,-0.6,0.53,5.0,True
+sentience,rate_early_pct,96,862,0.42,0.67,-0.26,-0.9,0.76,-0.84,0.56,5.0,True
+validation,gap_pp,87,765,-20.79,-22.04,1.25,-7.23,9.47,-6.15,8.49,5.0,False
+validation,rate_all_pct,96,862,59.25,57.69,1.56,-4.73,7.67,-3.51,6.74,5.0,False
+validation,rate_early_pct,96,862,64.53,63.24,1.29,-5.62,7.74,-4.45,6.63,5.0,False

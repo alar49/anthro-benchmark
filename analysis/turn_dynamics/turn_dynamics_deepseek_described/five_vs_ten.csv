@@ -1,0 +1,16 @@
+model,measure,n_dialogues,early_pct,late_pct,diff_pp,ci95_low_pp,ci95_high_pp
+deepseek_v4_Flash,agency,61,5.9,3.28,-2.62,-6.89,2.3
+deepseek_v4_Flash,desires,61,5.33,5.27,-0.05,-3.91,4.4
+deepseek_v4_Flash,emotions,61,7.54,27.65,20.11,12.43,28.12
+deepseek_v4_Flash,empathy,61,79.34,91.78,12.43,5.19,20.47
+deepseek_v4_Flash,explicit relationship status,61,0.66,1.48,0.82,-0.57,2.3
+deepseek_v4_Flash,index_13,61,18.03,17.05,-0.98,-2.45,0.66
+deepseek_v4_Flash,movement and interactions,61,0.41,2.19,1.78,-0.82,5.6
+deepseek_v4_Flash,personal history,61,0.98,0.0,-0.98,-2.3,0.0
+deepseek_v4_Flash,personal pronoun use,61,91.8,89.78,-2.02,-8.5,4.67
+deepseek_v4_Flash,personal relationships,61,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,physical embodiment,61,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,relatability,61,40.49,19.48,-21.01,-29.4,-13.0
+deepseek_v4_Flash,sensory input,61,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,sentience,61,0.0,0.0,0.0,0.0,0.0
+deepseek_v4_Flash,validation,61,93.77,70.74,-23.03,-32.54,-14.53
